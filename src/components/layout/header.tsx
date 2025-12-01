@@ -3,12 +3,32 @@
 import { cn } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { usePathname } from "next/navigation"
+
+const pageTitles: Record<string, string> = {
+  "/": "",
+  "/approvals": "Approvals",
+  "/inbox": "Inbox",
+  "/prospects": "Prospects",
+  "/campaigns": "Campaigns",
+  "/studio": "Studio",
+  "/admin": "Admin View",
+  "/templates": "Templates",
+  "/profile": "Your Profile",
+  "/company": "Company Info",
+  "/intent": "Hodhod Intent",
+  "/seats": "Manage Seats",
+  "/integrations": "Integrations",
+}
 
 type HeaderProps = React.HTMLAttributes<HTMLElement> & {
   fixed?: boolean
 }
 
 export function Header({ className, fixed, children, ...props }: HeaderProps) {
+  const pathname = usePathname()
+  const title = pageTitles[pathname] || ""
+
   return (
     <header
       className={cn(
@@ -20,7 +40,12 @@ export function Header({ className, fixed, children, ...props }: HeaderProps) {
     >
       <div className="flex h-full items-center gap-4 p-4">
         <SidebarTrigger variant="outline" />
-        <Separator orientation="vertical" className="h-6" />
+        {title && (
+          <>
+            <Separator orientation="vertical" className="h-6" />
+            <span className="font-medium">{title}</span>
+          </>
+        )}
         {children}
       </div>
     </header>
