@@ -1,69 +1,79 @@
-"use client";
+"use client"
 
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
+  SidebarRail,
+} from "@/components/ui/sidebar"
 import {
   LayoutDashboard,
   Users,
   MessageSquare,
-  BarChart3,
-  Settings,
   Zap,
-} from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+  Command,
+  CheckCircle,
+  Sparkles,
+  Shield,
+  FileText,
+  User,
+  Building,
+  Target,
+  UserPlus,
+  Plug,
+} from "lucide-react"
+import { NavGroup } from "@/components/layout/nav-group"
+import { TeamSwitcher } from "@/components/layout/team-switcher"
 
-const navItems = [
-  { title: "Dashboard", href: "/", icon: LayoutDashboard },
-  { title: "Campaigns", href: "/campaigns", icon: Zap },
-  { title: "Prospects", href: "/prospects", icon: Users },
-  { title: "Inbox", href: "/inbox", icon: MessageSquare },
-  { title: "Analytics", href: "/analytics", icon: BarChart3 },
-  { title: "Settings", href: "/settings", icon: Settings },
-];
+const sidebarData = {
+  teams: [
+    {
+      name: "HODHOD",
+      logo: Command,
+      plan: "Pro",
+    },
+  ],
+  navGroups: [
+    {
+      title: "Workspace",
+      items: [
+        { title: "Dashboard", url: "/", icon: LayoutDashboard },
+        { title: "Approvals", url: "/approvals", icon: CheckCircle },
+        { title: "Inbox", url: "/inbox", icon: MessageSquare },
+        { title: "Prospects", url: "/prospects", icon: Users },
+        { title: "Campaigns", url: "/campaigns", icon: Zap },
+        { title: "Studio", url: "/studio", icon: Sparkles },
+      ],
+    },
+    {
+      title: "Organization",
+      items: [
+        { title: "Admin View", url: "/admin", icon: Shield },
+        { title: "Templates", url: "/templates", icon: FileText },
+        { title: "Your Profile", url: "/profile", icon: User },
+        { title: "Company Info", url: "/company", icon: Building },
+        { title: "Hodhod Intent", url: "/intent", icon: Target },
+        { title: "Manage Seats", url: "/seats", icon: UserPlus },
+        { title: "Integrations", url: "/integrations", icon: Plug },
+      ],
+    },
+  ],
+}
 
 export function AppSidebar() {
-  const pathname = usePathname();
-
   return (
-    <Sidebar>
-      <SidebarHeader className="border-b px-6 py-4">
-        <span className="text-xl font-bold">HODHOD</span>
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <TeamSwitcher teams={sidebarData.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.href}>
-                    <Link href={item.href}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {sidebarData.navGroups.map((props) => (
+          <NavGroup key={props.title} {...props} />
+        ))}
       </SidebarContent>
-      <SidebarFooter className="border-t p-4">
-        <div className="text-xs text-muted-foreground">
-          HODHOD Studios v0.1
-        </div>
-      </SidebarFooter>
+      <SidebarFooter />
+      <SidebarRail />
     </Sidebar>
-  );
+  )
 }
