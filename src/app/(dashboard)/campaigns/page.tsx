@@ -10,7 +10,6 @@ import {
   Plus,
   Search,
   ChevronDown,
-  ChevronRight,
   Pause,
   Play,
   Trash2,
@@ -484,7 +483,6 @@ function CampaignCard({
   onStatusChange: (status: CampaignStatus) => void;
   onDelete: () => void;
 }) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const statusCfg = statusConfig[campaign.status];
   const typeCfg = typeConfig[campaign.type];
 
@@ -566,25 +564,6 @@ function CampaignCard({
           </div>
         </div>
 
-        {/* Expandable Details */}
-        {campaign.totalProspects > 0 && (
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex w-full items-center gap-1 border-t px-4 py-2 text-sm text-muted-foreground hover:bg-muted/50"
-          >
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-            Prospect Fetch Details
-          </button>
-        )}
-        {isExpanded && (
-          <div className="border-t bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
-            <p>Prospect details and fetch history will appear here.</p>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
