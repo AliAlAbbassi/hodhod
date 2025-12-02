@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -162,6 +163,7 @@ const typeConfig: Record<CampaignType, { label: string; className: string }> = {
 };
 
 export default function CampaignsPage() {
+  const router = useRouter();
   const [campaigns, setCampaigns] = useState<Campaign[]>(initialCampaigns);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -247,10 +249,7 @@ export default function CampaignsPage() {
 
   const handleSelectCampaignType = (type: "ai" | "templated") => {
     setIsCreateModalOpen(false);
-    setEditingCampaign(null);
-    setFormData({ name: "", type: "inmail" });
-    setIsSheetOpen(true);
-    // In the future, you can handle different flows based on type
+    router.push(`/campaigns/create?type=${type}`);
   };
 
   return (
