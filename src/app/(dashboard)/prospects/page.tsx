@@ -96,6 +96,9 @@ const columns: ColumnDef<Prospect>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
+    cell: ({ row }) => (
+      <div className="px-3">{row.getValue("name")}</div>
+    ),
   },
   {
     accessorKey: "title",
@@ -119,17 +122,19 @@ const columns: ColumnDef<Prospect>[] = [
     cell: ({ row }) => {
       const score = row.getValue("icpScore") as number;
       return (
-        <span
-          className={
-            score >= 90
-              ? "text-green-600 font-medium"
-              : score >= 80
-                ? "text-yellow-600"
-                : "text-gray-600"
-          }
-        >
-          {score}
-        </span>
+        <div className="px-3">
+          <span
+            className={
+              score >= 90
+                ? "text-green-600 font-medium"
+                : score >= 80
+                  ? "text-yellow-600"
+                  : "text-gray-600"
+            }
+          >
+            {score}
+          </span>
+        </div>
       );
     },
   },
