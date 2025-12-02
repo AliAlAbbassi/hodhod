@@ -16,6 +16,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   X,
   ChevronDown,
   ChevronLeft,
@@ -87,6 +93,10 @@ export default function CreateCampaignPage() {
 
   // Step 2: Research Agents
   const [selectedAgents, setSelectedAgents] = useState<string[]>([]);
+
+  // LinkedIn URL Modal
+  const [isLinkedInUrlModalOpen, setIsLinkedInUrlModalOpen] = useState(false);
+  const [linkedInUrl, setLinkedInUrl] = useState("");
 
   const [sequenceSteps, setSequenceSteps] = useState<SequenceStep[]>([
     { id: "1", type: "connect", day: 1, channel: "message", isAiGenerated: true },
@@ -380,16 +390,6 @@ export default function CreateCampaignPage() {
               </DropdownMenu>
             </div>
 
-            {/* Campaign Name */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Campaign Name</label>
-              <Input
-                placeholder="e.g Hiring Outreach, Sales Outreach, etc."
-                value={campaignName}
-                onChange={(e) => setCampaignName(e.target.value)}
-              />
-            </div>
-
             {/* Reachout Through */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Reachout Through</label>
@@ -424,8 +424,13 @@ export default function CreateCampaignPage() {
                 We recommend a list of 500-1000 prospects for best results.
               </p>
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Linkedin className="h-4 w-4" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => setIsLinkedInUrlModalOpen(true)}
+                >
+                  <LinkIcon className="h-4 w-4" />
                   LinkedIn URL
                 </Button>
                 <Button variant="outline" size="sm" className="gap-2">
@@ -627,6 +632,41 @@ export default function CreateCampaignPage() {
           </div>
         </div>
       )}
+
+      {/* LinkedIn URL Modal */}
+      <Dialog open={isLinkedInUrlModalOpen} onOpenChange={setIsLinkedInUrlModalOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Upload Through LinkedIn URL</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-start gap-3 text-sm text-muted-foreground">
+              <Info className="h-4 w-4 mt-0.5 shrink-0" />
+              <p>
+                Hodhod accepts search URLs from LinkedIn and Sales Navigator, including saved and shared searches.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">LinkedIn URL</label>
+              <Input
+                placeholder="Enter LinkedIn or Sales Navigator Search URL"
+                value={linkedInUrl}
+                onChange={(e) => setLinkedInUrl(e.target.value)}
+              />
+            </div>
+            <Button
+              className="w-full"
+              onClick={() => {
+                // Handle adding the URL
+                setIsLinkedInUrlModalOpen(false);
+                setLinkedInUrl("");
+              }}
+            >
+              Add
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
