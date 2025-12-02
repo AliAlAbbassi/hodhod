@@ -190,7 +190,7 @@ const categories: {
   icon: React.ElementType;
   count: number;
 }[] = [
-  { id: "inbox", label: "Inbox", icon: Mail, count: 40 },
+  { id: "inbox", label: "Messages", icon: Mail, count: 40 },
   { id: "interested", label: "Interested", icon: Sparkles, count: 25 },
   { id: "maybe_interested", label: "Maybe Interested", icon: HelpCircle, count: 6 },
   { id: "not_interested", label: "Not interested", icon: ThumbsDown, count: 11 },
@@ -302,7 +302,7 @@ export default function InboxPage() {
           <button className="w-full flex items-center justify-between px-2 py-1.5 hover:bg-muted/50 rounded-md transition-colors">
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Inbox</span>
+              <span className="font-medium">Messages</span>
               <span className="text-muted-foreground text-sm">{categories[0].count}</span>
             </div>
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
