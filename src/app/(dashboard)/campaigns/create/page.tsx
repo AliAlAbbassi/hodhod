@@ -122,6 +122,9 @@ export default function CreateCampaignPage() {
   const [isLinkedInUrlModalOpen, setIsLinkedInUrlModalOpen] = useState(false);
   const [linkedInUrl, setLinkedInUrl] = useState("");
 
+  // Confirm Resource Modal
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
   // Uploaded files
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
@@ -264,9 +267,15 @@ export default function CreateCampaignPage() {
     if (currentStep < 2) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Create campaign and redirect
-      router.push("/campaigns");
+      // Show confirmation modal
+      setIsConfirmModalOpen(true);
     }
+  };
+
+  const handleConfirmCreate = () => {
+    setIsConfirmModalOpen(false);
+    // Create campaign and redirect
+    router.push("/campaigns");
   };
 
   const handleBack = () => {
@@ -883,6 +892,26 @@ export default function CreateCampaignPage() {
               }}
             >
               Add
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirm Resource Modal */}
+      <Dialog open={isConfirmModalOpen} onOpenChange={setIsConfirmModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm Resource</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            A file is being used to upload your prospects. Please confirm as this action cannot be reversed.
+          </p>
+          <div className="flex justify-end gap-3 mt-4">
+            <Button variant="ghost" onClick={() => setIsConfirmModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmCreate}>
+              Proceed
             </Button>
           </div>
         </DialogContent>
