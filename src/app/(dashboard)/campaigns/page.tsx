@@ -18,6 +18,10 @@ import {
   Pencil,
   Info,
   Loader2,
+  SlidersHorizontal,
+  Calendar,
+  ArrowUpDown,
+  Linkedin,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -56,32 +60,34 @@ type Campaign = {
   reachouts: number;
   acceptanceRate: number;
   responseRate: number;
+  prospectPoolSize: number;
   isFetching?: boolean;
 };
 
 const initialCampaigns: Campaign[] = [
   {
     id: "1",
-    name: "Hodhod TEST TEST",
+    name: "Positive Response List (from Shubh) - Open Profiles",
     status: "in_progress",
     type: "inmail",
-    createdAt: "04/30/2025",
-    totalProspects: 19,
-    reachouts: 0,
-    acceptanceRate: 0,
-    responseRate: 0,
-    isFetching: true,
+    createdAt: "04/01/2025",
+    totalProspects: 381,
+    reachouts: 361,
+    acceptanceRate: 100,
+    responseRate: 18,
+    prospectPoolSize: 927,
   },
   {
     id: "2",
-    name: "Engaged List By Shubh 4/28 (open Profiles) - Part 1/3",
+    name: "Positive Response List (from Shubh) - Closed Profiles",
     status: "in_progress",
-    type: "inmail",
-    createdAt: "04/29/2025",
-    totalProspects: 556,
-    reachouts: 15,
-    acceptanceRate: 100,
-    responseRate: 13,
+    type: "messaging",
+    createdAt: "04/01/2025",
+    totalProspects: 510,
+    reachouts: 243,
+    acceptanceRate: 53,
+    responseRate: 55,
+    prospectPoolSize: 927,
   },
   {
     id: "3",
@@ -93,6 +99,7 @@ const initialCampaigns: Campaign[] = [
     reachouts: 42,
     acceptanceRate: 40,
     responseRate: 53,
+    prospectPoolSize: 850,
   },
   {
     id: "4",
@@ -104,6 +111,8 @@ const initialCampaigns: Campaign[] = [
     reachouts: 0,
     acceptanceRate: 0,
     responseRate: 0,
+    prospectPoolSize: 200,
+    isFetching: true,
   },
   {
     id: "5",
@@ -115,6 +124,7 @@ const initialCampaigns: Campaign[] = [
     reachouts: 0,
     acceptanceRate: 0,
     responseRate: 0,
+    prospectPoolSize: 500,
   },
   {
     id: "6",
@@ -126,39 +136,38 @@ const initialCampaigns: Campaign[] = [
     reachouts: 309,
     acceptanceRate: 100,
     responseRate: 12,
+    prospectPoolSize: 600,
   },
 ];
 
 const statusConfig: Record<
   CampaignStatus,
-  { label: string; className: string }
+  { label: string; dotColor?: string }
 > = {
   in_progress: {
     label: "In Progress",
-    className: "bg-green-100 text-green-700 border-green-200",
+    dotColor: "bg-green-500",
   },
   paused: {
     label: "Paused",
-    className: "bg-yellow-100 text-yellow-700 border-yellow-200",
+    dotColor: "bg-yellow-500",
   },
   completed: {
     label: "Completed",
-    className: "bg-gray-100 text-gray-700 border-gray-200",
+    dotColor: "bg-gray-500",
   },
   draft: {
     label: "Draft",
-    className: "bg-gray-100 text-gray-600 border-gray-200",
+    dotColor: "bg-gray-400",
   },
 };
 
-const typeConfig: Record<CampaignType, { label: string; className: string }> = {
+const typeConfig: Record<CampaignType, { label: string }> = {
   inmail: {
     label: "InMail",
-    className: "bg-blue-100 text-blue-700 border-blue-200",
   },
   messaging: {
     label: "Messaging",
-    className: "bg-purple-100 text-purple-700 border-purple-200",
   },
 };
 
@@ -174,9 +183,9 @@ export default function CampaignsPage() {
   const [sortBy, setSortBy] = useState<SortOption>("recent");
 
   // LinkedIn limits (mock data)
-  const connectsSent = 12;
+  const connectsSent = 20;
   const connectsLimit = 25;
-  const inmailsSent = 31;
+  const inmailsSent = 32;
   const inmailsLimit = 40;
 
   const activeCampaigns = campaigns.filter((c) => c.status === "in_progress");
@@ -192,7 +201,6 @@ export default function CampaignsPage() {
       if (sortBy === "alphabetically") {
         return a.name.localeCompare(b.name);
       }
-      // Sort by date (recent first)
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
@@ -232,6 +240,7 @@ export default function CampaignsPage() {
         reachouts: 0,
         acceptanceRate: 0,
         responseRate: 0,
+        prospectPoolSize: 0,
       };
       setCampaigns((prev) => [...prev, newCampaign]);
     }
@@ -256,18 +265,19 @@ export default function CampaignsPage() {
     <div className="space-y-6">
       {/* Filter Bar */}
       <div className="flex items-center gap-3">
-        <div className="relative">
+        <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-48 pl-9"
+            className="pl-9"
           />
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="gap-2">
+              <SlidersHorizontal className="h-4 w-4" />
               Status
               <ChevronDown className="h-4 w-4" />
             </Button>
@@ -291,14 +301,25 @@ export default function CampaignsPage() {
           </DropdownMenuContent>
         </DropdownMenu>
         <Button variant="outline" className="gap-2">
+          <Calendar className="h-4 w-4" />
           Date
           <ChevronDown className="h-4 w-4" />
         </Button>
         <div className="ml-auto">
-          <Button variant="outline" className="gap-2">
-            Today
-            <ChevronDown className="h-4 w-4" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                Today
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>Today</DropdownMenuItem>
+              <DropdownMenuItem>Last 7 days</DropdownMenuItem>
+              <DropdownMenuItem>Last 30 days</DropdownMenuItem>
+              <DropdownMenuItem>All time</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -310,22 +331,22 @@ export default function CampaignsPage() {
             LinkedIn Connects Sent ({connectsSent})
             <Info className="h-4 w-4 text-muted-foreground" />
           </div>
-          <div className="relative h-3 w-full rounded-full bg-gray-200">
+          <div className="relative h-4 w-full">
+            <div className="absolute inset-0 rounded-full bg-gray-200" />
             <div
-              className="absolute left-0 h-full rounded-full transition-all"
+              className="absolute left-0 top-0 h-full rounded-full transition-all"
               style={{
                 width: `${(connectsSent / connectsLimit) * 100}%`,
-                backgroundColor: "#10DD9B",
+                background: "linear-gradient(90deg, #10DD9B 0%, #0EA5E9 100%)",
               }}
             />
+            {/* Limit marker */}
             <div
-              className="absolute top-1/2 -translate-y-1/2 text-xs font-medium"
-              style={{ left: `${(connectsLimit / connectsLimit) * 100 - 2}%` }}
+              className="absolute top-0 flex flex-col items-center"
+              style={{ left: `calc(${(connectsLimit / (connectsLimit + 10)) * 100}% - 1px)` }}
             >
-              <div className="flex flex-col items-center">
-                <span className="text-muted-foreground">{connectsLimit}</span>
-                <div className="h-4 w-px bg-gray-400" />
-              </div>
+              <span className="text-xs text-muted-foreground mb-1">{connectsLimit}</span>
+              <div className="h-4 border-l border-dashed border-gray-400" />
             </div>
           </div>
         </div>
@@ -336,22 +357,22 @@ export default function CampaignsPage() {
             LinkedIn InMails Sent ({inmailsSent})
             <Info className="h-4 w-4 text-muted-foreground" />
           </div>
-          <div className="relative h-3 w-full rounded-full bg-gray-200">
+          <div className="relative h-4 w-full">
+            <div className="absolute inset-0 rounded-full bg-gray-200" />
             <div
-              className="absolute left-0 h-full rounded-full transition-all"
+              className="absolute left-0 top-0 h-full rounded-full transition-all"
               style={{
                 width: `${(inmailsSent / inmailsLimit) * 100}%`,
-                backgroundColor: "#10DD9B",
+                background: "linear-gradient(90deg, #10DD9B 0%, #0EA5E9 100%)",
               }}
             />
+            {/* Limit marker */}
             <div
-              className="absolute top-1/2 -translate-y-1/2 text-xs font-medium"
-              style={{ left: `${(inmailsLimit / inmailsLimit) * 100 - 2}%` }}
+              className="absolute top-0 flex flex-col items-center"
+              style={{ left: `calc(${(inmailsLimit / (inmailsLimit + 10)) * 100}% - 1px)` }}
             >
-              <div className="flex flex-col items-center">
-                <span className="text-muted-foreground">{inmailsLimit}</span>
-                <div className="h-4 w-px bg-gray-400" />
-              </div>
+              <span className="text-xs text-muted-foreground mb-1">{inmailsLimit}</span>
+              <div className="h-4 border-l border-dashed border-gray-400" />
             </div>
           </div>
         </div>
@@ -361,27 +382,20 @@ export default function CampaignsPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">
           Active Campaigns{" "}
-          <span className="text-muted-foreground">{activeCampaigns.length}</span>
+          <span className="text-muted-foreground font-normal">{activeCampaigns.length}</span>
         </h2>
-        <div className="flex items-center gap-1 text-sm">
+        <div className="flex items-center gap-2 text-sm">
+          <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
           <button
             onClick={() => setSortBy("recent")}
-            className={`px-2 py-1 ${
-              sortBy === "recent"
-                ? "font-medium text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+            className={sortBy === "recent" ? "font-medium" : "text-muted-foreground hover:text-foreground"}
           >
             Recent
           </button>
           <span className="text-muted-foreground">|</span>
           <button
             onClick={() => setSortBy("alphabetically")}
-            className={`px-2 py-1 ${
-              sortBy === "alphabetically"
-                ? "font-medium text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+            className={sortBy === "alphabetically" ? "font-medium" : "text-muted-foreground hover:text-foreground"}
           >
             Alphabetically
           </button>
@@ -421,7 +435,6 @@ export default function CampaignsPage() {
         <DialogContent className="sm:max-w-md">
           <DialogTitle className="text-xl font-semibold">Create Campaign</DialogTitle>
           <div className="mt-6 space-y-3">
-            {/* Valley AI Option */}
             <button
               onClick={() => handleSelectCampaignType("ai")}
               className="flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-muted/50"
@@ -441,7 +454,6 @@ export default function CampaignsPage() {
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </button>
 
-            {/* Templated Option */}
             <button
               onClick={() => handleSelectCampaignType("templated")}
               className="flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-muted/50"
@@ -539,23 +551,25 @@ function CampaignCard({
   onStatusChange: (status: CampaignStatus) => void;
   onDelete: () => void;
 }) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const statusCfg = statusConfig[campaign.status];
   const typeCfg = typeConfig[campaign.type];
+
+  // Calculate progress percentages for the prospect bar
+  const processedPercent = (campaign.totalProspects / campaign.prospectPoolSize) * 100;
+  const remainingPercent = 100 - processedPercent;
 
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-0">
         {/* Card Header */}
-        <div className="flex items-start justify-between p-4 pb-3">
-          <div className="space-y-1">
+        <div className="flex items-start justify-between p-4 pb-2">
+          <div className="flex-1 pr-2">
             <h3 className="font-semibold leading-tight">{campaign.name}</h3>
-            <p className="text-sm text-muted-foreground">
-              Created on {campaign.createdAt}
-            </p>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -590,18 +604,23 @@ function CampaignCard({
           </DropdownMenu>
         </div>
 
-        {/* Badges */}
-        <div className="flex gap-2 px-4 pb-4">
-          <Badge variant="outline" className={typeCfg.className}>
+        {/* Date and Badges */}
+        <div className="flex items-center gap-2 px-4 pb-4">
+          <span className="text-sm text-muted-foreground">
+            Created on {campaign.createdAt}
+          </span>
+          <Badge variant="outline" className="gap-1.5 font-normal">
+            <Linkedin className="h-3 w-3" />
             {typeCfg.label}
           </Badge>
-          <Badge variant="outline" className={statusCfg.className}>
+          <Badge variant="outline" className="gap-1.5 font-normal">
+            <span className={`h-2 w-2 rounded-full ${statusCfg.dotColor}`} />
             {statusCfg.label}
           </Badge>
         </div>
 
         {/* Metrics */}
-        <div className="grid grid-cols-4 gap-4 border-t bg-muted/30 px-4 py-4">
+        <div className="grid grid-cols-4 border-t px-4 py-4">
           <div className="text-center">
             <div className="text-xl font-bold">{campaign.totalProspects}</div>
             <div className="text-xs text-muted-foreground">Total Prospects</div>
@@ -620,12 +639,51 @@ function CampaignCard({
           </div>
         </div>
 
-        {/* Loading State */}
-        {campaign.isFetching && (
+        {/* Prospect Progress Bar */}
+        {campaign.prospectPoolSize > 0 && (
+          <div className="px-4 pb-3">
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-2 rounded-full overflow-hidden bg-gray-100 flex">
+                <div
+                  className="h-full bg-[#0EA5E9]"
+                  style={{ width: `${processedPercent * 0.85}%` }}
+                />
+                <div
+                  className="h-full bg-[#F97316]"
+                  style={{ width: `${Math.min(remainingPercent, 15)}%` }}
+                />
+              </div>
+              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                {campaign.prospectPoolSize} prospects
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Prospect Fetch Details - Expandable or Loading */}
+        {campaign.isFetching ? (
           <div className="flex items-center gap-2 border-t px-4 py-3 text-sm text-muted-foreground">
             <ChevronRight className="h-4 w-4" />
             <span>Prospect Fetch Details</span>
             <Loader2 className="ml-auto h-4 w-4 animate-spin" />
+          </div>
+        ) : (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex w-full items-center gap-2 border-t px-4 py-3 text-sm text-muted-foreground hover:bg-muted/50 transition-colors"
+          >
+            <ChevronRight className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
+            <span>Prospect Fetch Details</span>
+          </button>
+        )}
+
+        {isExpanded && !campaign.isFetching && (
+          <div className="border-t bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+            <div className="space-y-1">
+              <p>Pool size: {campaign.prospectPoolSize} prospects</p>
+              <p>Processed: {campaign.totalProspects} prospects</p>
+              <p>Remaining: {campaign.prospectPoolSize - campaign.totalProspects} prospects</p>
+            </div>
           </div>
         )}
       </CardContent>
