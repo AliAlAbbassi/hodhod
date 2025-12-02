@@ -63,13 +63,34 @@ type WaitStep = {
   days: number;
 };
 
-// Available research agents
+// Research agent categories
+const agentCategories = [
+  { id: "all", name: "All" },
+  { id: "prospect", name: "Prospect Insights" },
+  { id: "company", name: "Company Insights" },
+  { id: "industry", name: "Industry & Market" },
+  { id: "media", name: "Media & Public Perception" },
+  { id: "economic", name: "Economic & Regulatory Context" },
+];
+
+// Available research agents grouped by category
 const researchAgents = [
-  { id: "company", name: "Company Research", icon: Building, description: "Analyze company size, industry, and recent news" },
-  { id: "role", name: "Role Analysis", icon: Briefcase, description: "Understand prospect's role and responsibilities" },
-  { id: "engagement", name: "Engagement History", icon: TrendingUp, description: "Review LinkedIn activity and engagement patterns" },
-  { id: "connections", name: "Mutual Connections", icon: Users, description: "Find shared connections and networks" },
-  { id: "content", name: "Content Analysis", icon: Search, description: "Analyze posts, articles, and shared content" },
+  // Prospect Insights
+  { id: "prospect-research", name: "Prospect Research", category: "prospect", description: "Enriches prospect data with verified business information, contact details, and professional insights to create comprehensive and actionable prospect profiles" },
+  { id: "prospect-deep-dive", name: "Prospect Deep Dive", category: "prospect", description: "Delivers an in-depth analysis of prospect-specific data, offering a detailed profile to refine engagement strategies" },
+  // Company Insights
+  { id: "company-deep-dive", name: "Company Deep Dive", category: "company", description: "A comprehensive report on a company's overall standing, including history, business model, and key operational insights" },
+  { id: "hiring-trends", name: "Hiring Trends", category: "company", description: "Shows trends in hiring within the company or sector, indicating growth or focus areas, which can be used to align outreach with their needs" },
+  { id: "corporate-culture", name: "Corporate Culture", category: "company", description: "Provides insights into the internal culture of a company, including values, work environment, and employee satisfaction" },
+  // Industry & Market
+  { id: "industry-analysis", name: "Industry Analysis", category: "industry", description: "Analyzes the broader industry landscape, identifying key trends, challenges, and opportunities" },
+  { id: "market-position", name: "Market Position", category: "industry", description: "Evaluates the company's position within its market, including competitive advantages and market share" },
+  // Media & Public Perception
+  { id: "news-sentiment", name: "News & Sentiment", category: "media", description: "Tracks recent news coverage and public sentiment around the company or prospect" },
+  { id: "social-presence", name: "Social Presence", category: "media", description: "Analyzes the company's social media presence and engagement patterns" },
+  // Economic & Regulatory
+  { id: "financial-health", name: "Financial Health", category: "economic", description: "Provides insights into the company's financial standing and recent performance indicators" },
+  { id: "regulatory-landscape", name: "Regulatory Landscape", category: "economic", description: "Identifies relevant regulations and compliance requirements affecting the company" },
 ];
 
 export default function CreateCampaignPage() {
@@ -94,7 +115,8 @@ export default function CreateCampaignPage() {
   const [autopilot, setAutopilot] = useState(false);
 
   // Step 2: Research Agents
-  const [selectedAgents, setSelectedAgents] = useState<string[]>([]);
+  const [selectedAgents, setSelectedAgents] = useState<string[]>(["prospect-research"]);
+  const [agentCategoryFilter, setAgentCategoryFilter] = useState("all");
 
   // LinkedIn URL Modal
   const [isLinkedInUrlModalOpen, setIsLinkedInUrlModalOpen] = useState(false);
@@ -281,9 +303,16 @@ export default function CreateCampaignPage() {
               <span className="text-muted-foreground">Step {currentStep} of 2</span>
             </div>
           </div>
-          <Button onClick={handleNext}>
-            {currentStep === 2 ? "Create Campaign" : "Next"}
-          </Button>
+          <div className="flex items-center gap-2">
+            {currentStep === 2 && (
+              <Button variant="ghost" onClick={handleBack}>
+                Back
+              </Button>
+            )}
+            <Button onClick={handleNext}>
+              {currentStep === 2 ? "Create" : "Next"}
+            </Button>
+          </div>
         </div>
 
         {/* Step 1: Sequence Builder */}
@@ -441,50 +470,86 @@ export default function CreateCampaignPage() {
         {/* Step 2: Research Agents */}
         {currentStep === 2 && (
           <div className="flex-1 overflow-auto p-8">
-            <div className="mx-auto max-w-2xl">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold mb-2">Select Research Agents</h2>
-                <p className="text-muted-foreground">
-                  Choose up to 5 research agents to run on each prospect and their company for message personalization.
-                </p>
+            <div className="mx-auto max-w-4xl">
+              {/* Max selection notice */}
+              <p className="text-sm text-muted-foreground mb-4">
+                Max 5 can be selected
+              </p>
+
+              {/* Category Tabs */}
+              <div className="flex flex-wrap gap-2 mb-8">
+                {agentCategories.map((category) => (
+                  <Button
+                    key={category.id}
+                    variant={agentCategoryFilter === category.id ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setAgentCategoryFilter(category.id)}
+                  >
+                    {category.name}
+                  </Button>
+                ))}
               </div>
 
-              <div className="grid gap-4">
-                {researchAgents.map((agent) => {
-                  const Icon = agent.icon;
-                  const isSelected = selectedAgents.includes(agent.id);
+              {/* Agents grouped by category */}
+              {agentCategories
+                .filter((cat) => cat.id !== "all")
+                .filter((cat) => agentCategoryFilter === "all" || agentCategoryFilter === cat.id)
+                .map((category) => {
+                  const categoryAgents = researchAgents.filter((a) => a.category === category.id);
+                  if (categoryAgents.length === 0) return null;
+
                   return (
-                    <Card
-                      key={agent.id}
-                      className={`cursor-pointer transition-all ${
-                        isSelected ? "ring-2 ring-primary" : "hover:border-primary/50"
-                      }`}
-                      onClick={() => toggleAgent(agent.id)}
-                    >
-                      <CardContent className="flex items-center gap-4 p-4">
-                        <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${
-                          isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
-                        }`}>
-                          <Icon className="h-6 w-6" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold">{agent.name}</h3>
-                          <p className="text-sm text-muted-foreground">{agent.description}</p>
-                        </div>
-                        {isSelected && (
-                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                            <Check className="h-4 w-4" />
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
+                    <div key={category.id} className="mb-8">
+                      <h3 className="text-sm font-medium text-muted-foreground mb-4">
+                        {category.name}
+                      </h3>
+                      <div className="space-y-3">
+                        {categoryAgents.map((agent) => {
+                          const isSelected = selectedAgents.includes(agent.id);
+                          return (
+                            <div
+                              key={agent.id}
+                              className={`flex items-start gap-4 p-4 rounded-lg border bg-card ${
+                                isSelected ? "border-green-500/50" : ""
+                              }`}
+                            >
+                              <div className="flex items-center gap-3 flex-1">
+                                {isSelected && (
+                                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-white shrink-0">
+                                    <Check className="h-3 w-3" />
+                                  </div>
+                                )}
+                                <div className="flex-1">
+                                  <h4 className="font-medium">{agent.name}</h4>
+                                  <p className="text-sm text-muted-foreground mt-1">
+                                    {agent.description}
+                                  </p>
+                                </div>
+                              </div>
+                              {isSelected ? (
+                                <span
+                                  className="text-green-500 text-sm font-medium cursor-pointer hover:text-green-600"
+                                  onClick={() => toggleAgent(agent.id)}
+                                >
+                                  Selected
+                                </span>
+                              ) : (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => toggleAgent(agent.id)}
+                                  disabled={selectedAgents.length >= 5}
+                                >
+                                  Research
+                                </Button>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   );
                 })}
-              </div>
-
-              <p className="text-center text-sm text-muted-foreground mt-6">
-                {selectedAgents.length} of 5 agents selected
-              </p>
             </div>
           </div>
         )}
