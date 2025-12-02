@@ -38,6 +38,7 @@ import {
   TrendingUp,
   Search,
   Check,
+  Linkedin,
 } from "lucide-react";
 
 type SequenceStep = {
@@ -399,8 +400,9 @@ export default function CreateCampaignPage() {
                   className="gap-2"
                   onClick={() => setReachoutChannel("message")}
                 >
-                  <MessageSquare className="h-4 w-4" />
+                  <Linkedin className="h-4 w-4" />
                   LinkedIn Message
+                  {reachoutChannel === "message" && <Check className="h-3 w-3" />}
                 </Button>
                 <Button
                   variant={reachoutChannel === "inmail" ? "default" : "outline"}
@@ -408,8 +410,9 @@ export default function CreateCampaignPage() {
                   className="gap-2"
                   onClick={() => setReachoutChannel("inmail")}
                 >
-                  <Mail className="h-4 w-4" />
+                  <Linkedin className="h-4 w-4" />
                   LinkedIn InMail
+                  {reachoutChannel === "inmail" && <Check className="h-3 w-3" />}
                 </Button>
               </div>
             </div>
@@ -422,16 +425,12 @@ export default function CreateCampaignPage() {
               </p>
               <div className="flex flex-wrap gap-2">
                 <Button variant="outline" size="sm" className="gap-2">
-                  <LinkIcon className="h-4 w-4" />
+                  <Linkedin className="h-4 w-4" />
                   LinkedIn URL
                 </Button>
                 <Button variant="outline" size="sm" className="gap-2">
                   <Upload className="h-4 w-4" />
                   Upload XLS/CSV
-                </Button>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <FileText className="h-4 w-4" />
-                  LinkedIn Post URL(s)
                 </Button>
               </div>
             </div>
