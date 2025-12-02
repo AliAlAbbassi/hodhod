@@ -46,6 +46,7 @@ import {
   Check,
   Linkedin,
   CornerDownRight,
+  FileSpreadsheet,
 } from "lucide-react";
 
 type SequenceStep = {
@@ -98,6 +99,22 @@ export default function CreateCampaignPage() {
   // LinkedIn URL Modal
   const [isLinkedInUrlModalOpen, setIsLinkedInUrlModalOpen] = useState(false);
   const [linkedInUrl, setLinkedInUrl] = useState("");
+
+  // Uploaded files
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      setUploadedFiles((prev) => [...prev, ...Array.from(files)]);
+    }
+    // Reset input
+    e.target.value = "";
+  };
+
+  const removeFile = (index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
 
   // First Outreach sequence
   const [sequenceSteps, setSequenceSteps] = useState<SequenceStep[]>([
@@ -537,11 +554,45 @@ export default function CreateCampaignPage() {
                   <LinkIcon className="h-4 w-4" />
                   LinkedIn URL
                 </Button>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Upload className="h-4 w-4" />
-                  Upload XLS/CSV
-                </Button>
+                <label>
+                  <input
+                    type="file"
+                    accept=".xls,.xlsx,.csv"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    multiple
+                  />
+                  <Button variant="outline" size="sm" className="gap-2" asChild>
+                    <span>
+                      <Upload className="h-4 w-4" />
+                      Upload XLS/CSV
+                    </span>
+                  </Button>
+                </label>
               </div>
+
+              {/* Uploaded Files */}
+              {uploadedFiles.length > 0 && (
+                <div className="space-y-2 mt-3">
+                  {uploadedFiles.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-2 rounded-lg bg-muted/50"
+                    >
+                      <FileSpreadsheet className="h-5 w-5 text-red-500 shrink-0" />
+                      <span className="text-sm truncate flex-1">{file.name}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
+                        onClick={() => removeFile(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Profiles to be included */}
