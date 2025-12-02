@@ -25,6 +25,7 @@ import {
   YAxis,
   ResponsiveContainer,
   Tooltip,
+  CartesianGrid,
 } from "recharts";
 import {
   MessageSquare,
@@ -285,9 +286,14 @@ export default function DashboardPage() {
           </div>
 
           {/* Chart */}
-          <div className="mt-4 h-[300px]">
+          <div className="mt-6 h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={analyticsData}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="#e5e5e5"
+                />
                 <XAxis
                   dataKey="time"
                   stroke="#888888"
