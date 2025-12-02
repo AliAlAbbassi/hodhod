@@ -10,11 +10,13 @@ import {
   Plus,
   Search,
   ChevronDown,
+  ChevronRight,
   Pause,
   Play,
   Trash2,
   Pencil,
   Info,
+  Loader2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -48,6 +50,7 @@ type Campaign = {
   reachouts: number;
   acceptanceRate: number;
   responseRate: number;
+  isFetching?: boolean;
 };
 
 const initialCampaigns: Campaign[] = [
@@ -61,6 +64,7 @@ const initialCampaigns: Campaign[] = [
     reachouts: 0,
     acceptanceRate: 0,
     responseRate: 0,
+    isFetching: true,
   },
   {
     id: "2",
@@ -564,6 +568,14 @@ function CampaignCard({
           </div>
         </div>
 
+        {/* Loading State */}
+        {campaign.isFetching && (
+          <div className="flex items-center gap-2 border-t px-4 py-3 text-sm text-muted-foreground">
+            <ChevronRight className="h-4 w-4" />
+            <span>Prospect Fetch Details</span>
+            <Loader2 className="ml-auto h-4 w-4 animate-spin" />
+          </div>
+        )}
       </CardContent>
     </Card>
   );
