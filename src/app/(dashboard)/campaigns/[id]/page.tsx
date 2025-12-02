@@ -32,6 +32,7 @@ import {
   MoreVertical,
   Linkedin,
   MessageSquare,
+  MessageCircle,
   ThumbsUp,
   ThumbsDown,
   Clock,
@@ -46,6 +47,9 @@ import {
   Play,
   Pause,
   AlertCircle,
+  X,
+  Loader2,
+  Check,
 } from "lucide-react";
 
 // Mock campaign data
@@ -144,6 +148,10 @@ export default function CampaignDetailPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [campaign, setCampaign] = useState(campaignData);
   const [isProspectDetailsOpen, setIsProspectDetailsOpen] = useState(false);
+
+  // Training Center state
+  const [trainingStep, setTrainingStep] = useState<"intro" | "training" | "messaging" | "launch">("intro");
+  const [showTrainingAlert, setShowTrainingAlert] = useState(true);
 
   // Filter prospects
   const filteredProspects = prospectsData.filter((p) =>
@@ -381,69 +389,136 @@ export default function CampaignDetailPage() {
 
         {/* Training Center Tab */}
         <TabsContent value="training" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Training Center</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Review AI-generated sequences and provide feedback to improve messaging across all prospects.
+          {/* Alert Banner */}
+          {showTrainingAlert && (
+            <div className="flex items-center justify-between rounded-lg border bg-muted/30 px-4 py-3">
+              <p className="text-sm">
+                The following is an example used for training this campaign. Any training or will be applied to all prospects in the campaign.
               </p>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-6 lg:grid-cols-2">
-                {/* Sample Sequence */}
-                <div className="space-y-4">
-                  <h3 className="font-medium">Sample Sequence - Sarah Chen</h3>
-                  <div className="space-y-3">
-                    <div className="rounded-lg border p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="outline">Day 1</Badge>
-                        <span className="text-sm text-muted-foreground">Connect Message</span>
-                      </div>
-                      <p className="text-sm">
-                        Hi Sarah, I noticed your work on engineering scalability at Stripe.
-                        We&apos;re helping engineering leaders automate their outreach - would love to connect!
-                      </p>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 shrink-0"
+                onClick={() => setShowTrainingAlert(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+
+          {/* Progress Steps */}
+          <div className="flex items-center justify-end gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <span className={trainingStep === "intro" || trainingStep === "training" ? "text-foreground" : "text-muted-foreground"}>
+                Training
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="gap-1">
+                <Linkedin className="h-3 w-3" />
+                Messaging
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <LinkIcon className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Approve Messaging and Launch Campaign</span>
+            </div>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="relative min-h-[500px]">
+            {/* Left side - Fetching Prospects */}
+            <div className="absolute left-0 top-1/2 -translate-y-1/2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Fetching Prospects
+              </div>
+            </div>
+
+            {/* Center Modal - Intro */}
+            {trainingStep === "intro" && (
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
+                <Card className="shadow-lg">
+                  <CardContent className="pt-8 pb-6 px-8 text-center">
+                    <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-foreground text-background">
+                      <MessageCircle className="h-8 w-8" />
                     </div>
-                    <div className="rounded-lg border p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="outline">Day 4</Badge>
-                        <span className="text-sm text-muted-foreground">Follow-up 1</span>
+                    <h2 className="text-xl font-semibold mb-4">Review and Train Your Messaging</h2>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Take a moment to review a selection of prospects uploaded to your campaign. On this screen you can provide feedback and fine-tune Valley&apos;s messaging style. Your insights will help ensure messages are written in your desired tone.
+                    </p>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Once you are happy with the campaign&apos;s messaging style, you can launch your campaign and start sending outbound messages to your prospects.
+                    </p>
+                    <Button className="w-full" onClick={() => setTrainingStep("training")}>
+                      Continue
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Training Step */}
+            {trainingStep === "training" && (
+              <div className="mx-auto max-w-4xl pt-8">
+                <div className="grid gap-6 lg:grid-cols-2">
+                  {/* Sample Sequence */}
+                  <div className="space-y-4">
+                    <h3 className="font-medium">Sample Sequence - Sarah Chen</h3>
+                    <div className="space-y-3">
+                      <div className="rounded-lg border p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="outline">Day 1</Badge>
+                          <span className="text-sm text-muted-foreground">Connect Message</span>
+                        </div>
+                        <p className="text-sm">
+                          Hi Sarah, I noticed your work on engineering scalability at Stripe.
+                          We&apos;re helping engineering leaders automate their outreach - would love to connect!
+                        </p>
                       </div>
-                      <p className="text-sm">
-                        Hi Sarah, following up on my previous message. I&apos;d love to show you how
-                        we&apos;ve helped other engineering leaders save 10+ hours per week. Open to a quick chat?
-                      </p>
+                      <div className="rounded-lg border p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="outline">Day 4</Badge>
+                          <span className="text-sm text-muted-foreground">Follow-up 1</span>
+                        </div>
+                        <p className="text-sm">
+                          Hi Sarah, following up on my previous message. I&apos;d love to show you how
+                          we&apos;ve helped other engineering leaders save 10+ hours per week. Open to a quick chat?
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Feedback Section */}
-                <div className="space-y-4">
-                  <h3 className="font-medium">Provide Feedback</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Your feedback will be applied across ALL prospects in this campaign.
-                  </p>
-                  <div className="space-y-3">
-                    <div className="flex gap-2">
-                      <Button variant="outline" className="gap-2">
-                        <ThumbsUp className="h-4 w-4" />
-                        Approve
-                      </Button>
-                      <Button variant="outline" className="gap-2">
-                        <ThumbsDown className="h-4 w-4" />
-                        Needs Work
+                  {/* Feedback Section */}
+                  <div className="space-y-4">
+                    <h3 className="font-medium">Provide Feedback</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Your feedback will be applied across ALL prospects in this campaign.
+                    </p>
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <Button variant="outline" className="gap-2">
+                          <ThumbsUp className="h-4 w-4" />
+                          Approve
+                        </Button>
+                        <Button variant="outline" className="gap-2">
+                          <ThumbsDown className="h-4 w-4" />
+                          Needs Work
+                        </Button>
+                      </div>
+                      <textarea
+                        className="w-full min-h-[120px] rounded-md border bg-background p-3 text-sm"
+                        placeholder="Provide feedback here"
+                      />
+                      <Button onClick={() => setTrainingStep("messaging")}>
+                        Submit Feedback
                       </Button>
                     </div>
-                    <textarea
-                      className="w-full min-h-[120px] rounded-md border p-3 text-sm"
-                      placeholder="Add specific feedback about tone, word selection, formatting, or length..."
-                    />
-                    <Button>Submit Feedback</Button>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            )}
+          </div>
         </TabsContent>
 
         {/* Settings Tab */}
