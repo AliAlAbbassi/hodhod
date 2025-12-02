@@ -15,19 +15,18 @@ import {
   Pause,
   Play,
   Trash2,
-  Pencil,
   Info,
   Loader2,
   SlidersHorizontal,
   Calendar,
   ArrowUpDown,
   Linkedin,
+  RefreshCw,
 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -573,32 +572,26 @@ function CampaignCard({
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={onEdit}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-56">
               {campaign.status === "in_progress" && (
-                <DropdownMenuItem onClick={() => onStatusChange("paused")}>
-                  <Pause className="mr-2 h-4 w-4" />
-                  Pause
+                <DropdownMenuItem onClick={() => onStatusChange("paused")} className="gap-3 py-3">
+                  <Pause className="h-5 w-5" />
+                  Pause Campaign
                 </DropdownMenuItem>
               )}
               {(campaign.status === "paused" || campaign.status === "draft") && (
-                <DropdownMenuItem onClick={() => onStatusChange("in_progress")}>
-                  <Play className="mr-2 h-4 w-4" />
-                  {campaign.status === "draft" ? "Start" : "Resume"}
+                <DropdownMenuItem onClick={() => onStatusChange("in_progress")} className="gap-3 py-3">
+                  <Play className="h-5 w-5" />
+                  {campaign.status === "draft" ? "Start Campaign" : "Resume Campaign"}
                 </DropdownMenuItem>
               )}
-              {campaign.status !== "completed" && (
-                <DropdownMenuItem onClick={() => onStatusChange("completed")}>
-                  Mark as Completed
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={onDelete} className="text-red-600">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
+              <DropdownMenuItem className="gap-3 py-3">
+                <RefreshCw className="h-5 w-5" />
+                Refetch Prospects
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onDelete} className="gap-3 py-3 text-orange-600 focus:text-orange-600">
+                <Trash2 className="h-5 w-5" />
+                Delete Campaign
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
