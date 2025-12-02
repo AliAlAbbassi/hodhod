@@ -1,29 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { ColumnDef } from "@tanstack/react-table";
-import { DataTable } from "@/components/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-  MoreHorizontal,
-  ArrowUpDown,
+  MoreVertical,
   Plus,
-  Zap,
-  Send,
-  MessageSquare,
-  Calendar,
+  Search,
+  ChevronDown,
+  ChevronRight,
   Pause,
   Play,
   Trash2,
   Pencil,
+  Info,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -43,110 +35,121 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-type CampaignStatus = "active" | "paused" | "completed" | "draft";
+type CampaignStatus = "in_progress" | "paused" | "completed" | "draft";
+type CampaignType = "inmail" | "messaging";
+type SortOption = "recent" | "alphabetically";
 
 type Campaign = {
   id: string;
   name: string;
   status: CampaignStatus;
-  sent: number;
-  replies: number;
-  meetings: number;
-  replyRate: number;
-  startDate: string;
-  lastActivity: string;
+  type: CampaignType;
+  createdAt: string;
+  totalProspects: number;
+  reachouts: number;
+  acceptanceRate: number;
+  responseRate: number;
 };
 
 const initialCampaigns: Campaign[] = [
   {
     id: "1",
-    name: "Q1 Enterprise Outreach",
-    status: "active",
-    sent: 1250,
-    replies: 187,
-    meetings: 42,
-    replyRate: 15,
-    startDate: "2024-01-01",
-    lastActivity: "2024-01-15",
+    name: "Valley TEST TEST",
+    status: "in_progress",
+    type: "inmail",
+    createdAt: "04/30/2025",
+    totalProspects: 19,
+    reachouts: 0,
+    acceptanceRate: 0,
+    responseRate: 0,
   },
   {
     id: "2",
-    name: "Series A Founders",
-    status: "active",
-    sent: 890,
-    replies: 134,
-    meetings: 28,
-    replyRate: 15,
-    startDate: "2024-01-05",
-    lastActivity: "2024-01-14",
+    name: "Engaged List By Shubh 4/28 (open Profiles) - Part 1/3",
+    status: "in_progress",
+    type: "inmail",
+    createdAt: "04/29/2025",
+    totalProspects: 556,
+    reachouts: 15,
+    acceptanceRate: 100,
+    responseRate: 13,
   },
   {
     id: "3",
-    name: "VP Engineering - Tech",
-    status: "paused",
-    sent: 450,
-    replies: 45,
-    meetings: 8,
-    replyRate: 10,
-    startDate: "2024-01-02",
-    lastActivity: "2024-01-10",
+    name: "Engaged List (closed Profiles) - Part 1/3",
+    status: "in_progress",
+    type: "messaging",
+    createdAt: "04/29/2025",
+    totalProspects: 628,
+    reachouts: 42,
+    acceptanceRate: 40,
+    responseRate: 53,
   },
   {
     id: "4",
-    name: "Holiday Follow-up",
-    status: "completed",
-    sent: 2100,
-    replies: 315,
-    meetings: 67,
-    replyRate: 15,
-    startDate: "2023-12-15",
-    lastActivity: "2024-01-05",
+    name: "Clay Recent Post ICP Test",
+    status: "in_progress",
+    type: "inmail",
+    createdAt: "04/29/2025",
+    totalProspects: 98,
+    reachouts: 0,
+    acceptanceRate: 0,
+    responseRate: 0,
   },
   {
     id: "5",
-    name: "Product Hunt Launch",
-    status: "draft",
-    sent: 0,
-    replies: 0,
-    meetings: 0,
-    replyRate: 0,
-    startDate: "-",
-    lastActivity: "-",
+    name: "Mercor ICP Test",
+    status: "in_progress",
+    type: "messaging",
+    createdAt: "04/29/2025",
+    totalProspects: 409,
+    reachouts: 0,
+    acceptanceRate: 0,
+    responseRate: 0,
   },
   {
     id: "6",
-    name: "CTO Roundup - Fintech",
-    status: "active",
-    sent: 320,
-    replies: 48,
-    meetings: 12,
-    replyRate: 15,
-    startDate: "2024-01-08",
-    lastActivity: "2024-01-15",
+    name: "Post Engager Campaign",
+    status: "in_progress",
+    type: "inmail",
+    createdAt: "04/14/2025",
+    totalProspects: 385,
+    reachouts: 309,
+    acceptanceRate: 100,
+    responseRate: 12,
   },
 ];
 
 const statusConfig: Record<
   CampaignStatus,
-  { label: string; variant: "default" | "secondary" | "outline" | "destructive"; className?: string }
+  { label: string; className: string }
 > = {
-  active: {
-    label: "Active",
-    variant: "default",
-    className: "bg-green-100 text-green-800 hover:bg-green-100",
+  in_progress: {
+    label: "In Progress",
+    className: "bg-green-100 text-green-700 border-green-200",
   },
   paused: {
     label: "Paused",
-    variant: "secondary",
+    className: "bg-yellow-100 text-yellow-700 border-yellow-200",
   },
   completed: {
     label: "Completed",
-    variant: "outline",
+    className: "bg-gray-100 text-gray-700 border-gray-200",
   },
   draft: {
     label: "Draft",
-    variant: "secondary",
-    className: "bg-gray-100 text-gray-600 hover:bg-gray-100",
+    className: "bg-gray-100 text-gray-600 border-gray-200",
+  },
+};
+
+const typeConfig: Record<CampaignType, { label: string; className: string }> = {
+  inmail: {
+    label: "InMail",
+    className: "bg-blue-100 text-blue-700 border-blue-200",
+  },
+  messaging: {
+    label: "Messaging",
+    className: "bg-purple-100 text-purple-700 border-purple-200",
   },
 };
 
@@ -154,12 +157,33 @@ export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>(initialCampaigns);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
-  const [formData, setFormData] = useState({ name: "" });
+  const [formData, setFormData] = useState({ name: "", type: "inmail" as CampaignType });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<CampaignStatus | "all">("all");
+  const [sortBy, setSortBy] = useState<SortOption>("recent");
 
-  const totalSent = campaigns.reduce((sum, c) => sum + c.sent, 0);
-  const totalReplies = campaigns.reduce((sum, c) => sum + c.replies, 0);
-  const totalMeetings = campaigns.reduce((sum, c) => sum + c.meetings, 0);
-  const activeCampaigns = campaigns.filter((c) => c.status === "active").length;
+  // LinkedIn limits (mock data)
+  const connectsSent = 12;
+  const connectsLimit = 25;
+  const inmailsSent = 31;
+  const inmailsLimit = 40;
+
+  const activeCampaigns = campaigns.filter((c) => c.status === "in_progress");
+
+  // Filter and sort campaigns
+  const filteredCampaigns = campaigns
+    .filter((c) => {
+      const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === "all" || c.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      if (sortBy === "alphabetically") {
+        return a.name.localeCompare(b.name);
+      }
+      // Sort by date (recent first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
 
   const handleStatusChange = (id: string, newStatus: CampaignStatus) => {
     setCampaigns((prev) =>
@@ -177,7 +201,9 @@ export default function CampaignsPage() {
     if (editingCampaign) {
       setCampaigns((prev) =>
         prev.map((c) =>
-          c.id === editingCampaign.id ? { ...c, name: formData.name } : c
+          c.id === editingCampaign.id
+            ? { ...c, name: formData.name, type: formData.type }
+            : c
         )
       );
     } else {
@@ -185,265 +211,381 @@ export default function CampaignsPage() {
         id: String(Date.now()),
         name: formData.name,
         status: "draft",
-        sent: 0,
-        replies: 0,
-        meetings: 0,
-        replyRate: 0,
-        startDate: "-",
-        lastActivity: "-",
+        type: formData.type,
+        createdAt: new Date().toLocaleDateString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+          year: "numeric",
+        }),
+        totalProspects: 0,
+        reachouts: 0,
+        acceptanceRate: 0,
+        responseRate: 0,
       };
       setCampaigns((prev) => [...prev, newCampaign]);
     }
 
-    setFormData({ name: "" });
+    setFormData({ name: "", type: "inmail" });
     setEditingCampaign(null);
     setIsSheetOpen(false);
   };
 
   const openEditSheet = (campaign: Campaign) => {
     setEditingCampaign(campaign);
-    setFormData({ name: campaign.name });
+    setFormData({ name: campaign.name, type: campaign.type });
     setIsSheetOpen(true);
   };
 
   const openCreateSheet = () => {
     setEditingCampaign(null);
-    setFormData({ name: "" });
+    setFormData({ name: "", type: "inmail" });
     setIsSheetOpen(true);
   };
 
-  const columns: ColumnDef<Campaign>[] = [
-    {
-      accessorKey: "name",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Campaign Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+  return (
+    <div className="space-y-6">
+      {/* Filter Bar */}
+      <div className="flex items-center gap-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-48 pl-9"
+          />
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              Status
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => setStatusFilter("all")}>
+              All
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setStatusFilter("in_progress")}>
+              In Progress
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setStatusFilter("paused")}>
+              Paused
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setStatusFilter("completed")}>
+              Completed
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setStatusFilter("draft")}>
+              Draft
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Button variant="outline" className="gap-2">
+          Date
+          <ChevronDown className="h-4 w-4" />
         </Button>
-      ),
-      cell: ({ row }) => (
-        <div className="px-3 font-medium">{row.getValue("name")}</div>
-      ),
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.getValue("status") as CampaignStatus;
-        const config = statusConfig[status];
-        return (
-          <Badge variant={config.variant} className={config.className}>
-            {config.label}
-          </Badge>
-        );
-      },
-    },
-    {
-      accessorKey: "sent",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Sent
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
-      cell: ({ row }) => (
-        <div className="px-3">{row.getValue<number>("sent").toLocaleString()}</div>
-      ),
-    },
-    {
-      accessorKey: "replies",
-      header: "Replies",
-      cell: ({ row }) => row.getValue<number>("replies").toLocaleString(),
-    },
-    {
-      accessorKey: "meetings",
-      header: "Meetings",
-      cell: ({ row }) => row.getValue<number>("meetings").toLocaleString(),
-    },
-    {
-      accessorKey: "replyRate",
-      header: "Reply Rate",
-      cell: ({ row }) => `${row.getValue<number>("replyRate")}%`,
-    },
-    {
-      accessorKey: "lastActivity",
-      header: "Last Activity",
-    },
-    {
-      id: "actions",
-      cell: ({ row }) => {
-        const campaign = row.original;
-        return (
+        <div className="ml-auto">
+          <Button variant="outline" className="gap-2">
+            Today
+            <ChevronDown className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* LinkedIn Progress Bars */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Connects Sent */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            LinkedIn Connects Sent ({connectsSent})
+            <Info className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <div className="relative h-3 w-full rounded-full bg-gray-200">
+            <div
+              className="absolute left-0 h-full rounded-full transition-all"
+              style={{
+                width: `${(connectsSent / connectsLimit) * 100}%`,
+                backgroundColor: "#10DD9B",
+              }}
+            />
+            <div
+              className="absolute top-1/2 -translate-y-1/2 text-xs font-medium"
+              style={{ left: `${(connectsLimit / connectsLimit) * 100 - 2}%` }}
+            >
+              <div className="flex flex-col items-center">
+                <span className="text-muted-foreground">{connectsLimit}</span>
+                <div className="h-4 w-px bg-gray-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* InMails Sent */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            LinkedIn InMails Sent ({inmailsSent})
+            <Info className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <div className="relative h-3 w-full rounded-full bg-gray-200">
+            <div
+              className="absolute left-0 h-full rounded-full transition-all"
+              style={{
+                width: `${(inmailsSent / inmailsLimit) * 100}%`,
+                backgroundColor: "#10DD9B",
+              }}
+            />
+            <div
+              className="absolute top-1/2 -translate-y-1/2 text-xs font-medium"
+              style={{ left: `${(inmailsLimit / inmailsLimit) * 100 - 2}%` }}
+            >
+              <div className="flex flex-col items-center">
+                <span className="text-muted-foreground">{inmailsLimit}</span>
+                <div className="h-4 w-px bg-gray-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Active Campaigns Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">
+          Active Campaigns{" "}
+          <span className="text-muted-foreground">{activeCampaigns.length}</span>
+        </h2>
+        <div className="flex items-center gap-1 text-sm">
+          <button
+            onClick={() => setSortBy("recent")}
+            className={`px-2 py-1 ${
+              sortBy === "recent"
+                ? "font-medium text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Recent
+          </button>
+          <span className="text-muted-foreground">|</span>
+          <button
+            onClick={() => setSortBy("alphabetically")}
+            className={`px-2 py-1 ${
+              sortBy === "alphabetically"
+                ? "font-medium text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Alphabetically
+          </button>
+        </div>
+      </div>
+
+      {/* Campaign Cards Grid */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {filteredCampaigns.map((campaign) => (
+          <CampaignCard
+            key={campaign.id}
+            campaign={campaign}
+            onEdit={() => openEditSheet(campaign)}
+            onStatusChange={(status) => handleStatusChange(campaign.id, status)}
+            onDelete={() => handleDelete(campaign.id)}
+          />
+        ))}
+      </div>
+
+      {filteredCampaigns.length === 0 && (
+        <div className="flex h-32 items-center justify-center text-muted-foreground">
+          No campaigns found
+        </div>
+      )}
+
+      {/* Create Campaign Sheet */}
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetTrigger asChild>
+          <Button
+            onClick={openCreateSheet}
+            className="fixed bottom-6 right-6 shadow-lg"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Campaign
+          </Button>
+        </SheetTrigger>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>
+              {editingCampaign ? "Edit Campaign" : "Create Campaign"}
+            </SheetTitle>
+            <SheetDescription>
+              {editingCampaign
+                ? "Update your campaign details."
+                : "Set up a new outreach campaign."}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label htmlFor="name" className="text-sm font-medium">
+                Campaign Name
+              </label>
+              <Input
+                id="name"
+                placeholder="e.g., Q1 Enterprise Outreach"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Campaign Type</label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant={formData.type === "inmail" ? "default" : "outline"}
+                  onClick={() =>
+                    setFormData((prev) => ({ ...prev, type: "inmail" }))
+                  }
+                  className="flex-1"
+                >
+                  InMail
+                </Button>
+                <Button
+                  type="button"
+                  variant={formData.type === "messaging" ? "default" : "outline"}
+                  onClick={() =>
+                    setFormData((prev) => ({ ...prev, type: "messaging" }))
+                  }
+                  className="flex-1"
+                >
+                  Messaging
+                </Button>
+              </div>
+            </div>
+          </div>
+          <SheetFooter>
+            <SheetClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </SheetClose>
+            <Button onClick={handleSave}>
+              {editingCampaign ? "Save Changes" : "Create Campaign"}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+}
+
+function CampaignCard({
+  campaign,
+  onEdit,
+  onStatusChange,
+  onDelete,
+}: {
+  campaign: Campaign;
+  onEdit: () => void;
+  onStatusChange: (status: CampaignStatus) => void;
+  onDelete: () => void;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const statusCfg = statusConfig[campaign.status];
+  const typeCfg = typeConfig[campaign.type];
+
+  return (
+    <Card className="overflow-hidden">
+      <CardContent className="p-0">
+        {/* Card Header */}
+        <div className="flex items-start justify-between p-4 pb-3">
+          <div className="space-y-1">
+            <h3 className="font-semibold leading-tight">{campaign.name}</h3>
+            <p className="text-sm text-muted-foreground">
+              Created on {campaign.createdAt}
+            </p>
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => openEditSheet(campaign)}>
+              <DropdownMenuItem onClick={onEdit}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
-              {campaign.status === "active" && (
-                <DropdownMenuItem
-                  onClick={() => handleStatusChange(campaign.id, "paused")}
-                >
+              {campaign.status === "in_progress" && (
+                <DropdownMenuItem onClick={() => onStatusChange("paused")}>
                   <Pause className="mr-2 h-4 w-4" />
                   Pause
                 </DropdownMenuItem>
               )}
               {(campaign.status === "paused" || campaign.status === "draft") && (
-                <DropdownMenuItem
-                  onClick={() => handleStatusChange(campaign.id, "active")}
-                >
+                <DropdownMenuItem onClick={() => onStatusChange("in_progress")}>
                   <Play className="mr-2 h-4 w-4" />
                   {campaign.status === "draft" ? "Start" : "Resume"}
                 </DropdownMenuItem>
               )}
               {campaign.status !== "completed" && (
-                <DropdownMenuItem
-                  onClick={() => handleStatusChange(campaign.id, "completed")}
-                >
+                <DropdownMenuItem onClick={() => onStatusChange("completed")}>
                   Mark as Completed
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => handleDelete(campaign.id)}
-                className="text-red-600"
-              >
+              <DropdownMenuItem onClick={onDelete} className="text-red-600">
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        );
-      },
-    },
-  ];
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Campaigns</h1>
-          <p className="text-muted-foreground">
-            Manage and track your LinkedIn outreach campaigns
-          </p>
         </div>
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetTrigger asChild>
-            <Button onClick={openCreateSheet}>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Campaign
-            </Button>
-          </SheetTrigger>
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle>
-                {editingCampaign ? "Edit Campaign" : "Create Campaign"}
-              </SheetTitle>
-              <SheetDescription>
-                {editingCampaign
-                  ? "Update your campaign details."
-                  : "Set up a new outreach campaign."}
-              </SheetDescription>
-            </SheetHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium">
-                  Campaign Name
-                </label>
-                <Input
-                  id="name"
-                  placeholder="e.g., Q1 Enterprise Outreach"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ name: e.target.value })}
-                />
-              </div>
-            </div>
-            <SheetFooter>
-              <SheetClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </SheetClose>
-              <Button onClick={handleSave}>
-                {editingCampaign ? "Save Changes" : "Create Campaign"}
-              </Button>
-            </SheetFooter>
-          </SheetContent>
-        </Sheet>
-      </div>
 
-      {/* Metric Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Campaigns</CardTitle>
-            <Zap className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{activeCampaigns}</div>
-            <p className="text-xs text-muted-foreground">
-              {campaigns.length} total campaigns
-            </p>
-          </CardContent>
-        </Card>
+        {/* Badges */}
+        <div className="flex gap-2 px-4 pb-4">
+          <Badge variant="outline" className={typeCfg.className}>
+            {typeCfg.label}
+          </Badge>
+          <Badge variant="outline" className={statusCfg.className}>
+            {statusCfg.label}
+          </Badge>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Sent</CardTitle>
-            <Send className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalSent.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              Messages across all campaigns
-            </p>
-          </CardContent>
-        </Card>
+        {/* Metrics */}
+        <div className="grid grid-cols-4 gap-4 border-t bg-muted/30 px-4 py-4">
+          <div className="text-center">
+            <div className="text-xl font-bold">{campaign.totalProspects}</div>
+            <div className="text-xs text-muted-foreground">Total Prospects</div>
+          </div>
+          <div className="text-center">
+            <div className="text-xl font-bold">{campaign.reachouts}</div>
+            <div className="text-xs text-muted-foreground">Reachouts</div>
+          </div>
+          <div className="text-center">
+            <div className="text-xl font-bold">{campaign.acceptanceRate}%</div>
+            <div className="text-xs text-muted-foreground">Acceptance Rate</div>
+          </div>
+          <div className="text-center">
+            <div className="text-xl font-bold">{campaign.responseRate}%</div>
+            <div className="text-xs text-muted-foreground">Response Rate</div>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Replies</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalReplies.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              {totalSent > 0 ? Math.round((totalReplies / totalSent) * 100) : 0}% overall reply rate
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Meetings Booked</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalMeetings.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              {totalReplies > 0 ? Math.round((totalMeetings / totalReplies) * 100) : 0}% conversion from replies
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Campaigns Table */}
-      <DataTable
-        columns={columns}
-        data={campaigns}
-        searchKey="name"
-        searchPlaceholder="Search campaigns..."
-      />
-    </div>
+        {/* Expandable Details */}
+        {campaign.totalProspects > 0 && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex w-full items-center gap-1 border-t px-4 py-2 text-sm text-muted-foreground hover:bg-muted/50"
+          >
+            {isExpanded ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+            Prospect Fetch Details
+          </button>
+        )}
+        {isExpanded && (
+          <div className="border-t bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
+            <p>Prospect details and fetch history will appear here.</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
