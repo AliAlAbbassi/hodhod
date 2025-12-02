@@ -407,7 +407,6 @@ export default function CampaignsPage() {
           <CampaignCard
             key={campaign.id}
             campaign={campaign}
-            onEdit={() => openEditSheet(campaign)}
             onStatusChange={(status) => handleStatusChange(campaign.id, status)}
             onDelete={() => handleDelete(campaign.id)}
           />
@@ -541,25 +540,28 @@ export default function CampaignsPage() {
 
 function CampaignCard({
   campaign,
-  onEdit,
   onStatusChange,
   onDelete,
 }: {
   campaign: Campaign;
-  onEdit: () => void;
   onStatusChange: (status: CampaignStatus) => void;
   onDelete: () => void;
 }) {
+  const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
   const statusCfg = statusConfig[campaign.status];
   const typeCfg = typeConfig[campaign.type];
+
+  const handleCardClick = () => {
+    router.push(`/campaigns/${campaign.id}`);
+  };
 
   // Calculate progress percentages for the prospect bar
   const processedPercent = (campaign.totalProspects / campaign.prospectPoolSize) * 100;
   const remainingPercent = 100 - processedPercent;
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow" onClick={handleCardClick}>
       <CardContent className="p-0">
         {/* Card Header */}
         <div className="flex items-start justify-between p-4 pb-2">
@@ -567,7 +569,7 @@ function CampaignCard({
             <h3 className="font-semibold leading-tight">{campaign.name}</h3>
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
               <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
                 <MoreVertical className="h-4 w-4" />
               </Button>
