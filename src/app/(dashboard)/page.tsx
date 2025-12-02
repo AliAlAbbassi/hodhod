@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -36,6 +37,7 @@ import {
   MoreVertical,
   BarChart3,
   Monitor,
+  RefreshCw,
 } from "lucide-react";
 
 const analyticsData = [
@@ -78,11 +80,10 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <img
-            src="/profile.jpeg"
-            alt="Profile"
-            className="size-12 rounded-full object-cover"
-          />
+          <Avatar className="size-12">
+            <AvatarImage src="/profile.jpeg" alt="Profile" />
+            <AvatarFallback>AA</AvatarFallback>
+          </Avatar>
           <h1 className="text-2xl font-bold tracking-tight">Welcome Ali</h1>
         </div>
         <div className="flex items-center gap-2">
@@ -90,8 +91,14 @@ export default function DashboardPage() {
             <Check className="size-3" />
             LinkedIn Connected
           </Badge>
-          <Badge variant="outline">💬 25/day</Badge>
-          <Badge variant="outline">✉️ 40/day</Badge>
+          <Badge variant="outline" className="gap-1">
+            <MessageSquare className="size-3" />
+            25/day
+          </Badge>
+          <Badge variant="outline" className="gap-1">
+            <Mail className="size-3" />
+            40/day
+          </Badge>
           <Button variant="ghost" size="icon">
             <MoreVertical className="size-4" />
           </Button>
@@ -100,15 +107,18 @@ export default function DashboardPage() {
 
       {/* Metric Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Approvals Required</CardTitle>
             <MessageSquare className="size-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-1 flex-col justify-between">
             <div className="text-2xl font-bold">5</div>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Badge variant="secondary">🔄 12x</Badge>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <Badge variant="secondary">
+                <RefreshCw className="mr-1 size-3" />
+                12x
+              </Badge>
               <Button size="sm" className="whitespace-nowrap">
                 Approve Now <ChevronRight className="ml-1 size-3" />
               </Button>
@@ -116,15 +126,18 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Messages Scheduled</CardTitle>
             <Calendar className="size-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-1 flex-col justify-between">
             <div className="text-2xl font-bold">20</div>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Badge variant="secondary">🔄 20x</Badge>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <Badge variant="secondary">
+                <RefreshCw className="mr-1 size-3" />
+                20x
+              </Badge>
               <Button size="sm" variant="outline" className="whitespace-nowrap">
                 All Scheduled <ChevronRight className="ml-1 size-3" />
               </Button>
@@ -132,12 +145,12 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Connects Sent</CardTitle>
             <Users className="size-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-1 flex-col justify-between">
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold">22</div>
               <Badge variant="outline" className="text-xs">Today</Badge>
@@ -154,12 +167,12 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">InMails Sent</CardTitle>
             <Mail className="size-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-1 flex-col justify-between">
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold">24</div>
               <Badge variant="outline" className="text-xs">Today</Badge>
@@ -276,9 +289,9 @@ export default function DashboardPage() {
                 <TableRow key={visitor.name} className="cursor-pointer">
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs font-medium">
-                        {visitor.avatar}
-                      </div>
+                      <Avatar className="size-8">
+                        <AvatarFallback className="text-xs">{visitor.avatar}</AvatarFallback>
+                      </Avatar>
                       <span className="font-medium">{visitor.name}</span>
                     </div>
                   </TableCell>
