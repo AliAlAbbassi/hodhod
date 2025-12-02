@@ -61,7 +61,7 @@ type Campaign = {
 const initialCampaigns: Campaign[] = [
   {
     id: "1",
-    name: "Valley TEST TEST",
+    name: "Hodhod TEST TEST",
     status: "in_progress",
     type: "inmail",
     createdAt: "04/30/2025",
@@ -432,11 +432,11 @@ export default function CampaignsPage() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold">Valley AI</span>
+                  <span className="font-semibold">Hodhod AI</span>
                   <span className="text-sm text-muted-foreground">Recommended</span>
                 </div>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Let Valley automatically craft hyper-personalised outreach for you.
+                  Let Hodhod automatically craft hyper-personalised outreach for you.
                 </p>
               </div>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
