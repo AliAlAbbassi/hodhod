@@ -152,6 +152,7 @@ export default function CampaignDetailPage() {
   // Training Center state
   const [trainingStep, setTrainingStep] = useState<"intro" | "training" | "messaging" | "launch">("intro");
   const [showTrainingAlert, setShowTrainingAlert] = useState(true);
+  const [isFetchingProspects, setIsFetchingProspects] = useState(true);
 
   // Filter prospects
   const filteredProspects = prospectsData.filter((p) =>
@@ -388,17 +389,38 @@ export default function CampaignDetailPage() {
         </TabsContent>
 
         {/* Training Center Tab */}
-        <TabsContent value="training" className="space-y-4">
+        <TabsContent value="training" className="flex flex-col min-h-[600px]">
+          {/* Progress Steps - Top Right */}
+          <div className="flex items-center justify-end gap-4 text-sm mb-4">
+            <div className="flex items-center gap-1">
+              <span className="text-muted-foreground">•</span>
+              <span className={trainingStep === "intro" || trainingStep === "training" ? "text-foreground" : "text-muted-foreground"}>
+                Training
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Badge variant="outline" className="gap-1">
+                <Linkedin className="h-3 w-3" />
+                Messaging
+              </Badge>
+            </div>
+            <div className="flex items-center gap-1">
+              <LinkIcon className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Approve Messaging and Launch Campaign</span>
+            </div>
+          </div>
+
           {/* Alert Banner */}
           {showTrainingAlert && (
-            <div className="flex items-center justify-between rounded-lg border bg-muted/30 px-4 py-3">
-              <p className="text-sm">
-                The following is an example used for training this campaign. Any training or will be applied to all prospects in the campaign.
+            <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50/50 px-4 py-3 mb-4">
+              <Info className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
+              <p className="text-sm flex-1">
+                The prospect you are currently viewing is an example used for training this campaign. Any training you apply here in the training center will be applied to all prospects in the campaign.
               </p>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 shrink-0"
+                className="h-6 w-6 shrink-0 -mt-1"
                 onClick={() => setShowTrainingAlert(false)}
               >
                 <X className="h-4 w-4" />
@@ -406,34 +428,25 @@ export default function CampaignDetailPage() {
             </div>
           )}
 
-          {/* Progress Steps */}
-          <div className="flex items-center justify-end gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <span className={trainingStep === "intro" || trainingStep === "training" ? "text-foreground" : "text-muted-foreground"}>
-                Training
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="gap-1">
-                <Linkedin className="h-3 w-3" />
-                Messaging
-              </Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              <LinkIcon className="h-4 w-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Approve Messaging and Launch Campaign</span>
-            </div>
+          {/* Select Prospect Title */}
+          <div className="text-center mb-4">
+            <h2 className="text-lg font-medium">Select a Prospect to train</h2>
           </div>
 
           {/* Main Content Area */}
-          <div className="relative min-h-[500px]">
+          <div className="flex-1 relative">
             {/* Left side - Fetching Prospects */}
-            <div className="absolute left-0 top-1/2 -translate-y-1/2">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Fetching Prospects
+            {isFetchingProspects && (
+              <div className="absolute left-0 top-1/3">
+                <button
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+                  onClick={() => setIsFetchingProspects(false)}
+                >
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Fetching Prospects
+                </button>
               </div>
-            </div>
+            )}
 
             {/* Center Modal - Intro */}
             {trainingStep === "intro" && (
@@ -506,18 +519,27 @@ export default function CampaignDetailPage() {
                           Needs Work
                         </Button>
                       </div>
-                      <textarea
-                        className="w-full min-h-[120px] rounded-md border bg-background p-3 text-sm"
-                        placeholder="Provide feedback here"
-                      />
-                      <Button onClick={() => setTrainingStep("messaging")}>
-                        Submit Feedback
-                      </Button>
                     </div>
                   </div>
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Bottom Feedback Input */}
+          <div className="mt-auto pt-4 space-y-2">
+            <p className="text-xs text-muted-foreground text-center">
+              Regeneration takes approximately 40 seconds so please combine all feedback into one prompt
+            </p>
+            <div className="flex items-center gap-2">
+              <Input
+                placeholder="Provide feedback here"
+                className="flex-1"
+              />
+              <Button size="icon" variant="secondary" className="shrink-0">
+                <MessageCircle className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </TabsContent>
 
