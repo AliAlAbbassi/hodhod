@@ -33,8 +33,13 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Sparkles, FileText } from "lucide-react";
 
 type CampaignStatus = "in_progress" | "paused" | "completed" | "draft";
 type CampaignType = "inmail" | "messaging";
@@ -158,6 +163,7 @@ const typeConfig: Record<CampaignType, { label: string; className: string }> = {
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>(initialCampaigns);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
   const [formData, setFormData] = useState({ name: "", type: "inmail" as CampaignType });
@@ -239,10 +245,12 @@ export default function CampaignsPage() {
     setIsSheetOpen(true);
   };
 
-  const openCreateSheet = () => {
+  const handleSelectCampaignType = (type: "ai" | "templated") => {
+    setIsCreateModalOpen(false);
     setEditingCampaign(null);
     setFormData({ name: "", type: "inmail" });
     setIsSheetOpen(true);
+    // In the future, you can handle different flows based on type
   };
 
   return (
@@ -400,17 +408,62 @@ export default function CampaignsPage() {
         </div>
       )}
 
-      {/* Create Campaign Sheet */}
+      {/* Create Campaign Button */}
+      <Button
+        onClick={() => setIsCreateModalOpen(true)}
+        className="fixed bottom-6 right-6 shadow-lg"
+      >
+        <Plus className="mr-2 h-4 w-4" />
+        Campaign
+      </Button>
+
+      {/* Create Campaign Modal */}
+      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogTitle className="text-xl font-semibold">Create Campaign</DialogTitle>
+          <div className="mt-6 space-y-3">
+            {/* Valley AI Option */}
+            <button
+              onClick={() => handleSelectCampaignType("ai")}
+              className="flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-muted/50"
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100">
+                <Sparkles className="h-6 w-6 text-pink-500" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold">Valley AI</span>
+                  <span className="text-sm text-muted-foreground">Recommended</span>
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Let Valley automatically craft hyper-personalised outreach for you.
+                </p>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </button>
+
+            {/* Templated Option */}
+            <button
+              onClick={() => handleSelectCampaignType("templated")}
+              className="flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-muted/50"
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100">
+                <FileText className="h-6 w-6 text-gray-500" />
+              </div>
+              <div className="flex-1">
+                <span className="font-semibold">Templated</span>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Use a repeatable template to control & test exactly how you want to reach out.
+                </p>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Campaign Sheet */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetTrigger asChild>
-          <Button
-            onClick={openCreateSheet}
-            className="fixed bottom-6 right-6 shadow-lg"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Campaign
-          </Button>
-        </SheetTrigger>
         <SheetContent>
           <SheetHeader>
             <SheetTitle>
