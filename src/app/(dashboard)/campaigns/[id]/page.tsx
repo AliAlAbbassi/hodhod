@@ -25,6 +25,7 @@ import {
 import {
   ChevronLeft,
   ChevronDown,
+  ChevronRight,
   Search,
   Download,
   Filter,
@@ -44,6 +45,7 @@ import {
   Info,
   Play,
   Pause,
+  AlertCircle,
 } from "lucide-react";
 
 // Mock campaign data
@@ -57,6 +59,7 @@ const campaignData = {
   reachouts: 361,
   acceptanceRate: 100,
   responseRate: 18,
+  isTraining: false,
   prospectPoolSize: 927,
   // Settings
   reEngagementCount: 2,
@@ -140,6 +143,7 @@ export default function CampaignDetailPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
   const [campaign, setCampaign] = useState(campaignData);
+  const [isProspectDetailsOpen, setIsProspectDetailsOpen] = useState(false);
 
   // Filter prospects
   const filteredProspects = prospectsData.filter((p) =>
@@ -149,66 +153,123 @@ export default function CampaignDetailPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/campaigns">
-            <Button variant="ghost" size="icon">
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold">{campaign.name}</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-sm text-muted-foreground">
-                Created on {campaign.createdAt}
-              </span>
-              <Badge variant="outline" className="gap-1.5">
-                <Linkedin className="h-3 w-3" />
-                {campaign.type === "inmail" ? "InMail" : "Messaging"}
-              </Badge>
-              <Badge variant="outline" className="gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-green-500" />
-                In Progress
-              </Badge>
+      {/* Campaign Summary Card */}
+      <Card>
+        <CardContent className="p-6">
+          {/* Header Row */}
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl font-semibold">{campaign.name}</h1>
+              {/* Status Badge - Click to change for demo */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  {campaign.status === "not_launched" ? (
+                    <Badge variant="outline" className="gap-1.5 border-yellow-300 bg-yellow-50 text-yellow-700 cursor-pointer">
+                      <AlertCircle className="h-3 w-3" />
+                      Campaign is not Launched
+                    </Badge>
+                  ) : campaign.status === "in_progress" ? (
+                    <Badge variant="outline" className="gap-1.5 border-green-300 bg-green-50 text-green-700 cursor-pointer">
+                      <span className="h-2 w-2 rounded-full bg-green-500" />
+                      In Progress
+                    </Badge>
+                  ) : campaign.status === "paused" ? (
+                    <Badge variant="outline" className="gap-1.5 border-orange-300 bg-orange-50 text-orange-700 cursor-pointer">
+                      <Pause className="h-3 w-3" />
+                      Paused
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="gap-1.5 cursor-pointer">
+                      {campaign.status}
+                    </Badge>
+                  )}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => setCampaign({ ...campaign, status: "not_launched" as const })}>
+                    Not Launched
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setCampaign({ ...campaign, status: "in_progress" as const })}>
+                    In Progress
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setCampaign({ ...campaign, status: "paused" as const })}>
+                    Paused
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>Edit Campaign</DropdownMenuItem>
+                <DropdownMenuItem>Pause Campaign</DropdownMenuItem>
+                <DropdownMenuItem className="text-destructive">Delete Campaign</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Meta Row */}
+          <div className="flex items-center gap-3 text-sm text-muted-foreground mb-6">
+            <span>Created on {campaign.createdAt}</span>
+            <span className="text-border">|</span>
+            <Badge variant="outline" className="gap-1.5">
+              <Linkedin className="h-3 w-3" />
+              {campaign.type === "inmail" ? "InMail" : "Messaging"}
+            </Badge>
+            <Badge
+              variant="outline"
+              className={`gap-1.5 cursor-pointer ${campaign.isTraining ? "" : "opacity-50"}`}
+              onClick={() => setCampaign({ ...campaign, isTraining: !campaign.isTraining })}
+            >
+              <span className="h-2 w-2 rounded-full bg-muted-foreground" />
+              Training
+            </Badge>
+          </div>
+
+          {/* Stats Row */}
+          <div className="grid grid-cols-4 gap-4 py-6 border-y">
+            <div className="text-center">
+              <div className="text-2xl font-semibold">{campaign.totalProspects}</div>
+              <p className="text-sm text-muted-foreground">Total Prospects</p>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-semibold">{campaign.reachouts}</div>
+              <p className="text-sm text-muted-foreground">Reachouts</p>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-semibold">{campaign.acceptanceRate}%</div>
+              <p className="text-sm text-muted-foreground">Acceptance Rate</p>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-semibold">{campaign.responseRate}%</div>
+              <p className="text-sm text-muted-foreground">Response Rate</p>
             </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline">
-            <Pause className="h-4 w-4 mr-2" />
-            Pause Campaign
-          </Button>
-        </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{campaign.totalProspects}</div>
-            <p className="text-sm text-muted-foreground">Total Prospects</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{campaign.reachouts}</div>
-            <p className="text-sm text-muted-foreground">Reachouts</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{campaign.acceptanceRate}%</div>
-            <p className="text-sm text-muted-foreground">Acceptance Rate</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{campaign.responseRate}%</div>
-            <p className="text-sm text-muted-foreground">Response Rate</p>
-          </CardContent>
-        </Card>
-      </div>
+          {/* Prospect Fetch Details */}
+          <button
+            className="flex items-center gap-2 mt-4 text-sm font-medium hover:text-foreground"
+            onClick={() => setIsProspectDetailsOpen(!isProspectDetailsOpen)}
+          >
+            {isProspectDetailsOpen ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+            Prospect Fetch Details
+          </button>
+
+          {isProspectDetailsOpen && (
+            <div className="mt-4 pl-6 space-y-2 text-sm text-muted-foreground">
+              <p>Prospect pool size: {campaign.prospectPoolSize}</p>
+              <p>Source: LinkedIn Sales Navigator</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
