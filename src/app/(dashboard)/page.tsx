@@ -67,11 +67,46 @@ const stats = [
 ];
 
 const visitors = [
-  { name: "John Smith", company: "Acme Inc", role: "CTO", intent: "High", time: "2m ago", avatar: "JS" },
-  { name: "Sarah Chen", company: "Stripe", role: "VP Engineering", intent: "Medium", time: "5m ago", avatar: "SC" },
-  { name: "Mike Johnson", company: "Vercel", role: "Head of Eng", intent: "High", time: "12m ago", avatar: "MJ" },
-  { name: "Emily Davis", company: "Linear", role: "Engineering Lead", intent: "High", time: "18m ago", avatar: "ED" },
-  { name: "Alex Wong", company: "Figma", role: "Staff Engineer", intent: "Medium", time: "25m ago", avatar: "AW" },
+  {
+    name: "John Smith",
+    company: "Acme Inc",
+    role: "CTO",
+    intent: "High",
+    time: "2m ago",
+    avatar: "JS",
+  },
+  {
+    name: "Sarah Chen",
+    company: "Stripe",
+    role: "VP Engineering",
+    intent: "Medium",
+    time: "5m ago",
+    avatar: "SC",
+  },
+  {
+    name: "Mike Johnson",
+    company: "Vercel",
+    role: "Head of Eng",
+    intent: "High",
+    time: "12m ago",
+    avatar: "MJ",
+  },
+  {
+    name: "Emily Davis",
+    company: "Linear",
+    role: "Engineering Lead",
+    intent: "High",
+    time: "18m ago",
+    avatar: "ED",
+  },
+  {
+    name: "Alex Wong",
+    company: "Figma",
+    role: "Staff Engineer",
+    intent: "Medium",
+    time: "25m ago",
+    avatar: "AW",
+  },
 ];
 
 export default function DashboardPage() {
@@ -109,7 +144,9 @@ export default function DashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Approvals Required</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Approvals Required
+            </CardTitle>
             <MessageSquare className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="flex flex-1 flex-col justify-between">
@@ -128,7 +165,9 @@ export default function DashboardPage() {
 
         <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Messages Scheduled</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Messages Scheduled
+            </CardTitle>
             <Calendar className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="flex flex-1 flex-col justify-between">
@@ -153,11 +192,16 @@ export default function DashboardPage() {
           <CardContent className="flex flex-1 flex-col justify-between">
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold">22</div>
-              <Badge variant="outline" className="text-xs">Today</Badge>
+              <Badge variant="outline" className="text-xs">
+                Today
+              </Badge>
             </div>
             <div className="mt-3">
               <div className="h-2 w-full rounded-full bg-muted">
-                <div className="h-2 rounded-full transition-all" style={{ width: "88%", backgroundColor: "#10DD9B" }} />
+                <div
+                  className="h-2 rounded-full transition-all"
+                  style={{ width: "88%", backgroundColor: "#10DD9B" }}
+                />
               </div>
               <div className="mt-1 flex justify-between text-xs text-muted-foreground">
                 <span>22 sent</span>
@@ -175,11 +219,16 @@ export default function DashboardPage() {
           <CardContent className="flex flex-1 flex-col justify-between">
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold">24</div>
-              <Badge variant="outline" className="text-xs">Today</Badge>
+              <Badge variant="outline" className="text-xs">
+                Today
+              </Badge>
             </div>
             <div className="mt-3">
               <div className="h-2 w-full rounded-full bg-muted">
-                <div className="h-2 rounded-full transition-all" style={{ width: "60%", backgroundColor: "#5869E9" }} />
+                <div
+                  className="h-2 rounded-full transition-all"
+                  style={{ width: "60%", backgroundColor: "#5869E9" }}
+                />
               </div>
               <div className="mt-1 flex justify-between text-xs text-muted-foreground">
                 <span>24 sent</span>
@@ -200,11 +249,19 @@ export default function DashboardPage() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-1.5">
-                <div className="size-2 rounded-full" style={{ backgroundColor: "#10DD9B" }} />
-                <span className="text-muted-foreground">Connection Requests</span>
+                <div
+                  className="size-2 rounded-full"
+                  style={{ backgroundColor: "#10DD9B" }}
+                />
+                <span className="text-muted-foreground">
+                  Connection Requests
+                </span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="size-2 rounded-full" style={{ backgroundColor: "#5869E9" }} />
+                <div
+                  className="size-2 rounded-full"
+                  style={{ backgroundColor: "#5869E9" }}
+                />
                 <span className="text-muted-foreground">InMails</span>
               </div>
             </div>
@@ -216,11 +273,13 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           {/* Stats Row */}
-          <div className="grid grid-cols-7 gap-4 border-b pb-4">
+          <div className="grid grid-cols-7 gap-4 border-b pb-8">
             {stats.map((stat) => (
               <div key={stat.label}>
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
-                <p className="text-2xl font-bold">{stat.value}</p>
+                <p className="flex h-8 items-end text-xs text-muted-foreground">
+                  {stat.label}
+                </p>
+                <p className="mt-2 text-2xl font-bold">{stat.value}</p>
               </div>
             ))}
           </div>
@@ -272,7 +331,9 @@ export default function DashboardPage() {
             <Monitor className="size-4" />
             <CardTitle>Website Visitors</CardTitle>
           </div>
-          <Button variant="link" className="px-0">View All</Button>
+          <Button variant="link" className="px-0">
+            View All
+          </Button>
         </CardHeader>
         <CardContent>
           <Table>
@@ -290,7 +351,9 @@ export default function DashboardPage() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="size-8">
-                        <AvatarFallback className="text-xs">{visitor.avatar}</AvatarFallback>
+                        <AvatarFallback className="text-xs">
+                          {visitor.avatar}
+                        </AvatarFallback>
                       </Avatar>
                       <span className="font-medium">{visitor.name}</span>
                     </div>
@@ -298,17 +361,23 @@ export default function DashboardPage() {
                   <TableCell>
                     <div className="flex flex-col">
                       <span className="font-medium">{visitor.company}</span>
-                      <span className="text-xs text-muted-foreground">{visitor.role}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {visitor.role}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell>
                     <Badge
-                      variant={visitor.intent === "High" ? "default" : "secondary"}
+                      variant={
+                        visitor.intent === "High" ? "default" : "secondary"
+                      }
                     >
                       {visitor.intent}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{visitor.time}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {visitor.time}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
