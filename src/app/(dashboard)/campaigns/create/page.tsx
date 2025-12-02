@@ -45,6 +45,7 @@ import {
   Search,
   Check,
   Linkedin,
+  CornerDownRight,
 } from "lucide-react";
 
 type SequenceStep = {
@@ -98,6 +99,7 @@ export default function CreateCampaignPage() {
   const [isLinkedInUrlModalOpen, setIsLinkedInUrlModalOpen] = useState(false);
   const [linkedInUrl, setLinkedInUrl] = useState("");
 
+  // First Outreach sequence
   const [sequenceSteps, setSequenceSteps] = useState<SequenceStep[]>([
     { id: "1", type: "connect", day: 1, channel: "message", isAiGenerated: true },
     { id: "2", type: "followup", day: 4, channel: "message", isAiGenerated: true },
@@ -109,6 +111,17 @@ export default function CreateCampaignPage() {
     { id: "w2", days: 3 },
   ]);
 
+  // Re-engagement sequence
+  const [reEngagementSteps, setReEngagementSteps] = useState<SequenceStep[]>([
+    { id: "re1", type: "followup", day: 1, channel: "message", isAiGenerated: true },
+    { id: "re2", type: "followup", day: 4, channel: "message", isAiGenerated: true, isLast: true },
+  ]);
+
+  const [reEngagementWaitSteps, setReEngagementWaitSteps] = useState<WaitStep[]>([
+    { id: "rew1", days: 3 },
+  ]);
+
+  // First Outreach functions
   const updateWaitDays = (index: number, delta: number) => {
     setWaitSteps((prev) =>
       prev.map((step, i) =>
@@ -120,13 +133,11 @@ export default function CreateCampaignPage() {
   const removeStep = (stepId: string) => {
     setSequenceSteps((prev) => {
       const newSteps = prev.filter((s) => s.id !== stepId);
-      // Mark the last one as isLast
       if (newSteps.length > 0) {
         newSteps[newSteps.length - 1].isLast = true;
       }
       return newSteps;
     });
-    // Also remove corresponding wait step
     if (waitSteps.length > sequenceSteps.length - 2) {
       setWaitSteps((prev) => prev.slice(0, -1));
     }
@@ -137,7 +148,6 @@ export default function CreateCampaignPage() {
     const lastWait = waitSteps[waitSteps.length - 1];
     const newDay = lastStep ? lastStep.day + (lastWait?.days || 3) : 1;
 
-    // Remove isLast from previous last step
     setSequenceSteps((prev) => [
       ...prev.map((s) => ({ ...s, isLast: false })),
       {
@@ -149,9 +159,48 @@ export default function CreateCampaignPage() {
         isLast: true,
       },
     ]);
-
-    // Add new wait step
     setWaitSteps((prev) => [...prev, { id: `w${Date.now()}`, days: 3 }]);
+  };
+
+  // Re-engagement functions
+  const updateReEngagementWaitDays = (index: number, delta: number) => {
+    setReEngagementWaitSteps((prev) =>
+      prev.map((step, i) =>
+        i === index ? { ...step, days: Math.max(1, step.days + delta) } : step
+      )
+    );
+  };
+
+  const removeReEngagementStep = (stepId: string) => {
+    setReEngagementSteps((prev) => {
+      const newSteps = prev.filter((s) => s.id !== stepId);
+      if (newSteps.length > 0) {
+        newSteps[newSteps.length - 1].isLast = true;
+      }
+      return newSteps;
+    });
+    if (reEngagementWaitSteps.length > reEngagementSteps.length - 2) {
+      setReEngagementWaitSteps((prev) => prev.slice(0, -1));
+    }
+  };
+
+  const addReEngagement = () => {
+    const lastStep = reEngagementSteps[reEngagementSteps.length - 1];
+    const lastWait = reEngagementWaitSteps[reEngagementWaitSteps.length - 1];
+    const newDay = lastStep ? lastStep.day + (lastWait?.days || 3) : 1;
+
+    setReEngagementSteps((prev) => [
+      ...prev.map((s) => ({ ...s, isLast: false })),
+      {
+        id: `re${Date.now()}`,
+        type: "followup",
+        day: newDay,
+        channel: reachoutChannel,
+        isAiGenerated: true,
+        isLast: true,
+      },
+    ]);
+    setReEngagementWaitSteps((prev) => [...prev, { id: `rew${Date.now()}`, days: 3 }]);
   };
 
   const toggleDay = (day: string) => {
@@ -254,64 +303,119 @@ export default function CreateCampaignPage() {
                   </Button>
                 </div>
 
-                {/* Vertical line connector */}
-                <div className="relative">
-                  {sequenceSteps.map((step, index) => (
-                    <div key={step.id}>
-                      {/* Connector line */}
-                      {index > 0 && (
-                        <div className="flex flex-col items-center py-4">
-                          <div className="h-8 w-px bg-border" />
-                          {/* Wait control */}
-                          <div className="flex items-center gap-2 py-2">
-                            <Clock className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm text-muted-foreground">Wait for</span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => updateWaitDays(index - 1, -1)}
-                            >
-                              <Minus className="h-3 w-3" />
-                            </Button>
-                            <span className="text-sm font-medium w-12 text-center">
-                              {waitSteps[index - 1]?.days || 3} days
-                            </span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => updateWaitDays(index - 1, 1)}
-                            >
-                              <Plus className="h-3 w-3" />
-                            </Button>
+                {/* First Outreach Sequence */}
+                {activeTab === "first-outreach" && (
+                  <div className="relative">
+                    {sequenceSteps.map((step, index) => (
+                      <div key={step.id}>
+                        {index > 0 && (
+                          <div className="flex flex-col items-center py-4">
+                            <div className="h-8 w-px bg-border" />
+                            <div className="flex items-center gap-2 py-2">
+                              <Clock className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-sm text-muted-foreground">Wait for</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => updateWaitDays(index - 1, -1)}
+                              >
+                                <Minus className="h-3 w-3" />
+                              </Button>
+                              <span className="text-sm font-medium w-12 text-center">
+                                {waitSteps[index - 1]?.days || 3} days
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => updateWaitDays(index - 1, 1)}
+                              >
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            <div className="h-8 w-px bg-border" />
                           </div>
-                          <div className="h-8 w-px bg-border" />
-                        </div>
-                      )}
-
-                      {/* Step Card */}
-                      <SequenceStepCard
-                        step={step}
-                        onRemove={() => removeStep(step.id)}
-                        canRemove={sequenceSteps.length > 1}
-                      />
+                        )}
+                        <SequenceStepCard
+                          step={step}
+                          stepNumber={index + 1}
+                          isReEngagement={false}
+                          onRemove={() => removeStep(step.id)}
+                          canRemove={sequenceSteps.length > 1}
+                        />
+                      </div>
+                    ))}
+                    <div className="flex flex-col items-center py-4">
+                      <div className="h-8 w-px bg-border" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full border"
+                        onClick={addFollowup}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
                     </div>
-                  ))}
-
-                  {/* Add button */}
-                  <div className="flex flex-col items-center py-4">
-                    <div className="h-8 w-px bg-border" />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 rounded-full border"
-                      onClick={addFollowup}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
                   </div>
-                </div>
+                )}
+
+                {/* Re-Engagements Sequence */}
+                {activeTab === "re-engagements" && (
+                  <div className="relative">
+                    {reEngagementSteps.map((step, index) => (
+                      <div key={step.id}>
+                        {index > 0 && (
+                          <div className="flex flex-col items-center py-4">
+                            <div className="h-8 w-px bg-border" />
+                            <div className="flex items-center gap-2 py-2">
+                              <Clock className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-sm text-muted-foreground">Wait for</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => updateReEngagementWaitDays(index - 1, -1)}
+                              >
+                                <Minus className="h-3 w-3" />
+                              </Button>
+                              <span className="text-sm font-medium w-12 text-center">
+                                {reEngagementWaitSteps[index - 1]?.days || 3} days
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => updateReEngagementWaitDays(index - 1, 1)}
+                              >
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            <div className="h-8 w-px bg-border" />
+                          </div>
+                        )}
+                        <SequenceStepCard
+                          step={step}
+                          stepNumber={index + 1}
+                          isReEngagement={true}
+                          onRemove={() => removeReEngagementStep(step.id)}
+                          canRemove={reEngagementSteps.length > 1}
+                        />
+                      </div>
+                    ))}
+                    <div className="flex flex-col items-center py-4">
+                      <div className="h-8 w-px bg-border" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full border"
+                        onClick={addReEngagement}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </>
@@ -673,23 +777,39 @@ export default function CreateCampaignPage() {
 
 function SequenceStepCard({
   step,
+  stepNumber,
+  isReEngagement,
   onRemove,
   canRemove,
 }: {
   step: SequenceStep;
+  stepNumber: number;
+  isReEngagement: boolean;
   onRemove: () => void;
   canRemove: boolean;
 }) {
-  const isConnect = step.type === "connect";
-  const title = isConnect
-    ? "Connect Sequence"
-    : `Followup ${step.isLast ? "(Last)" : ""}`;
+  const isConnect = step.type === "connect" && !isReEngagement;
+
+  let title: string;
+  if (isReEngagement) {
+    title = `Re-engagement ${stepNumber}${step.isLast ? " (Last)" : ""}`;
+  } else if (isConnect) {
+    title = "Connect Sequence";
+  } else {
+    title = `Followup ${stepNumber - 1}${step.isLast ? " (Last)" : ""}`;
+  }
+
+  const subtitle = isReEngagement
+    ? `LinkedIn ${step.channel === "message" ? "Message" : "InMail"} · AI Generated`
+    : `Day ${step.day} · LinkedIn ${step.channel === "message" ? "Message" : "InMail"} · AI Generated`;
 
   return (
     <div className="relative rounded-lg border bg-card p-4">
       <div className="flex items-start gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-          {isConnect ? (
+          {isReEngagement ? (
+            <CornerDownRight className="h-5 w-5 text-muted-foreground" />
+          ) : isConnect ? (
             <Zap className="h-5 w-5 text-muted-foreground" />
           ) : (
             <MessageSquare className="h-5 w-5 text-muted-foreground" />
@@ -697,9 +817,7 @@ function SequenceStepCard({
         </div>
         <div className="flex-1">
           <h3 className="font-medium">{title}</h3>
-          <p className="text-sm text-muted-foreground">
-            Day {step.day} · LinkedIn {step.channel === "message" ? "Message" : "InMail"} · AI Generated
-          </p>
+          <p className="text-sm text-muted-foreground">{subtitle}</p>
         </div>
         {canRemove && step.isLast && (
           <Button
