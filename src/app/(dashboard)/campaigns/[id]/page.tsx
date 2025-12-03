@@ -450,10 +450,19 @@ export default function CampaignDetailPage() {
                   {prospectsData.slice(0, 5).map((prospect) => (
                     <button
                       key={prospect.id}
-                      className="w-full text-left p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                      className="w-full text-left p-2 rounded-lg hover:bg-muted/50 transition-colors flex items-center gap-3"
                     >
-                      <div className="font-medium text-sm">{prospect.name}</div>
-                      <div className="text-xs text-muted-foreground">{prospect.title}</div>
+                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0 overflow-hidden">
+                        <img
+                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${prospect.name}`}
+                          alt={prospect.name}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <div className="font-medium text-sm">{prospect.name}</div>
+                        <div className="text-xs text-muted-foreground">{prospect.title}</div>
+                      </div>
                     </button>
                   ))}
                 </div>
