@@ -580,7 +580,7 @@ export default function CampaignDetailPage() {
                         className="w-full"
                         onClick={() => {
                           setShowLaunchSuccessModal(false);
-                          router.push("/campaigns");
+                          setActiveTab("overview");
                         }}
                       >
                         Done
