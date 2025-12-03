@@ -407,13 +407,9 @@ export default function CampaignDetailPage() {
               </Badge>
             </div>
             <Button
-              variant="ghost"
-              size="sm"
-              className="gap-1 text-muted-foreground hover:text-foreground"
               onClick={() => trainingStep === "training" && selectedProspect && setTrainingStep("launch")}
               disabled={trainingStep !== "training" || !selectedProspect}
             >
-              <LinkIcon className="h-4 w-4" />
               Approve Messaging and Launch Campaign
             </Button>
           </div>
