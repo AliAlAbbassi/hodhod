@@ -153,6 +153,7 @@ export default function CampaignDetailPage() {
   const [trainingStep, setTrainingStep] = useState<"intro" | "training" | "messaging" | "launch">("intro");
   const [showTrainingAlert, setShowTrainingAlert] = useState(true);
   const [isFetchingProspects, setIsFetchingProspects] = useState(true);
+  const [selectedProspect, setSelectedProspect] = useState<typeof prospectsData[0] | null>(null);
 
   // Filter prospects
   const filteredProspects = prospectsData.filter((p) =>
@@ -428,8 +429,13 @@ export default function CampaignDetailPage() {
                   {prospectsData.slice(0, 5).map((prospect) => (
                     <button
                       key={prospect.id}
-                      className="w-full text-left p-2 rounded-lg hover:bg-muted/50 transition-colors flex items-center gap-3"
-                      onClick={() => setTrainingStep("training")}
+                      className={`w-full text-left p-2 rounded-lg hover:bg-muted/50 transition-colors flex items-center gap-3 ${
+                        selectedProspect?.id === prospect.id ? "bg-muted" : ""
+                      }`}
+                      onClick={() => {
+                        setSelectedProspect(prospect);
+                        setTrainingStep("training");
+                      }}
                     >
                       <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0 overflow-hidden">
                         <img
@@ -496,7 +502,12 @@ export default function CampaignDetailPage() {
                 {/* Training Step - Sample Sequence */}
                 {trainingStep === "training" && (
                   <div className="space-y-4 max-w-2xl">
-                    <h3 className="font-semibold">Sample Sequence - Sarah Chen</h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold">Sample Sequence - {selectedProspect?.name || "Sarah Chen"}</h3>
+                      <Button onClick={() => setTrainingStep("launch")}>
+                        Approve Messaging and Launch Campaign
+                      </Button>
+                    </div>
                     <div className="space-y-3">
                       <div className="rounded-lg border p-4">
                         <div className="flex items-center gap-2 mb-2">
@@ -504,7 +515,7 @@ export default function CampaignDetailPage() {
                           <span className="text-sm text-muted-foreground">Connect Message</span>
                         </div>
                         <p className="text-sm">
-                          Hi Sarah, I noticed your work on engineering scalability at Stripe. We&apos;re helping engineering leaders automate their outreach - would love to connect!
+                          Hi {selectedProspect?.name.split(" ")[0] || "Sarah"}, I noticed your work on engineering scalability at {selectedProspect?.company || "Stripe"}. We&apos;re helping engineering leaders automate their outreach - would love to connect!
                         </p>
                       </div>
                       <div className="rounded-lg border p-4">
@@ -513,8 +524,48 @@ export default function CampaignDetailPage() {
                           <span className="text-sm text-muted-foreground">Follow-up 1</span>
                         </div>
                         <p className="text-sm">
-                          Hi Sarah, following up on my previous message. I&apos;d love to show you how we&apos;ve helped other engineering leaders save 10+ hours per week. Open to a quick chat?
+                          Hi {selectedProspect?.name.split(" ")[0] || "Sarah"}, following up on my previous message. I&apos;d love to show you how we&apos;ve helped other engineering leaders save 10+ hours per week. Open to a quick chat?
                         </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Launch Step - Approve Message Preview */}
+                {trainingStep === "launch" && selectedProspect && (
+                  <div className="space-y-6 max-w-2xl">
+                    {/* Prospect Info */}
+                    <div className="flex items-center gap-4">
+                      <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center shrink-0 overflow-hidden">
+                        <img
+                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedProspect.name}`}
+                          alt={selectedProspect.name}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <div className="font-semibold">{selectedProspect.name}</div>
+                        <div className="text-sm text-muted-foreground">{selectedProspect.title}</div>
+                      </div>
+                    </div>
+
+                    {/* Connect Message */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm text-muted-foreground">Connect Message</h4>
+                      <div className="rounded-lg border p-4 space-y-4">
+                        <div className="flex items-center gap-2 text-sm font-medium">
+                          <MessageSquare className="h-4 w-4" />
+                          CONNECT MESSAGE
+                        </div>
+                        <div className="space-y-4 text-sm">
+                          <p>Hey!</p>
+                          <p>
+                            Saw you&apos;re &quot;building for fun&quot; now - that&apos;s awesome. Reminds me of my own tinkering days.
+                          </p>
+                          <p>
+                            Ever think about connecting with others doing similar projects?
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
