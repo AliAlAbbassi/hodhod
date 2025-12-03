@@ -433,10 +433,10 @@ export default function CampaignDetailPage() {
             <h2 className="text-lg font-medium">Select a Prospect to train</h2>
           </div>
 
-          {/* Main Content Area */}
-          <div className="flex-1 relative">
-            {/* Left side - Prospects List */}
-            <div className="absolute left-0 top-0 w-64">
+          {/* Main Content Area - Flex Layout */}
+          <div className="flex-1 flex gap-8">
+            {/* Left Sidebar - Prospects List */}
+            <div className="w-56 shrink-0">
               {isFetchingProspects ? (
                 <button
                   className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
@@ -451,6 +451,7 @@ export default function CampaignDetailPage() {
                     <button
                       key={prospect.id}
                       className="w-full text-left p-2 rounded-lg hover:bg-muted/50 transition-colors flex items-center gap-3"
+                      onClick={() => setTrainingStep("training")}
                     >
                       <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0 overflow-hidden">
                         <img
@@ -469,36 +470,37 @@ export default function CampaignDetailPage() {
               )}
             </div>
 
-            {/* Center Modal - Intro */}
-            {trainingStep === "intro" && (
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
-                <Card className="shadow-lg">
-                  <CardContent className="pt-8 pb-6 px-8 text-center">
-                    <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-foreground text-background">
-                      <MessageCircle className="h-8 w-8" />
-                    </div>
-                    <h2 className="text-xl font-semibold mb-4">Review and Train Your Messaging</h2>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Take a moment to review a selection of prospects uploaded to your campaign. On this screen you can provide feedback and fine-tune Valley&apos;s messaging style. Your insights will help ensure messages are written in your desired tone.
-                    </p>
-                    <p className="text-sm text-muted-foreground mb-6">
-                      Once you are happy with the campaign&apos;s messaging style, you can launch your campaign and start sending outbound messages to your prospects.
-                    </p>
-                    <Button className="w-full" onClick={() => setTrainingStep("training")}>
-                      Continue
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+            {/* Main Content */}
+            <div className="flex-1">
+              {/* Center Modal - Intro */}
+              {trainingStep === "intro" && (
+                <div className="flex items-center justify-center h-full">
+                  <Card className="shadow-lg max-w-md w-full">
+                    <CardContent className="pt-8 pb-6 px-8 text-center">
+                      <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-foreground text-background">
+                        <MessageCircle className="h-8 w-8" />
+                      </div>
+                      <h2 className="text-xl font-semibold mb-4">Review and Train Your Messaging</h2>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Take a moment to review a selection of prospects uploaded to your campaign. On this screen you can provide feedback and fine-tune Valley&apos;s messaging style. Your insights will help ensure messages are written in your desired tone.
+                      </p>
+                      <p className="text-sm text-muted-foreground mb-6">
+                        Once you are happy with the campaign&apos;s messaging style, you can launch your campaign and start sending outbound messages to your prospects.
+                      </p>
+                      <Button className="w-full" onClick={() => setTrainingStep("training")}>
+                        Continue
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
 
-            {/* Training Step */}
-            {trainingStep === "training" && (
-              <div className="mx-auto max-w-4xl pt-8">
-                <div className="grid gap-6 lg:grid-cols-2">
+              {/* Training Step */}
+              {trainingStep === "training" && (
+                <div className="grid gap-8 lg:grid-cols-2">
                   {/* Sample Sequence */}
                   <div className="space-y-4">
-                    <h3 className="font-medium">Sample Sequence - Sarah Chen</h3>
+                    <h3 className="font-semibold">Sample Sequence - Sarah Chen</h3>
                     <div className="space-y-3">
                       <div className="rounded-lg border p-4">
                         <div className="flex items-center gap-2 mb-2">
@@ -506,8 +508,7 @@ export default function CampaignDetailPage() {
                           <span className="text-sm text-muted-foreground">Connect Message</span>
                         </div>
                         <p className="text-sm">
-                          Hi Sarah, I noticed your work on engineering scalability at Stripe.
-                          We&apos;re helping engineering leaders automate their outreach - would love to connect!
+                          Hi Sarah, I noticed your work on engineering scalability at Stripe. We&apos;re helping engineering leaders automate their outreach - would love to connect!
                         </p>
                       </div>
                       <div className="rounded-lg border p-4">
@@ -516,8 +517,7 @@ export default function CampaignDetailPage() {
                           <span className="text-sm text-muted-foreground">Follow-up 1</span>
                         </div>
                         <p className="text-sm">
-                          Hi Sarah, following up on my previous message. I&apos;d love to show you how
-                          we&apos;ve helped other engineering leaders save 10+ hours per week. Open to a quick chat?
+                          Hi Sarah, following up on my previous message. I&apos;d love to show you how we&apos;ve helped other engineering leaders save 10+ hours per week. Open to a quick chat?
                         </p>
                       </div>
                     </div>
@@ -525,26 +525,24 @@ export default function CampaignDetailPage() {
 
                   {/* Feedback Section */}
                   <div className="space-y-4">
-                    <h3 className="font-medium">Provide Feedback</h3>
+                    <h3 className="font-semibold">Provide Feedback</h3>
                     <p className="text-sm text-muted-foreground">
                       Your feedback will be applied across ALL prospects in this campaign.
                     </p>
-                    <div className="space-y-3">
-                      <div className="flex gap-2">
-                        <Button variant="outline" className="gap-2">
-                          <ThumbsUp className="h-4 w-4" />
-                          Approve
-                        </Button>
-                        <Button variant="outline" className="gap-2">
-                          <ThumbsDown className="h-4 w-4" />
-                          Needs Work
-                        </Button>
-                      </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" className="gap-2">
+                        <ThumbsUp className="h-4 w-4" />
+                        Approve
+                      </Button>
+                      <Button variant="outline" className="gap-2">
+                        <ThumbsDown className="h-4 w-4" />
+                        Needs Work
+                      </Button>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Bottom Feedback Input */}
