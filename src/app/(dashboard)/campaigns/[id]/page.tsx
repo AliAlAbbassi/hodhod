@@ -154,6 +154,7 @@ export default function CampaignDetailPage() {
   const [showTrainingAlert, setShowTrainingAlert] = useState(true);
   const [isFetchingProspects, setIsFetchingProspects] = useState(true);
   const [selectedProspect, setSelectedProspect] = useState<typeof prospectsData[0] | null>(null);
+  const [showLaunchSuccessModal, setShowLaunchSuccessModal] = useState(false);
 
   // Filter prospects
   const filteredProspects = prospectsData.filter((p) =>
@@ -407,8 +408,7 @@ export default function CampaignDetailPage() {
               </Badge>
             </div>
             <Button
-              className="bg-foreground text-background hover:bg-foreground/90"
-              onClick={() => trainingStep === "training" && selectedProspect && setTrainingStep("launch")}
+              onClick={() => setShowLaunchSuccessModal(true)}
               disabled={trainingStep !== "training" || !selectedProspect}
             >
               Approve Messaging and Launch Campaign
@@ -503,35 +503,8 @@ export default function CampaignDetailPage() {
                   </div>
                 )}
 
-                {/* Training Step - Sample Sequence */}
-                {trainingStep === "training" && (
-                  <div className="space-y-4 max-w-2xl">
-                    <h3 className="font-semibold">Sample Sequence - {selectedProspect?.name || "Sarah Chen"}</h3>
-                    <div className="space-y-3">
-                      <div className="rounded-lg border p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="outline">Day 1</Badge>
-                          <span className="text-sm text-muted-foreground">Connect Message</span>
-                        </div>
-                        <p className="text-sm">
-                          Hi {selectedProspect?.name.split(" ")[0] || "Sarah"}, I noticed your work on engineering scalability at {selectedProspect?.company || "Stripe"}. We&apos;re helping engineering leaders automate their outreach - would love to connect!
-                        </p>
-                      </div>
-                      <div className="rounded-lg border p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="outline">Day 4</Badge>
-                          <span className="text-sm text-muted-foreground">Follow-up 1</span>
-                        </div>
-                        <p className="text-sm">
-                          Hi {selectedProspect?.name.split(" ")[0] || "Sarah"}, following up on my previous message. I&apos;d love to show you how we&apos;ve helped other engineering leaders save 10+ hours per week. Open to a quick chat?
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Launch Step - Approve Message Preview */}
-                {trainingStep === "launch" && selectedProspect && (
+                {/* Training Step - Prospect Preview */}
+                {trainingStep === "training" && selectedProspect && (
                   <div className="space-y-6 max-w-2xl">
                     {/* Prospect Info */}
                     <div className="flex items-center gap-4">
@@ -566,6 +539,52 @@ export default function CampaignDetailPage() {
                           </p>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Launch Success Modal */}
+                {showLaunchSuccessModal && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/50" onClick={() => setShowLaunchSuccessModal(false)} />
+                    <div className="relative bg-background rounded-xl p-8 max-w-md w-full mx-4 text-center shadow-xl">
+                      {/* Confetti background */}
+                      <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
+                        <div className="absolute top-4 left-8 w-2 h-2 bg-purple-400 rotate-45" />
+                        <div className="absolute top-12 left-16 w-1.5 h-1.5 bg-yellow-400 rotate-12" />
+                        <div className="absolute top-8 right-12 w-2 h-2 bg-blue-400 -rotate-12" />
+                        <div className="absolute top-16 right-20 w-1.5 h-1.5 bg-pink-400 rotate-45" />
+                        <div className="absolute top-20 left-12 w-1.5 h-1.5 bg-green-400 -rotate-12" />
+                        <div className="absolute top-6 left-1/3 w-2 h-2 bg-orange-400 rotate-12" />
+                        <div className="absolute top-14 right-1/3 w-1.5 h-1.5 bg-cyan-400 -rotate-45" />
+                        <div className="absolute bottom-1/3 left-8 w-1.5 h-1.5 bg-rose-400 rotate-12" />
+                        <div className="absolute bottom-1/4 right-10 w-2 h-2 bg-indigo-400 -rotate-12" />
+                      </div>
+
+                      {/* Avatar */}
+                      <div className="mx-auto mb-6 h-16 w-16 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                        <img
+                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedProspect?.name || "Alex"}`}
+                          alt={selectedProspect?.name || "Prospect"}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+
+                      {/* Success Message */}
+                      <h2 className="text-xl mb-6">
+                        Your Campaign <span className="font-bold">{campaign.name}</span> Has Been Successfully Launched
+                      </h2>
+
+                      {/* Done Button */}
+                      <Button
+                        className="w-full"
+                        onClick={() => {
+                          setShowLaunchSuccessModal(false);
+                          router.push("/campaigns");
+                        }}
+                      >
+                        Done
+                      </Button>
                     </div>
                   </div>
                 )}
