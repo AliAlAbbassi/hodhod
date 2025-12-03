@@ -407,6 +407,7 @@ export default function CampaignDetailPage() {
               </Badge>
             </div>
             <Button
+              className="bg-foreground text-background hover:bg-foreground/90"
               onClick={() => trainingStep === "training" && selectedProspect && setTrainingStep("launch")}
               disabled={trainingStep !== "training" || !selectedProspect}
             >
