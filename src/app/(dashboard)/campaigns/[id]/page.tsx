@@ -545,8 +545,8 @@ export default function CampaignDetailPage() {
             </div>
           </div>
 
-          {/* Bottom Feedback Input */}
-          <div className="mt-auto pt-4 space-y-2">
+          {/* Bottom Feedback Input - Full width, offset from sidebar */}
+          <div className="mt-auto pt-4 space-y-2 pl-64">
             <p className="text-xs text-muted-foreground text-center">
               Regeneration takes approximately 40 seconds so please combine all feedback into one prompt
             </p>
