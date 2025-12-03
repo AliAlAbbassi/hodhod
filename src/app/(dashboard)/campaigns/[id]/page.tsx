@@ -493,49 +493,28 @@ export default function CampaignDetailPage() {
                   </div>
                 )}
 
-                {/* Training Step */}
+                {/* Training Step - Sample Sequence */}
                 {trainingStep === "training" && (
-                  <div className="grid gap-8 lg:grid-cols-2">
-                    {/* Sample Sequence */}
-                    <div className="space-y-4">
-                      <h3 className="font-semibold">Sample Sequence - Sarah Chen</h3>
-                      <div className="space-y-3">
-                        <div className="rounded-lg border p-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline">Day 1</Badge>
-                            <span className="text-sm text-muted-foreground">Connect Message</span>
-                          </div>
-                          <p className="text-sm">
-                            Hi Sarah, I noticed your work on engineering scalability at Stripe. We&apos;re helping engineering leaders automate their outreach - would love to connect!
-                          </p>
+                  <div className="space-y-4 max-w-2xl">
+                    <h3 className="font-semibold">Sample Sequence - Sarah Chen</h3>
+                    <div className="space-y-3">
+                      <div className="rounded-lg border p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="outline">Day 1</Badge>
+                          <span className="text-sm text-muted-foreground">Connect Message</span>
                         </div>
-                        <div className="rounded-lg border p-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline">Day 4</Badge>
-                            <span className="text-sm text-muted-foreground">Follow-up 1</span>
-                          </div>
-                          <p className="text-sm">
-                            Hi Sarah, following up on my previous message. I&apos;d love to show you how we&apos;ve helped other engineering leaders save 10+ hours per week. Open to a quick chat?
-                          </p>
-                        </div>
+                        <p className="text-sm">
+                          Hi Sarah, I noticed your work on engineering scalability at Stripe. We&apos;re helping engineering leaders automate their outreach - would love to connect!
+                        </p>
                       </div>
-                    </div>
-
-                    {/* Feedback Section */}
-                    <div className="space-y-4">
-                      <h3 className="font-semibold">Provide Feedback</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Your feedback will be applied across ALL prospects in this campaign.
-                      </p>
-                      <div className="flex gap-2">
-                        <Button variant="outline" className="gap-2">
-                          <ThumbsUp className="h-4 w-4" />
-                          Approve
-                        </Button>
-                        <Button variant="outline" className="gap-2">
-                          <ThumbsDown className="h-4 w-4" />
-                          Needs Work
-                        </Button>
+                      <div className="rounded-lg border p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="outline">Day 4</Badge>
+                          <span className="text-sm text-muted-foreground">Follow-up 1</span>
+                        </div>
+                        <p className="text-sm">
+                          Hi Sarah, following up on my previous message. I&apos;d love to show you how we&apos;ve helped other engineering leaders save 10+ hours per week. Open to a quick chat?
+                        </p>
                       </div>
                     </div>
                   </div>
