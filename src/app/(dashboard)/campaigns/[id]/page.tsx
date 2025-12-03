@@ -393,22 +393,29 @@ export default function CampaignDetailPage() {
         <TabsContent value="training" className="min-h-[600px]">
           {/* Progress Steps - Top Right */}
           <div className="flex items-center justify-end gap-4 text-sm mb-4">
-            <div className="flex items-center gap-1">
-              <span className="text-muted-foreground">•</span>
-              <span className={trainingStep === "intro" || trainingStep === "training" ? "text-foreground" : "text-muted-foreground"}>
-                Training
-              </span>
-            </div>
+            <button
+              className={`flex items-center gap-1 ${trainingStep === "training" ? "text-foreground" : "text-muted-foreground"}`}
+              onClick={() => trainingStep !== "intro" && setTrainingStep("training")}
+            >
+              <span>•</span>
+              <span>Training</span>
+            </button>
             <div className="flex items-center gap-1">
               <Badge variant="outline" className="gap-1">
                 <Linkedin className="h-3 w-3" />
                 Messaging
               </Badge>
             </div>
-            <div className="flex items-center gap-1">
-              <LinkIcon className="h-4 w-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Approve Messaging and Launch Campaign</span>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1 text-muted-foreground hover:text-foreground"
+              onClick={() => trainingStep === "training" && selectedProspect && setTrainingStep("launch")}
+              disabled={trainingStep !== "training" || !selectedProspect}
+            >
+              <LinkIcon className="h-4 w-4" />
+              Approve Messaging and Launch Campaign
+            </Button>
           </div>
 
           {/* Two Column Layout */}
@@ -502,12 +509,7 @@ export default function CampaignDetailPage() {
                 {/* Training Step - Sample Sequence */}
                 {trainingStep === "training" && (
                   <div className="space-y-4 max-w-2xl">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold">Sample Sequence - {selectedProspect?.name || "Sarah Chen"}</h3>
-                      <Button onClick={() => setTrainingStep("launch")}>
-                        Approve Messaging and Launch Campaign
-                      </Button>
-                    </div>
+                    <h3 className="font-semibold">Sample Sequence - {selectedProspect?.name || "Sarah Chen"}</h3>
                     <div className="space-y-3">
                       <div className="rounded-lg border p-4">
                         <div className="flex items-center gap-2 mb-2">
