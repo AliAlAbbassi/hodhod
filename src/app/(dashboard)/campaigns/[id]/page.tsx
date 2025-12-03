@@ -435,9 +435,9 @@ export default function CampaignDetailPage() {
 
           {/* Main Content Area */}
           <div className="flex-1 relative">
-            {/* Left side - Fetching Prospects */}
-            {isFetchingProspects && (
-              <div className="absolute left-0 top-1/3">
+            {/* Left side - Prospects List */}
+            <div className="absolute left-0 top-0 w-64">
+              {isFetchingProspects ? (
                 <button
                   className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
                   onClick={() => setIsFetchingProspects(false)}
@@ -445,8 +445,20 @@ export default function CampaignDetailPage() {
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Fetching Prospects
                 </button>
-              </div>
-            )}
+              ) : (
+                <div className="space-y-1">
+                  {prospectsData.slice(0, 5).map((prospect) => (
+                    <button
+                      key={prospect.id}
+                      className="w-full text-left p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="font-medium text-sm">{prospect.name}</div>
+                      <div className="text-xs text-muted-foreground">{prospect.title}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Center Modal - Intro */}
             {trainingStep === "intro" && (
