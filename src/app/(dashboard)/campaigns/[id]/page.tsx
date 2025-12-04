@@ -139,7 +139,10 @@ const statusConfig = {
   sent: { label: "Sent", className: "bg-blue-100 text-blue-700" },
   opened: { label: "Opened", className: "bg-yellow-100 text-yellow-700" },
   replied: { label: "Replied", className: "bg-green-100 text-green-700" },
-  meeting_booked: { label: "Meeting Booked", className: "bg-purple-100 text-purple-700" },
+  meeting_booked: {
+    label: "Meeting Booked",
+    className: "bg-purple-100 text-purple-700",
+  },
 };
 
 export default function CampaignDetailPage() {
@@ -150,16 +153,21 @@ export default function CampaignDetailPage() {
   const [isProspectDetailsOpen, setIsProspectDetailsOpen] = useState(false);
 
   // Training Center state
-  const [trainingStep, setTrainingStep] = useState<"intro" | "training" | "messaging" | "launch">("intro");
+  const [trainingStep, setTrainingStep] = useState<
+    "intro" | "training" | "messaging" | "launch"
+  >("intro");
   const [showTrainingAlert, setShowTrainingAlert] = useState(true);
   const [isFetchingProspects, setIsFetchingProspects] = useState(true);
-  const [selectedProspect, setSelectedProspect] = useState<typeof prospectsData[0] | null>(null);
+  const [selectedProspect, setSelectedProspect] = useState<
+    (typeof prospectsData)[0] | null
+  >(null);
   const [showLaunchSuccessModal, setShowLaunchSuccessModal] = useState(false);
 
   // Filter prospects
-  const filteredProspects = prospectsData.filter((p) =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.company.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProspects = prospectsData.filter(
+    (p) =>
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.company.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -175,17 +183,26 @@ export default function CampaignDetailPage() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   {campaign.status === "not_launched" ? (
-                    <Badge variant="outline" className="gap-1.5 border-yellow-300 bg-yellow-50 text-yellow-700 cursor-pointer">
+                    <Badge
+                      variant="outline"
+                      className="gap-1.5 border-yellow-300 bg-yellow-50 text-yellow-700 cursor-pointer"
+                    >
                       <AlertCircle className="h-3 w-3" />
                       Campaign is not Launched
                     </Badge>
                   ) : campaign.status === "in_progress" ? (
-                    <Badge variant="outline" className="gap-1.5 border-green-300 bg-green-50 text-green-700 cursor-pointer">
+                    <Badge
+                      variant="outline"
+                      className="gap-1.5 border-green-300 bg-green-50 text-green-700 cursor-pointer"
+                    >
                       <span className="h-2 w-2 rounded-full bg-green-500" />
                       In Progress
                     </Badge>
                   ) : campaign.status === "paused" ? (
-                    <Badge variant="outline" className="gap-1.5 border-orange-300 bg-orange-50 text-orange-700 cursor-pointer">
+                    <Badge
+                      variant="outline"
+                      className="gap-1.5 border-orange-300 bg-orange-50 text-orange-700 cursor-pointer"
+                    >
                       <Pause className="h-3 w-3" />
                       Paused
                     </Badge>
@@ -196,13 +213,31 @@ export default function CampaignDetailPage() {
                   )}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => setCampaign({ ...campaign, status: "not_launched" as const })}>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      setCampaign({
+                        ...campaign,
+                        status: "not_launched" as const,
+                      })
+                    }
+                  >
                     Not Launched
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setCampaign({ ...campaign, status: "in_progress" as const })}>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      setCampaign({
+                        ...campaign,
+                        status: "in_progress" as const,
+                      })
+                    }
+                  >
                     In Progress
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setCampaign({ ...campaign, status: "paused" as const })}>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      setCampaign({ ...campaign, status: "paused" as const })
+                    }
+                  >
                     Paused
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -217,7 +252,9 @@ export default function CampaignDetailPage() {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem>Edit Campaign</DropdownMenuItem>
                 <DropdownMenuItem>Pause Campaign</DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive">Delete Campaign</DropdownMenuItem>
+                <DropdownMenuItem className="text-destructive">
+                  Delete Campaign
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -233,7 +270,9 @@ export default function CampaignDetailPage() {
             <Badge
               variant="outline"
               className={`gap-1.5 cursor-pointer ${campaign.isTraining ? "" : "opacity-50"}`}
-              onClick={() => setCampaign({ ...campaign, isTraining: !campaign.isTraining })}
+              onClick={() =>
+                setCampaign({ ...campaign, isTraining: !campaign.isTraining })
+              }
             >
               <span className="h-2 w-2 rounded-full bg-muted-foreground" />
               Training
@@ -243,7 +282,9 @@ export default function CampaignDetailPage() {
           {/* Stats Row */}
           <div className="grid grid-cols-4 gap-4 py-6 border-y">
             <div className="text-center">
-              <div className="text-2xl font-semibold">{campaign.totalProspects}</div>
+              <div className="text-2xl font-semibold">
+                {campaign.totalProspects}
+              </div>
               <p className="text-sm text-muted-foreground">Total Prospects</p>
             </div>
             <div className="text-center">
@@ -251,11 +292,15 @@ export default function CampaignDetailPage() {
               <p className="text-sm text-muted-foreground">Reachouts</p>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-semibold">{campaign.acceptanceRate}%</div>
+              <div className="text-2xl font-semibold">
+                {campaign.acceptanceRate}%
+              </div>
               <p className="text-sm text-muted-foreground">Acceptance Rate</p>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-semibold">{campaign.responseRate}%</div>
+              <div className="text-2xl font-semibold">
+                {campaign.responseRate}%
+              </div>
               <p className="text-sm text-muted-foreground">Response Rate</p>
             </div>
           </div>
@@ -358,26 +403,49 @@ export default function CampaignDetailPage() {
               </TableHeader>
               <TableBody>
                 {filteredProspects.map((prospect) => (
-                  <TableRow key={prospect.id} className="cursor-pointer hover:bg-muted/50">
+                  <TableRow
+                    key={prospect.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                  >
                     <TableCell>
                       <div>
                         <div className="font-medium">{prospect.name}</div>
-                        <div className="text-sm text-muted-foreground">{prospect.title}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {prospect.title}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>{prospect.company}</TableCell>
                     <TableCell>{prospect.industry}</TableCell>
                     <TableCell>
-                      <Badge className={statusConfig[prospect.status as keyof typeof statusConfig]?.className}>
-                        {statusConfig[prospect.status as keyof typeof statusConfig]?.label}
+                      <Badge
+                        className={
+                          statusConfig[
+                            prospect.status as keyof typeof statusConfig
+                          ]?.className
+                        }
+                      >
+                        {
+                          statusConfig[
+                            prospect.status as keyof typeof statusConfig
+                          ]?.label
+                        }
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <span className={prospect.score >= 70 ? "text-green-600 font-medium" : "text-muted-foreground"}>
+                      <span
+                        className={
+                          prospect.score >= 70
+                            ? "text-green-600 font-medium"
+                            : "text-muted-foreground"
+                        }
+                      >
                         {prospect.score}
                       </span>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{prospect.lastActivity}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {prospect.lastActivity}
+                    </TableCell>
                     <TableCell>
                       <Button variant="ghost" size="icon">
                         <MoreVertical className="h-4 w-4" />
@@ -396,7 +464,9 @@ export default function CampaignDetailPage() {
           <div className="flex items-center justify-end gap-4 text-sm mb-4">
             <button
               className={`flex items-center gap-1 ${trainingStep === "training" ? "text-foreground" : "text-muted-foreground"}`}
-              onClick={() => trainingStep !== "intro" && setTrainingStep("training")}
+              onClick={() =>
+                trainingStep !== "intro" && setTrainingStep("training")
+              }
             >
               <span>•</span>
               <span>Training</span>
@@ -419,7 +489,9 @@ export default function CampaignDetailPage() {
           <div className="flex gap-6 h-[550px]">
             {/* LEFT SIDEBAR - Prospects List */}
             <div className="w-64 shrink-0 flex flex-col">
-              <h3 className="text-sm font-medium mb-3">Select a Prospect to train</h3>
+              <h3 className="text-sm font-medium mb-3">
+                Select a Prospect to train
+              </h3>
               {isFetchingProspects ? (
                 <button
                   className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
@@ -449,8 +521,12 @@ export default function CampaignDetailPage() {
                         />
                       </div>
                       <div>
-                        <div className="font-medium text-sm">{prospect.name}</div>
-                        <div className="text-xs text-muted-foreground">{prospect.title}</div>
+                        <div className="font-medium text-sm">
+                          {prospect.name}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {prospect.title}
+                        </div>
                       </div>
                     </button>
                   ))}
@@ -465,7 +541,10 @@ export default function CampaignDetailPage() {
                 <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50/50 px-4 py-3 mb-4">
                   <Info className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
                   <p className="text-sm flex-1">
-                    The prospect you are currently viewing is an example used for training this campaign. Any training you apply here in the training center will be applied to all prospects in the campaign.
+                    The prospect you are currently viewing is an example used
+                    for training this campaign. Any training you apply here in
+                    the training center will be applied to all prospects in the
+                    campaign.
                   </p>
                   <Button
                     variant="ghost"
@@ -488,14 +567,25 @@ export default function CampaignDetailPage() {
                         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-foreground text-background">
                           <MessageCircle className="h-8 w-8" />
                         </div>
-                        <h2 className="text-xl font-semibold mb-4">Review and Train Your Messaging</h2>
+                        <h2 className="text-xl font-semibold mb-4">
+                          Review and Train Your Messaging
+                        </h2>
                         <p className="text-sm text-muted-foreground mb-4">
-                          Take a moment to review a selection of prospects uploaded to your campaign. On this screen you can provide feedback and fine-tune Valley&apos;s messaging style. Your insights will help ensure messages are written in your desired tone.
+                          Take a moment to review a selection of prospects
+                          uploaded to your campaign. On this screen you can
+                          provide feedback and fine-tune Valley&apos;s messaging
+                          style. Your insights will help ensure messages are
+                          written in your desired tone.
                         </p>
                         <p className="text-sm text-muted-foreground mb-6">
-                          Once you are happy with the campaign&apos;s messaging style, you can launch your campaign and start sending outbound messages to your prospects.
+                          Once you are happy with the campaign&apos;s messaging
+                          style, you can launch your campaign and start sending
+                          outbound messages to your prospects.
                         </p>
-                        <Button className="w-full" onClick={() => setTrainingStep("training")}>
+                        <Button
+                          className="w-full"
+                          onClick={() => setTrainingStep("training")}
+                        >
                           Continue
                         </Button>
                       </CardContent>
@@ -516,14 +606,20 @@ export default function CampaignDetailPage() {
                         />
                       </div>
                       <div>
-                        <div className="font-semibold">{selectedProspect.name}</div>
-                        <div className="text-sm text-muted-foreground">{selectedProspect.title}</div>
+                        <div className="font-semibold">
+                          {selectedProspect.name}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {selectedProspect.title}
+                        </div>
                       </div>
                     </div>
 
                     {/* Connect Message */}
                     <div className="space-y-3">
-                      <h4 className="text-sm text-muted-foreground">Connect Message</h4>
+                      <h4 className="text-sm text-muted-foreground">
+                        Connect Message
+                      </h4>
                       <div className="rounded-lg border p-4 space-y-4">
                         <div className="flex items-center gap-2 text-sm font-medium">
                           <MessageSquare className="h-4 w-4" />
@@ -532,10 +628,13 @@ export default function CampaignDetailPage() {
                         <div className="space-y-4 text-sm">
                           <p>Hey!</p>
                           <p>
-                            Saw you&apos;re &quot;building for fun&quot; now - that&apos;s awesome. Reminds me of my own tinkering days.
+                            Saw you&apos;re &quot;building for fun&quot; now -
+                            that&apos;s awesome. Reminds me of my own tinkering
+                            days.
                           </p>
                           <p>
-                            Ever think about connecting with others doing similar projects?
+                            Ever think about connecting with others doing
+                            similar projects?
                           </p>
                         </div>
                       </div>
@@ -546,7 +645,10 @@ export default function CampaignDetailPage() {
                 {/* Launch Success Modal */}
                 {showLaunchSuccessModal && (
                   <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-black/50" onClick={() => setShowLaunchSuccessModal(false)} />
+                    <div
+                      className="absolute inset-0 bg-black/50"
+                      onClick={() => setShowLaunchSuccessModal(false)}
+                    />
                     <div className="relative bg-background rounded-xl p-8 max-w-md w-full mx-4 text-center shadow-xl">
                       {/* Confetti background */}
                       <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
@@ -572,7 +674,9 @@ export default function CampaignDetailPage() {
 
                       {/* Success Message */}
                       <h2 className="text-xl mb-6">
-                        Your Campaign <span className="font-bold">{campaign.name}</span> Has Been Successfully Launched
+                        Your Campaign{" "}
+                        <span className="font-bold">{campaign.name}</span> Has
+                        Been Successfully Launched
                       </h2>
 
                       {/* Done Button */}
@@ -593,7 +697,8 @@ export default function CampaignDetailPage() {
               {/* Bottom Feedback Input - Only in right side */}
               <div className="mt-auto pt-4 space-y-2 border-t">
                 <p className="text-xs text-muted-foreground text-center">
-                  Regeneration takes approximately 40 seconds so please combine all feedback into one prompt
+                  Regeneration takes approximately 40 seconds so please combine
+                  all feedback into one prompt
                 </p>
                 <div className="flex items-center gap-2">
                   <Input
@@ -627,14 +732,26 @@ export default function CampaignDetailPage() {
 
               {/* Re-engagement Messages */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Re-Engagement Messages</label>
+                <label className="text-sm font-medium">
+                  Re-Engagement Messages
+                </label>
                 <p className="text-sm text-muted-foreground">
                   Number of follow-up messages to send after initial outreach.
                 </p>
                 <div className="flex items-center gap-4">
-                  <Input type="number" defaultValue={campaign.reEngagementCount} className="w-24" />
-                  <span className="text-sm text-muted-foreground">messages, every</span>
-                  <Input type="number" defaultValue={campaign.reEngagementInterval} className="w-24" />
+                  <Input
+                    type="number"
+                    defaultValue={campaign.reEngagementCount}
+                    className="w-24"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    messages, every
+                  </span>
+                  <Input
+                    type="number"
+                    defaultValue={campaign.reEngagementInterval}
+                    className="w-24"
+                  />
                   <span className="text-sm text-muted-foreground">days</span>
                 </div>
               </div>
@@ -663,7 +780,8 @@ export default function CampaignDetailPage() {
                 <div>
                   <label className="text-sm font-medium">Autopilot Mode</label>
                   <p className="text-sm text-muted-foreground">
-                    Automatically send messages on your behalf without manual approval.
+                    Automatically send messages on your behalf without manual
+                    approval.
                   </p>
                 </div>
                 <Button variant={campaign.autopilot ? "default" : "outline"}>
@@ -673,11 +791,17 @@ export default function CampaignDetailPage() {
 
               {/* Daily Volume */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Daily Sequence Volume</label>
+                <label className="text-sm font-medium">
+                  Daily Sequence Volume
+                </label>
                 <p className="text-sm text-muted-foreground">
                   Maximum number of outreach messages sent per day.
                 </p>
-                <Input type="number" defaultValue={campaign.dailyVolume} className="w-32" />
+                <Input
+                  type="number"
+                  defaultValue={campaign.dailyVolume}
+                  className="w-32"
+                />
               </div>
 
               {/* Outreach Timing */}
@@ -693,15 +817,21 @@ export default function CampaignDetailPage() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Outreach Days</label>
                 <div className="flex flex-wrap gap-2">
-                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
-                    <Button
-                      key={day}
-                      variant={campaign.outreachDays.some(d => d.startsWith(day)) ? "default" : "outline"}
-                      size="sm"
-                    >
-                      {day}
-                    </Button>
-                  ))}
+                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
+                    (day) => (
+                      <Button
+                        key={day}
+                        variant={
+                          campaign.outreachDays.some((d) => d.startsWith(day))
+                            ? "default"
+                            : "outline"
+                        }
+                        size="sm"
+                      >
+                        {day}
+                      </Button>
+                    ),
+                  )}
                 </div>
               </div>
 
@@ -716,7 +846,8 @@ export default function CampaignDetailPage() {
             <CardHeader>
               <CardTitle>Campaign Information</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Core components of the campaign. These cannot be edited after launch.
+                Core components of the campaign. These cannot be edited after
+                launch.
               </p>
             </CardHeader>
             <CardContent>
@@ -725,9 +856,13 @@ export default function CampaignDetailPage() {
                   <div className="flex items-start gap-3">
                     <MessageSquare className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <label className="text-sm font-medium">Reachout Through</label>
+                      <label className="text-sm font-medium">
+                        Reachout Through
+                      </label>
                       <p className="text-sm text-muted-foreground">
-                        {campaign.type === "inmail" ? "LinkedIn InMail" : "LinkedIn Message"}
+                        {campaign.type === "inmail"
+                          ? "LinkedIn InMail"
+                          : "LinkedIn Message"}
                       </p>
                     </div>
                   </div>
@@ -735,24 +870,36 @@ export default function CampaignDetailPage() {
                   <div className="flex items-start gap-3">
                     <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <label className="text-sm font-medium">Selected Product</label>
-                      <p className="text-sm text-muted-foreground">{campaign.selectedProduct}</p>
+                      <label className="text-sm font-medium">
+                        Selected Product
+                      </label>
+                      <p className="text-sm text-muted-foreground">
+                        {campaign.selectedProduct}
+                      </p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <Zap className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <label className="text-sm font-medium">Writing Style</label>
-                      <p className="text-sm text-muted-foreground">{campaign.writingStyle}</p>
+                      <label className="text-sm font-medium">
+                        Writing Style
+                      </label>
+                      <p className="text-sm text-muted-foreground">
+                        {campaign.writingStyle}
+                      </p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <label className="text-sm font-medium">Included Profiles</label>
-                      <p className="text-sm text-muted-foreground">{campaign.profileType}</p>
+                      <label className="text-sm font-medium">
+                        Included Profiles
+                      </label>
+                      <p className="text-sm text-muted-foreground">
+                        {campaign.profileType}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -761,10 +908,14 @@ export default function CampaignDetailPage() {
                   <div className="flex items-start gap-3">
                     <Globe className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <label className="text-sm font-medium">Research Agents</label>
+                      <label className="text-sm font-medium">
+                        Research Agents
+                      </label>
                       <div className="flex flex-wrap gap-1 mt-1">
                         {campaign.researchAgents.map((agent) => (
-                          <Badge key={agent} variant="secondary">{agent}</Badge>
+                          <Badge key={agent} variant="secondary">
+                            {agent}
+                          </Badge>
                         ))}
                       </div>
                     </div>
@@ -774,7 +925,9 @@ export default function CampaignDetailPage() {
                     <LinkIcon className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
                       <label className="text-sm font-medium">Input URL</label>
-                      <p className="text-sm text-muted-foreground break-all">{campaign.inputUrl}</p>
+                      <p className="text-sm text-muted-foreground break-all">
+                        {campaign.inputUrl}
+                      </p>
                     </div>
                   </div>
 
@@ -782,15 +935,21 @@ export default function CampaignDetailPage() {
                     <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
                       <label className="text-sm font-medium">Created</label>
-                      <p className="text-sm text-muted-foreground">{campaign.createdAt}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {campaign.createdAt}
+                      </p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <Info className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <label className="text-sm font-medium">Prospect Pool</label>
-                      <p className="text-sm text-muted-foreground">{campaign.prospectPoolSize} prospects uploaded</p>
+                      <label className="text-sm font-medium">
+                        Prospect Pool
+                      </label>
+                      <p className="text-sm text-muted-foreground">
+                        {campaign.prospectPoolSize} prospects uploaded
+                      </p>
                     </div>
                   </div>
                 </div>
