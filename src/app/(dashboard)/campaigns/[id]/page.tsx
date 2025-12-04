@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
@@ -23,9 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  ChevronLeft,
   ChevronDown,
-  ChevronRight,
   Search,
   Download,
   Filter,
@@ -33,8 +31,6 @@ import {
   Linkedin,
   MessageSquare,
   MessageCircle,
-  ThumbsUp,
-  ThumbsDown,
   Clock,
   Calendar,
   Globe,
@@ -42,21 +38,18 @@ import {
   Users,
   FileText,
   Link as LinkIcon,
-  Settings,
   Info,
   Play,
   Pause,
-  AlertCircle,
-  X,
-  Loader2,
-  Check,
+  RefreshCw,
+  Sparkles,
 } from "lucide-react";
 
 // Mock campaign data
 const campaignData = {
   id: "1",
   name: "Positive Response List (from Shubh) - Open Profiles",
-  status: "in_progress" as const,
+  status: "in_progress" as "in_progress" | "paused" | "not_launched",
   type: "inmail" as const,
   createdAt: "04/01/2025",
   totalProspects: 381,
@@ -162,6 +155,13 @@ export default function CampaignDetailPage() {
     (typeof prospectsData)[0] | null
   >(null);
   const [showLaunchSuccessModal, setShowLaunchSuccessModal] = useState(false);
+  const [prospectSearch, setProspectSearch] = useState("");
+
+  const trainingProspects = prospectsData.filter(
+    (p) =>
+      p.name.toLowerCase().includes(prospectSearch.toLowerCase()) ||
+      p.company.toLowerCase().includes(prospectSearch.toLowerCase())
+  );
 
   // Filter prospects
   const filteredProspects = prospectsData.filter(
@@ -171,792 +171,570 @@ export default function CampaignDetailPage() {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Campaign Summary Card */}
-      <Card>
-        <CardContent className="p-6">
-          {/* Header Row */}
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <h1 className="text-xl font-semibold">{campaign.name}</h1>
-              {/* Status Badge - Click to change for demo */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  {campaign.status === "not_launched" ? (
-                    <Badge
-                      variant="outline"
-                      className="gap-1.5 border-yellow-300 bg-yellow-50 text-yellow-700 cursor-pointer"
-                    >
-                      <AlertCircle className="h-3 w-3" />
-                      Campaign is not Launched
-                    </Badge>
-                  ) : campaign.status === "in_progress" ? (
-                    <Badge
-                      variant="outline"
-                      className="gap-1.5 border-green-300 bg-green-50 text-green-700 cursor-pointer"
-                    >
-                      <span className="h-2 w-2 rounded-full bg-green-500" />
-                      In Progress
-                    </Badge>
-                  ) : campaign.status === "paused" ? (
-                    <Badge
-                      variant="outline"
-                      className="gap-1.5 border-orange-300 bg-orange-50 text-orange-700 cursor-pointer"
-                    >
-                      <Pause className="h-3 w-3" />
-                      Paused
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="gap-1.5 cursor-pointer">
-                      {campaign.status}
-                    </Badge>
-                  )}
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      setCampaign({
-                        ...campaign,
-                        status: "not_launched" as const,
-                      })
-                    }
-                  >
-                    Not Launched
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      setCampaign({
-                        ...campaign,
-                        status: "in_progress" as const,
-                      })
-                    }
-                  >
-                    In Progress
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      setCampaign({ ...campaign, status: "paused" as const })
-                    }
-                  >
-                    Paused
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>Edit Campaign</DropdownMenuItem>
-                <DropdownMenuItem>Pause Campaign</DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive">
-                  Delete Campaign
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          {/* Meta Row */}
-          <div className="flex items-center gap-3 text-sm text-muted-foreground mb-6">
-            <span>Created on {campaign.createdAt}</span>
-            <span className="text-border">|</span>
-            <Badge variant="outline" className="gap-1.5">
-              <Linkedin className="h-3 w-3" />
-              {campaign.type === "inmail" ? "InMail" : "Messaging"}
+    <div className="flex flex-col h-[calc(100vh-2rem)]">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6 shrink-0">
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-semibold tracking-tight">{campaign.name}</h1>
+          {campaign.status === "in_progress" ? (
+            <Badge variant="secondary" className="gap-1.5 px-3 py-1 bg-green-100 text-green-700 hover:bg-green-100">
+              <span className="h-2 w-2 rounded-full bg-green-600 animate-pulse" />
+              In Progress
             </Badge>
-            <Badge
-              variant="outline"
-              className={`gap-1.5 cursor-pointer ${campaign.isTraining ? "" : "opacity-50"}`}
-              onClick={() =>
-                setCampaign({ ...campaign, isTraining: !campaign.isTraining })
-              }
-            >
-              <span className="h-2 w-2 rounded-full bg-muted-foreground" />
-              Training
+          ) : campaign.status === "paused" ? (
+             <Badge variant="secondary" className="gap-1.5 px-3 py-1 bg-orange-100 text-orange-700 hover:bg-orange-100">
+               <Pause className="h-3 w-3" />
+               Paused
+             </Badge>
+          ) : (
+            <Badge variant="secondary" className="gap-1.5 px-3 py-1">
+              {campaign.status}
             </Badge>
-          </div>
-
-          {/* Stats Row */}
-          <div className="grid grid-cols-4 gap-4 py-6 border-y">
-            <div className="text-center">
-              <div className="text-2xl font-semibold">
-                {campaign.totalProspects}
-              </div>
-              <p className="text-sm text-muted-foreground">Total Prospects</p>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-semibold">{campaign.reachouts}</div>
-              <p className="text-sm text-muted-foreground">Reachouts</p>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-semibold">
-                {campaign.acceptanceRate}%
-              </div>
-              <p className="text-sm text-muted-foreground">Acceptance Rate</p>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-semibold">
-                {campaign.responseRate}%
-              </div>
-              <p className="text-sm text-muted-foreground">Response Rate</p>
-            </div>
-          </div>
-
-          {/* Prospect Fetch Details */}
-          <button
-            className="flex items-center gap-2 mt-4 text-sm font-medium hover:text-foreground"
-            onClick={() => setIsProspectDetailsOpen(!isProspectDetailsOpen)}
-          >
-            {isProspectDetailsOpen ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-            Prospect Fetch Details
-          </button>
-
-          {isProspectDetailsOpen && (
-            <div className="mt-4 pl-6 space-y-2 text-sm text-muted-foreground">
-              <p>Prospect pool size: {campaign.prospectPoolSize}</p>
-              <p>Source: LinkedIn Sales Navigator</p>
-            </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Refetch Prospects
+          </Button>
+          {campaign.status === "in_progress" ? (
+             <Button variant="outline" className="gap-2" onClick={() => setCampaign({...campaign, status: 'paused'})}>
+                <Pause className="h-4 w-4" />
+                Pause
+             </Button>
+          ) : (
+             <Button variant="outline" className="gap-2" onClick={() => setCampaign({...campaign, status: 'in_progress'})}>
+                <Play className="h-4 w-4" />
+                Resume
+             </Button>
+          )}
+        </div>
+      </div>
 
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="training">Training Center</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
-          <TabsTrigger value="info">Info</TabsTrigger>
-        </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+        <div className="shrink-0 mb-6 border-b">
+           <TabsList className="w-full justify-start h-auto p-0 bg-transparent rounded-none">
+              <TabsTrigger 
+                value="overview" 
+                className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              >
+                Overview
+              </TabsTrigger>
+              <TabsTrigger 
+                value="training" 
+                className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              >
+                Training Center
+              </TabsTrigger>
+               <TabsTrigger 
+                value="settings" 
+                className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              >
+                Settings
+              </TabsTrigger>
+               <TabsTrigger 
+                value="info" 
+                className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              >
+                Info
+              </TabsTrigger>
+           </TabsList>
+        </div>
 
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-4">
-          {/* Filters */}
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search prospects..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                  <Filter className="h-4 w-4" />
-                  Status
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>All</DropdownMenuItem>
-                <DropdownMenuItem>Sent</DropdownMenuItem>
-                <DropdownMenuItem>Opened</DropdownMenuItem>
-                <DropdownMenuItem>Replied</DropdownMenuItem>
-                <DropdownMenuItem>Meeting Booked</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                  Industry
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>All</DropdownMenuItem>
-                <DropdownMenuItem>Technology</DropdownMenuItem>
-                <DropdownMenuItem>Fintech</DropdownMenuItem>
-                <DropdownMenuItem>SaaS</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <div className="ml-auto">
-              <Button variant="outline" className="gap-2">
-                <Download className="h-4 w-4" />
-                Export to CSV
-              </Button>
-            </div>
-          </div>
-
-          {/* Prospects Table */}
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Prospect</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Industry</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Score</TableHead>
-                  <TableHead>Last Activity</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredProspects.map((prospect) => (
-                  <TableRow
-                    key={prospect.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                  >
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{prospect.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {prospect.title}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{prospect.company}</TableCell>
-                    <TableCell>{prospect.industry}</TableCell>
-                    <TableCell>
-                      <Badge
-                        className={
-                          statusConfig[
-                            prospect.status as keyof typeof statusConfig
-                          ]?.className
-                        }
-                      >
-                        {
-                          statusConfig[
-                            prospect.status as keyof typeof statusConfig
-                          ]?.label
-                        }
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={
-                          prospect.score >= 70
-                            ? "text-green-600 font-medium"
-                            : "text-muted-foreground"
-                        }
-                      >
-                        {prospect.score}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {prospect.lastActivity}
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-        </TabsContent>
-
-        {/* Training Center Tab */}
-        <TabsContent value="training" className="min-h-[600px]">
-          {/* Progress Steps - Top Right */}
-          <div className="flex items-center justify-end gap-4 text-sm mb-4">
-            <button
-              className={`flex items-center gap-1 ${trainingStep === "training" ? "text-foreground" : "text-muted-foreground"}`}
-              onClick={() =>
-                trainingStep !== "intro" && setTrainingStep("training")
-              }
-            >
-              <span>•</span>
-              <span>Training</span>
-            </button>
-            <div className="flex items-center gap-1">
-              <Badge variant="outline" className="gap-1">
-                <Linkedin className="h-3 w-3" />
-                Messaging
-              </Badge>
-            </div>
-            <Button
-              onClick={() => setShowLaunchSuccessModal(true)}
-              disabled={trainingStep !== "training" || !selectedProspect}
-            >
-              Approve Messaging and Launch Campaign
-            </Button>
-          </div>
-
-          {/* Two Column Layout */}
-          <div className="flex gap-6 h-[550px]">
-            {/* LEFT SIDEBAR - Prospects List */}
-            <div className="w-64 shrink-0 flex flex-col">
-              <h3 className="text-sm font-medium mb-3">
-                Select a Prospect to train
-              </h3>
-              {isFetchingProspects ? (
-                <button
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-                  onClick={() => setIsFetchingProspects(false)}
-                >
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Fetching Prospects
-                </button>
-              ) : (
-                <div className="space-y-1 flex-1 overflow-auto">
-                  {prospectsData.slice(0, 5).map((prospect) => (
-                    <button
-                      key={prospect.id}
-                      className={`w-full text-left p-2 rounded-lg hover:bg-muted/50 transition-colors flex items-center gap-3 ${
-                        selectedProspect?.id === prospect.id ? "bg-muted" : ""
-                      }`}
-                      onClick={() => {
-                        setSelectedProspect(prospect);
-                        setTrainingStep("training");
-                      }}
-                    >
-                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0 overflow-hidden">
-                        <img
-                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${prospect.name}`}
-                          alt={prospect.name}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <div className="font-medium text-sm">
-                          {prospect.name}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {prospect.title}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* RIGHT SIDE - Messages & Feedback */}
-            <div className="flex-1 flex flex-col border-l pl-6">
-              {/* Alert Banner */}
-              {showTrainingAlert && (
-                <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50/50 px-4 py-3 mb-4">
-                  <Info className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
-                  <p className="text-sm flex-1">
-                    The prospect you are currently viewing is an example used
-                    for training this campaign. Any training you apply here in
-                    the training center will be applied to all prospects in the
-                    campaign.
-                  </p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 shrink-0 -mt-1"
-                    onClick={() => setShowTrainingAlert(false)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-
-              {/* Main Content */}
-              <div className="flex-1 overflow-auto">
-                {/* Center Modal - Intro */}
-                {trainingStep === "intro" && (
-                  <div className="flex items-center justify-center h-full">
-                    <Card className="shadow-lg max-w-md w-full">
-                      <CardContent className="pt-8 pb-6 px-8 text-center">
-                        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-foreground text-background">
-                          <MessageCircle className="h-8 w-8" />
-                        </div>
-                        <h2 className="text-xl font-semibold mb-4">
-                          Review and Train Your Messaging
-                        </h2>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Take a moment to review a selection of prospects
-                          uploaded to your campaign. On this screen you can
-                          provide feedback and fine-tune Valley&apos;s messaging
-                          style. Your insights will help ensure messages are
-                          written in your desired tone.
-                        </p>
-                        <p className="text-sm text-muted-foreground mb-6">
-                          Once you are happy with the campaign&apos;s messaging
-                          style, you can launch your campaign and start sending
-                          outbound messages to your prospects.
-                        </p>
-                        <Button
-                          className="w-full"
-                          onClick={() => setTrainingStep("training")}
-                        >
-                          Continue
+        <div className="flex-1 min-h-0 overflow-hidden">
+             {/* Overview Tab Content */}
+             <TabsContent value="overview" className="h-full overflow-auto space-y-4 p-1">
+                 <div className="flex items-center gap-3">
+                    <div className="relative flex-1 max-w-sm">
+                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        placeholder="Search prospects..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="gap-2">
+                          <Filter className="h-4 w-4" />
+                          Status
+                          <ChevronDown className="h-4 w-4" />
                         </Button>
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
-
-                {/* Training Step - Prospect Preview */}
-                {trainingStep === "training" && selectedProspect && (
-                  <div className="space-y-6 max-w-2xl">
-                    {/* Prospect Info */}
-                    <div className="flex items-center gap-4">
-                      <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center shrink-0 overflow-hidden">
-                        <img
-                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedProspect.name}`}
-                          alt={selectedProspect.name}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <div className="font-semibold">
-                          {selectedProspect.name}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {selectedProspect.title}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Connect Message */}
-                    <div className="space-y-3">
-                      <h4 className="text-sm text-muted-foreground">
-                        Connect Message
-                      </h4>
-                      <div className="rounded-lg border p-4 space-y-4">
-                        <div className="flex items-center gap-2 text-sm font-medium">
-                          <MessageSquare className="h-4 w-4" />
-                          CONNECT MESSAGE
-                        </div>
-                        <div className="space-y-4 text-sm">
-                          <p>Hey!</p>
-                          <p>
-                            Saw you&apos;re &quot;building for fun&quot; now -
-                            that&apos;s awesome. Reminds me of my own tinkering
-                            days.
-                          </p>
-                          <p>
-                            Ever think about connecting with others doing
-                            similar projects?
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Launch Success Modal */}
-                {showLaunchSuccessModal && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    <div
-                      className="absolute inset-0 bg-black/50"
-                      onClick={() => setShowLaunchSuccessModal(false)}
-                    />
-                    <div className="relative bg-background rounded-xl p-8 max-w-md w-full mx-4 text-center shadow-xl">
-                      {/* Confetti background */}
-                      <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
-                        <div className="absolute top-4 left-8 w-2 h-2 bg-purple-400 rotate-45" />
-                        <div className="absolute top-12 left-16 w-1.5 h-1.5 bg-yellow-400 rotate-12" />
-                        <div className="absolute top-8 right-12 w-2 h-2 bg-blue-400 -rotate-12" />
-                        <div className="absolute top-16 right-20 w-1.5 h-1.5 bg-pink-400 rotate-45" />
-                        <div className="absolute top-20 left-12 w-1.5 h-1.5 bg-green-400 -rotate-12" />
-                        <div className="absolute top-6 left-1/3 w-2 h-2 bg-orange-400 rotate-12" />
-                        <div className="absolute top-14 right-1/3 w-1.5 h-1.5 bg-cyan-400 -rotate-45" />
-                        <div className="absolute bottom-1/3 left-8 w-1.5 h-1.5 bg-rose-400 rotate-12" />
-                        <div className="absolute bottom-1/4 right-10 w-2 h-2 bg-indigo-400 -rotate-12" />
-                      </div>
-
-                      {/* Avatar */}
-                      <div className="mx-auto mb-6 h-16 w-16 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-                        <img
-                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedProspect?.name || "Alex"}`}
-                          alt={selectedProspect?.name || "Prospect"}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-
-                      {/* Success Message */}
-                      <h2 className="text-xl mb-6">
-                        Your Campaign{" "}
-                        <span className="font-bold">{campaign.name}</span> Has
-                        Been Successfully Launched
-                      </h2>
-
-                      {/* Done Button */}
-                      <Button
-                        className="w-full"
-                        onClick={() => {
-                          setShowLaunchSuccessModal(false);
-                          setActiveTab("overview");
-                        }}
-                      >
-                        Done
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem>All</DropdownMenuItem>
+                        <DropdownMenuItem>Sent</DropdownMenuItem>
+                        <DropdownMenuItem>Opened</DropdownMenuItem>
+                        <DropdownMenuItem>Replied</DropdownMenuItem>
+                        <DropdownMenuItem>Meeting Booked</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="gap-2">
+                          Industry
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem>All</DropdownMenuItem>
+                        <DropdownMenuItem>Technology</DropdownMenuItem>
+                        <DropdownMenuItem>Fintech</DropdownMenuItem>
+                        <DropdownMenuItem>SaaS</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <div className="ml-auto">
+                      <Button variant="outline" className="gap-2">
+                        <Download className="h-4 w-4" />
+                        Export to CSV
                       </Button>
                     </div>
-                  </div>
-                )}
-              </div>
+                 </div>
 
-              {/* Bottom Feedback Input - Only in right side */}
-              <div className="mt-auto pt-4 space-y-2 border-t">
-                <p className="text-xs text-muted-foreground text-center">
-                  Regeneration takes approximately 40 seconds so please combine
-                  all feedback into one prompt
-                </p>
-                <div className="flex items-center gap-2">
-                  <Input
-                    placeholder="Provide feedback here"
-                    className="flex-1"
-                  />
-                  <Button size="icon" variant="secondary" className="shrink-0">
-                    <MessageCircle className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </TabsContent>
-
-        {/* Settings Tab */}
-        <TabsContent value="settings" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Campaign Settings</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Adjust your campaign settings and outreach preferences.
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Campaign Name */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Campaign Name</label>
-                <Input defaultValue={campaign.name} />
-              </div>
-
-              {/* Re-engagement Messages */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Re-Engagement Messages
-                </label>
-                <p className="text-sm text-muted-foreground">
-                  Number of follow-up messages to send after initial outreach.
-                </p>
-                <div className="flex items-center gap-4">
-                  <Input
-                    type="number"
-                    defaultValue={campaign.reEngagementCount}
-                    className="w-24"
-                  />
-                  <span className="text-sm text-muted-foreground">
-                    messages, every
-                  </span>
-                  <Input
-                    type="number"
-                    defaultValue={campaign.reEngagementInterval}
-                    className="w-24"
-                  />
-                  <span className="text-sm text-muted-foreground">days</span>
-                </div>
-              </div>
-
-              {/* Outreach Language */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Outreach Language</label>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="w-48 justify-between">
-                      {campaign.outreachLanguage}
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem>English</DropdownMenuItem>
-                    <DropdownMenuItem>Spanish</DropdownMenuItem>
-                    <DropdownMenuItem>French</DropdownMenuItem>
-                    <DropdownMenuItem>German</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              {/* Autopilot */}
-              <div className="flex items-center justify-between rounded-lg border p-4">
-                <div>
-                  <label className="text-sm font-medium">Autopilot Mode</label>
-                  <p className="text-sm text-muted-foreground">
-                    Automatically send messages on your behalf without manual
-                    approval.
-                  </p>
-                </div>
-                <Button variant={campaign.autopilot ? "default" : "outline"}>
-                  {campaign.autopilot ? "On" : "Off"}
-                </Button>
-              </div>
-
-              {/* Daily Volume */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Daily Sequence Volume
-                </label>
-                <p className="text-sm text-muted-foreground">
-                  Maximum number of outreach messages sent per day.
-                </p>
-                <Input
-                  type="number"
-                  defaultValue={campaign.dailyVolume}
-                  className="w-32"
-                />
-              </div>
-
-              {/* Outreach Timing */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Outreach Timing</label>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <Input type="time" defaultValue="09:00" className="w-32" />
-                </div>
-              </div>
-
-              {/* Outreach Days */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Outreach Days</label>
-                <div className="flex flex-wrap gap-2">
-                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
-                    (day) => (
-                      <Button
-                        key={day}
-                        variant={
-                          campaign.outreachDays.some((d) => d.startsWith(day))
-                            ? "default"
-                            : "outline"
-                        }
-                        size="sm"
-                      >
-                        {day}
-                      </Button>
-                    ),
-                  )}
-                </div>
-              </div>
-
-              <Button>Save Settings</Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Info Tab */}
-        <TabsContent value="info" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Campaign Information</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Core components of the campaign. These cannot be edited after
-                launch.
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-6 md:grid-cols-2">
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <MessageSquare className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <label className="text-sm font-medium">
-                        Reachout Through
-                      </label>
-                      <p className="text-sm text-muted-foreground">
-                        {campaign.type === "inmail"
-                          ? "LinkedIn InMail"
-                          : "LinkedIn Message"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <label className="text-sm font-medium">
-                        Selected Product
-                      </label>
-                      <p className="text-sm text-muted-foreground">
-                        {campaign.selectedProduct}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <Zap className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <label className="text-sm font-medium">
-                        Writing Style
-                      </label>
-                      <p className="text-sm text-muted-foreground">
-                        {campaign.writingStyle}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <label className="text-sm font-medium">
-                        Included Profiles
-                      </label>
-                      <p className="text-sm text-muted-foreground">
-                        {campaign.profileType}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <Globe className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <label className="text-sm font-medium">
-                        Research Agents
-                      </label>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {campaign.researchAgents.map((agent) => (
-                          <Badge key={agent} variant="secondary">
-                            {agent}
-                          </Badge>
+                 {/* Prospects Table */}
+                  <Card>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Prospect</TableHead>
+                          <TableHead>Company</TableHead>
+                          <TableHead>Industry</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Score</TableHead>
+                          <TableHead>Last Activity</TableHead>
+                          <TableHead></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredProspects.map((prospect) => (
+                          <TableRow
+                            key={prospect.id}
+                            className="cursor-pointer hover:bg-muted/50"
+                          >
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">{prospect.name}</div>
+                                <div className="text-sm text-muted-foreground">
+                                  {prospect.title}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>{prospect.company}</TableCell>
+                            <TableCell>{prospect.industry}</TableCell>
+                            <TableCell>
+                              <Badge
+                                className={
+                                  statusConfig[
+                                    prospect.status as keyof typeof statusConfig
+                                  ]?.className
+                                }
+                              >
+                                {
+                                  statusConfig[
+                                    prospect.status as keyof typeof statusConfig
+                                  ]?.label
+                                }
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <span
+                                className={
+                                  prospect.score >= 70
+                                    ? "text-green-600 font-medium"
+                                    : "text-muted-foreground"
+                                }
+                              >
+                                {prospect.score}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">
+                              {prospect.lastActivity}
+                            </TableCell>
+                            <TableCell>
+                              <Button variant="ghost" size="icon">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
                         ))}
-                      </div>
-                    </div>
-                  </div>
+                      </TableBody>
+                    </Table>
+                  </Card>
+             </TabsContent>
 
-                  <div className="flex items-start gap-3">
-                    <LinkIcon className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <label className="text-sm font-medium">Input URL</label>
-                      <p className="text-sm text-muted-foreground break-all">
-                        {campaign.inputUrl}
-                      </p>
+             {/* Training Center Tab - NEW */}
+             <TabsContent value="training" className="h-full flex gap-6 data-[state=active]:flex pt-1">
+                {/* Sidebar */}
+                <Card className="w-80 shrink-0 flex flex-col h-full overflow-hidden border-r border-border/50 shadow-none rounded-none border-y-0 border-l-0">
+                    <div className="p-4 border-b">
+                         <div className="relative">
+                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <Input 
+                                placeholder="Search prospects..." 
+                                className="pl-9 bg-muted/50 border-none" 
+                                value={prospectSearch}
+                                onChange={(e) => setProspectSearch(e.target.value)}
+                            />
+                         </div>
                     </div>
-                  </div>
+                    <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                        {trainingProspects.map(prospect => (
+                            <button
+                                key={prospect.id}
+                                onClick={() => setSelectedProspect(prospect)}
+                                className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
+                                    selectedProspect?.id === prospect.id 
+                                    ? "bg-muted" 
+                                    : "hover:bg-muted/50"
+                                }`}
+                            >
+                                <Avatar className="h-10 w-10">
+                                    <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${prospect.name}`} />
+                                    <AvatarFallback>{prospect.name[0]}</AvatarFallback>
+                                </Avatar>
+                                <div className="min-w-0">
+                                    <div className="font-medium truncate">{prospect.name}</div>
+                                    <div className="text-xs text-muted-foreground truncate">{prospect.title}</div>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                </Card>
 
-                  <div className="flex items-start gap-3">
-                    <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <label className="text-sm font-medium">Created</label>
-                      <p className="text-sm text-muted-foreground">
-                        {campaign.createdAt}
-                      </p>
-                    </div>
-                  </div>
+                {/* Main Content */}
+                <div className="flex-1 flex flex-col h-full overflow-hidden rounded-lg border bg-background relative">
+                   {/* Scrollable Area */}
+                   <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32">
+                       {/* Alert Banner */}
+                       <div className="flex gap-4 p-4 rounded-lg bg-blue-50/50 border border-blue-100 text-blue-900">
+                          <Info className="h-5 w-5 shrink-0 text-blue-600" />
+                          <div className="space-y-1">
+                             <p className="font-medium text-sm">Training Mode</p>
+                             <p className="text-sm text-blue-700/80">
+                                The prospect you are currently viewing is an example used for training this campaign. 
+                                Any training you apply here will be applied to all prospects.
+                             </p>
+                          </div>
+                       </div>
 
-                  <div className="flex items-start gap-3">
-                    <Info className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <label className="text-sm font-medium">
-                        Prospect Pool
-                      </label>
-                      <p className="text-sm text-muted-foreground">
-                        {campaign.prospectPoolSize} prospects uploaded
-                      </p>
-                    </div>
-                  </div>
+                       {/* Prospect Header */}
+                       {selectedProspect ? (
+                           <>
+                           <div className="flex items-center gap-4">
+                               <Avatar className="h-16 w-16 border-2 border-background shadow-sm">
+                                    <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedProspect.name}`} />
+                                    <AvatarFallback>{selectedProspect.name[0]}</AvatarFallback>
+                               </Avatar>
+                               <div>
+                                   <h2 className="text-xl font-semibold">{selectedProspect.name}</h2>
+                                   <p className="text-muted-foreground">{selectedProspect.title} @ {selectedProspect.company}</p>
+                               </div>
+                           </div>
+
+                           {/* Message Card */}
+                           <Card className="border-dashed shadow-sm">
+                               <CardHeader className="pb-3 border-b border-dashed bg-muted/20">
+                                   <div className="flex items-center justify-between">
+                                       <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                           <Linkedin className="h-4 w-4" />
+                                           Connect Message
+                                       </div>
+                                   </div>
+                               </CardHeader>
+                               <CardContent className="pt-4 text-sm leading-relaxed space-y-4">
+                                   <p>Hey {selectedProspect?.name.split(' ')[0]},</p>
+                                   <p>Saw you&apos;re &quot;building for fun&quot; now - that&apos;s awesome. Reminds me of my own tinkering days.</p>
+                                   <p>Ever think about connecting with others doing similar projects?</p>
+                               </CardContent>
+                           </Card>
+
+                           {/* Follow-up Placeholder */}
+                           <div className="opacity-60 pointer-events-none">
+                                <div className="flex items-center gap-2 mb-2 text-sm font-medium text-muted-foreground">
+                                    <Clock className="h-4 w-4" />
+                                    Follow-up 1 (2 days later)
+                                </div>
+                                <Card className="border-dashed shadow-sm bg-muted/10">
+                                     <CardContent className="p-4 h-12" />
+                                </Card>
+                           </div>
+                           </>
+                       ) : (
+                           <div className="flex items-center justify-center h-full text-muted-foreground">
+                               Select a prospect to view training details
+                           </div>
+                       )}
+                   </div>
+
+                   {/* Sticky Footer */}
+                   <div className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-t p-6">
+                        <div className="max-w-3xl mx-auto space-y-3">
+                            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                                <Sparkles className="h-3 w-3" />
+                                Regeneration takes approx 40 seconds...
+                            </div>
+                            <div className="relative flex items-center gap-2">
+                                <Input 
+                                    placeholder="Provide feedback here to refine the message..." 
+                                    className="h-14 pl-6 pr-16 rounded-full shadow-sm border-muted-foreground/20 text-base"
+                                />
+                                <Button 
+                                    size="icon" 
+                                    className="absolute right-2 h-10 w-10 rounded-full bg-black hover:bg-black/90 text-white"
+                                >
+                                    <Sparkles className="h-5 w-5" />
+                                </Button>
+                            </div>
+                        </div>
+                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+             </TabsContent>
+
+             {/* Settings Tab - Reuse Content */}
+             <TabsContent value="settings" className="space-y-4 overflow-auto h-full p-1">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Campaign Settings</CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        Adjust your campaign settings and outreach preferences.
+                      </p>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      {/* Campaign Name */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Campaign Name</label>
+                        <Input defaultValue={campaign.name} />
+                      </div>
+
+                      {/* Re-engagement Messages */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          Re-Engagement Messages
+                        </label>
+                        <p className="text-sm text-muted-foreground">
+                          Number of follow-up messages to send after initial outreach.
+                        </p>
+                        <div className="flex items-center gap-4">
+                          <Input
+                            type="number"
+                            defaultValue={campaign.reEngagementCount}
+                            className="w-24"
+                          />
+                          <span className="text-sm text-muted-foreground">
+                            messages, every
+                          </span>
+                          <Input
+                            type="number"
+                            defaultValue={campaign.reEngagementInterval}
+                            className="w-24"
+                          />
+                          <span className="text-sm text-muted-foreground">days</span>
+                        </div>
+                      </div>
+
+                      {/* Outreach Language */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Outreach Language</label>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" className="w-48 justify-between">
+                              {campaign.outreachLanguage}
+                              <ChevronDown className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem>English</DropdownMenuItem>
+                            <DropdownMenuItem>Spanish</DropdownMenuItem>
+                            <DropdownMenuItem>French</DropdownMenuItem>
+                            <DropdownMenuItem>German</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+
+                      {/* Autopilot */}
+                      <div className="flex items-center justify-between rounded-lg border p-4">
+                        <div>
+                          <label className="text-sm font-medium">Autopilot Mode</label>
+                          <p className="text-sm text-muted-foreground">
+                            Automatically send messages on your behalf without manual
+                            approval.
+                          </p>
+                        </div>
+                        <Button variant={campaign.autopilot ? "default" : "outline"}>
+                          {campaign.autopilot ? "On" : "Off"}
+                        </Button>
+                      </div>
+
+                      {/* Daily Volume */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          Daily Sequence Volume
+                        </label>
+                        <p className="text-sm text-muted-foreground">
+                          Maximum number of outreach messages sent per day.
+                        </p>
+                        <Input
+                          type="number"
+                          defaultValue={campaign.dailyVolume}
+                          className="w-32"
+                        />
+                      </div>
+
+                      {/* Outreach Timing */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Outreach Timing</label>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-muted-foreground" />
+                          <Input type="time" defaultValue="09:00" className="w-32" />
+                        </div>
+                      </div>
+
+                      {/* Outreach Days */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Outreach Days</label>
+                        <div className="flex flex-wrap gap-2">
+                          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
+                            (day) => (
+                              <Button
+                                key={day}
+                                variant={
+                                  campaign.outreachDays.some((d) => d.startsWith(day))
+                                    ? "default"
+                                    : "outline"
+                                }
+                                size="sm"
+                              >
+                                {day}
+                              </Button>
+                            ),
+                          )}
+                        </div>
+                      </div>
+
+                      <Button>Save Settings</Button>
+                    </CardContent>
+                  </Card>
+             </TabsContent>
+
+             {/* Info Tab - Reuse Content */}
+             <TabsContent value="info" className="space-y-4 overflow-auto h-full p-1">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Campaign Information</CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        Core components of the campaign. These cannot be edited after
+                        launch.
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid gap-6 md:grid-cols-2">
+                        <div className="space-y-4">
+                          <div className="flex items-start gap-3">
+                            <MessageSquare className="h-5 w-5 text-muted-foreground mt-0.5" />
+                            <div>
+                              <label className="text-sm font-medium">
+                                Reachout Through
+                              </label>
+                              <p className="text-sm text-muted-foreground">
+                                {campaign.type === "inmail"
+                                  ? "LinkedIn InMail"
+                                  : "LinkedIn Message"}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start gap-3">
+                            <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
+                            <div>
+                              <label className="text-sm font-medium">
+                                Selected Product
+                              </label>
+                              <p className="text-sm text-muted-foreground">
+                                {campaign.selectedProduct}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start gap-3">
+                            <Zap className="h-5 w-5 text-muted-foreground mt-0.5" />
+                            <div>
+                              <label className="text-sm font-medium">
+                                Writing Style
+                              </label>
+                              <p className="text-sm text-muted-foreground">
+                                {campaign.writingStyle}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start gap-3">
+                            <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
+                            <div>
+                              <label className="text-sm font-medium">
+                                Included Profiles
+                              </label>
+                              <p className="text-sm text-muted-foreground">
+                                {campaign.profileType}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="flex items-start gap-3">
+                            <Globe className="h-5 w-5 text-muted-foreground mt-0.5" />
+                            <div>
+                              <label className="text-sm font-medium">
+                                Research Agents
+                              </label>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {campaign.researchAgents.map((agent) => (
+                                  <Badge key={agent} variant="secondary">
+                                    {agent}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start gap-3">
+                            <LinkIcon className="h-5 w-5 text-muted-foreground mt-0.5" />
+                            <div>
+                              <label className="text-sm font-medium">Input URL</label>
+                              <p className="text-sm text-muted-foreground break-all">
+                                {campaign.inputUrl}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start gap-3">
+                            <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+                            <div>
+                              <label className="text-sm font-medium">Created</label>
+                              <p className="text-sm text-muted-foreground">
+                                {campaign.createdAt}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start gap-3">
+                            <Info className="h-5 w-5 text-muted-foreground mt-0.5" />
+                            <div>
+                              <label className="text-sm font-medium">
+                                Prospect Pool
+                              </label>
+                              <p className="text-sm text-muted-foreground">
+                                {campaign.prospectPoolSize} prospects uploaded
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+             </TabsContent>
+        </div>
       </Tabs>
     </div>
   );
