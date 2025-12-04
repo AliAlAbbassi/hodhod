@@ -48,6 +48,12 @@ import {
   CornerDownRight,
   FileSpreadsheet,
   MoreVertical,
+  User,
+  Target,
+  Newspaper,
+  Share2,
+  BarChart,
+  Scale,
 } from "lucide-react";
 
 type SequenceStep = {
@@ -73,6 +79,20 @@ const agentCategories = [
   { id: "media", name: "Media & Public Perception" },
   { id: "economic", name: "Economic & Regulatory Context" },
 ];
+
+const agentIcons: Record<string, any> = {
+  "prospect-research": User,
+  "prospect-deep-dive": Search,
+  "company-deep-dive": Building,
+  "hiring-trends": TrendingUp,
+  "corporate-culture": Users,
+  "industry-analysis": Globe,
+  "market-position": Target,
+  "news-sentiment": Newspaper,
+  "social-presence": Share2,
+  "financial-health": BarChart,
+  "regulatory-landscape": Scale,
+};
 
 // Available research agents grouped by category
 const researchAgents = [
@@ -547,87 +567,114 @@ export default function CreateCampaignPage() {
 
         {/* Step 2: Research Agents */}
         {currentStep === 2 && (
-          <div className="flex-1 overflow-auto p-8">
-            <div className="mx-auto max-w-4xl">
-              {/* Max selection notice */}
-              <p className="text-sm text-muted-foreground mb-4">
-                Max 5 can be selected
-              </p>
+          <div className="flex-1 overflow-auto bg-slate-50/50">
+            <div className="mx-auto max-w-5xl p-8">
+              {/* Header */}
+              <div className="mb-8">
+                <p className="text-sm text-muted-foreground">
+                  Max 5 can be selected
+                </p>
+              </div>
 
               {/* Category Tabs */}
-              <div className="flex flex-wrap gap-2 mb-8">
+              <div className="flex flex-wrap items-center gap-2 mb-10">
                 {agentCategories.map((category) => (
-                  <Button
+                  <button
                     key={category.id}
-                    variant={agentCategoryFilter === category.id ? "default" : "outline"}
-                    size="sm"
                     onClick={() => setAgentCategoryFilter(category.id)}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      agentCategoryFilter === category.id
+                        ? "bg-foreground text-background shadow-sm"
+                        : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                    }`}
                   >
                     {category.name}
-                  </Button>
+                  </button>
                 ))}
               </div>
 
               {/* Agents grouped by category */}
-              {agentCategories
-                .filter((cat) => cat.id !== "all")
-                .filter((cat) => agentCategoryFilter === "all" || agentCategoryFilter === cat.id)
-                .map((category) => {
-                  const categoryAgents = researchAgents.filter((a) => a.category === category.id);
-                  if (categoryAgents.length === 0) return null;
+              <div className="space-y-10">
+                {agentCategories
+                  .filter((cat) => cat.id !== "all")
+                  .filter(
+                    (cat) =>
+                      agentCategoryFilter === "all" ||
+                      agentCategoryFilter === cat.id
+                  )
+                  .map((category) => {
+                    const categoryAgents = researchAgents.filter(
+                      (a) => a.category === category.id
+                    );
+                    if (categoryAgents.length === 0) return null;
 
-                  return (
-                    <div key={category.id} className="mb-8">
-                      <h3 className="text-sm font-medium text-muted-foreground mb-4">
-                        {category.name}
-                      </h3>
-                      <div className="space-y-3">
-                        {categoryAgents.map((agent) => {
-                          const isSelected = selectedAgents.includes(agent.id);
-                          return (
-                            <div
-                              key={agent.id}
-                              className={`flex items-start gap-4 p-4 rounded-lg border bg-card ${
-                                isSelected ? "border-green-500/50" : ""
-                              }`}
-                            >
-                              <div className="flex items-center gap-3 flex-1">
-                                {isSelected && (
-                                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-white shrink-0">
-                                    <Check className="h-3 w-3" />
+                    return (
+                      <div key={category.id}>
+                        <h3 className="text-sm font-medium text-muted-foreground mb-4 pl-1">
+                          {category.name}
+                        </h3>
+                        <div className="bg-background rounded-xl border shadow-sm divide-y">
+                          {categoryAgents.map((agent) => {
+                            const isSelected = selectedAgents.includes(agent.id);
+                            const Icon = agentIcons[agent.id] || Search;
+
+                            return (
+                              <div
+                                key={agent.id}
+                                className={`group flex items-start gap-4 p-6 cursor-pointer transition-colors hover:bg-muted/40 ${
+                                  isSelected ? "bg-green-50/30" : ""
+                                }`}
+                                onClick={() => toggleAgent(agent.id)}
+                              >
+                                {/* Icon Area */}
+                                <div className="mt-1 shrink-0">
+                                  {isSelected ? (
+                                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                      <Check className="h-5 w-5" />
+                                    </div>
+                                  ) : (
+                                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
+                                      <Icon className="h-5 w-5" />
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Content */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h4 className="font-semibold text-base">
+                                      {agent.name}
+                                    </h4>
+                                    {/* Action Button/Status */}
+                                    <div className="shrink-0 ml-4">
+                                      {isSelected ? (
+                                        <div className="px-3 py-1 rounded-md bg-green-100 text-green-700 text-sm font-medium">
+                                          Selected
+                                        </div>
+                                      ) : (
+                                        <Button
+                                          variant="secondary"
+                                          size="sm"
+                                          className="bg-muted hover:bg-muted/80 h-8"
+                                          disabled={selectedAgents.length >= 5}
+                                        >
+                                          Research
+                                        </Button>
+                                      )}
+                                    </div>
                                   </div>
-                                )}
-                                <div className="flex-1">
-                                  <h4 className="font-medium">{agent.name}</h4>
-                                  <p className="text-sm text-muted-foreground mt-1">
+                                  <p className="text-sm text-muted-foreground leading-relaxed pr-8">
                                     {agent.description}
                                   </p>
                                 </div>
                               </div>
-                              {isSelected ? (
-                                <span
-                                  className="text-green-500 text-sm font-medium cursor-pointer hover:text-green-600"
-                                  onClick={() => toggleAgent(agent.id)}
-                                >
-                                  Selected
-                                </span>
-                              ) : (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => toggleAgent(agent.id)}
-                                  disabled={selectedAgents.length >= 5}
-                                >
-                                  Research
-                                </Button>
-                              )}
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+              </div>
             </div>
           </div>
         )}
