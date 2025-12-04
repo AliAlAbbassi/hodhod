@@ -571,8 +571,11 @@ export default function CreateCampaignPage() {
             <div className="mx-auto max-w-5xl p-8">
               {/* Header */}
               <div className="mb-8">
-                <p className="text-sm text-muted-foreground">
-                  Max 5 can be selected
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-xl font-semibold">Research Library <span className="text-muted-foreground font-normal">2/2</span></h2>
+                </div>
+                <p className="text-sm text-muted-foreground max-w-3xl">
+                  Choose the information you want us to include in your prospect research. You can <span className="font-semibold text-foreground">select up to 5x options</span> from the list, covering both individual and company insights. Just click &quot;Select&quot; or &quot;Research&quot; on the items that matter most to you. When you&apos;re done, we&apos;ll use these to build a personalised report for your outreach.
                 </p>
               </div>
 
@@ -585,7 +588,7 @@ export default function CreateCampaignPage() {
                     className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
                       agentCategoryFilter === category.id
                         ? "bg-foreground text-background shadow-sm"
-                        : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                        : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                   >
                     {category.name}
@@ -610,10 +613,10 @@ export default function CreateCampaignPage() {
 
                     return (
                       <div key={category.id}>
-                        <h3 className="text-sm font-medium text-muted-foreground mb-4 pl-1">
+                        <h3 className="text-sm font-medium text-foreground mb-4 pl-1">
                           {category.name}
                         </h3>
-                        <div className="bg-background rounded-xl border shadow-sm divide-y">
+                        <div className="bg-background rounded-lg border shadow-sm divide-y">
                           {categoryAgents.map((agent) => {
                             const isSelected = selectedAgents.includes(agent.id);
                             const Icon = agentIcons[agent.id] || Search;
@@ -621,51 +624,54 @@ export default function CreateCampaignPage() {
                             return (
                               <div
                                 key={agent.id}
-                                className={`group flex items-start gap-4 p-6 cursor-pointer transition-colors hover:bg-muted/40 ${
-                                  isSelected ? "bg-green-50/30" : ""
+                                className={`flex items-start gap-4 p-6 transition-colors ${
+                                  isSelected ? "bg-muted/20" : "hover:bg-muted/10"
                                 }`}
-                                onClick={() => toggleAgent(agent.id)}
                               >
-                                {/* Icon Area */}
-                                <div className="mt-1 shrink-0">
+                                {/* Checkbox Area (Selection Control) */}
+                                <div 
+                                  className="mt-1 shrink-0 cursor-pointer"
+                                  onClick={() => toggleAgent(agent.id)}
+                                >
                                   {isSelected ? (
-                                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-                                      <Check className="h-5 w-5" />
+                                    <div className="h-6 w-6 rounded border border-green-500 bg-green-500 flex items-center justify-center text-white">
+                                      <Check className="h-4 w-4" />
                                     </div>
                                   ) : (
-                                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
-                                      <Icon className="h-5 w-5" />
-                                    </div>
+                                    <div className="h-6 w-6 rounded border border-input bg-background hover:border-foreground/50 transition-colors" />
                                   )}
                                 </div>
 
                                 {/* Content */}
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between mb-2">
+                                <div className="flex-1 min-w-0 pt-0.5">
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <Icon className="h-5 w-5 text-muted-foreground" />
                                     <h4 className="font-semibold text-base">
                                       {agent.name}
                                     </h4>
-                                    {/* Action Button/Status */}
-                                    <div className="shrink-0 ml-4">
-                                      {isSelected ? (
-                                        <div className="px-3 py-1 rounded-md bg-green-100 text-green-700 text-sm font-medium">
-                                          Selected
-                                        </div>
-                                      ) : (
-                                        <Button
-                                          variant="secondary"
-                                          size="sm"
-                                          className="bg-muted hover:bg-muted/80 h-8"
-                                          disabled={selectedAgents.length >= 5}
-                                        >
-                                          Research
-                                        </Button>
-                                      )}
-                                    </div>
                                   </div>
-                                  <p className="text-sm text-muted-foreground leading-relaxed pr-8">
+                                  <p className="text-sm text-muted-foreground leading-relaxed">
                                     {agent.description}
                                   </p>
+                                </div>
+
+                                {/* Action Button/Status */}
+                                <div className="shrink-0 ml-4 self-center">
+                                  {isSelected ? (
+                                    <div className="px-3 py-1.5 rounded-md bg-green-100/50 text-green-700 text-sm font-medium">
+                                      Selected
+                                    </div>
+                                  ) : (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="bg-background"
+                                      onClick={() => toggleAgent(agent.id)}
+                                      disabled={selectedAgents.length >= 5}
+                                    >
+                                      Research
+                                    </Button>
+                                  )}
                                 </div>
                               </div>
                             );
