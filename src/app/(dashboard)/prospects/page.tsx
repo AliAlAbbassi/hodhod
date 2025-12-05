@@ -63,6 +63,15 @@ type Prospect = {
   time: string;
   status: ProspectStatus;
   profilePrivacy: ProfilePrivacy;
+  score: number;
+  scoreDetails: {
+    icpFit: number;
+    icpReason: string;
+    problemIntensity: number;
+    problemReason: string;
+    relevance: number;
+    relevanceReason: string;
+  };
 };
 
 // Analytics data for the chart
@@ -102,6 +111,18 @@ const initialProspects: Prospect[] = [
     time: "2 hours ago",
     status: "prospect_created",
     profilePrivacy: "closed",
+    score: 78,
+    scoreDetails: {
+      icpFit: 85,
+      icpReason:
+        "Leads a successful AR/VR studio, aligning well with HodhodStudios' focus on technology and innovation. His experience with high-profile clients indicates a strong fit with the target market.",
+      problemIntensity: 70,
+      problemReason:
+        "While company may face challenges related to resource constraints and the need for efficient outreach, the specific problems HodhodStudios addresses may not be as acute.",
+      relevance: 90,
+      relevanceReason:
+        "High relevance due to direct involvement in legal tech adoption and decision making power.",
+    },
   },
   {
     id: "2",
@@ -119,6 +140,15 @@ const initialProspects: Prospect[] = [
     time: "2 hours ago",
     status: "prospect_created",
     profilePrivacy: "closed",
+    score: 65,
+    scoreDetails: {
+      icpFit: 60,
+      icpReason: "Industry alignment is moderate.",
+      problemIntensity: 65,
+      problemReason: "Standard operational challenges.",
+      relevance: 70,
+      relevanceReason: "Potential user of engineering tools.",
+    },
   },
   {
     id: "3",
@@ -132,6 +162,15 @@ const initialProspects: Prospect[] = [
     time: "21 hours ago",
     status: "prospect_created",
     profilePrivacy: "open",
+    score: 92,
+    scoreDetails: {
+      icpFit: 95,
+      icpReason: "Perfect match for strategic partnership.",
+      problemIntensity: 90,
+      problemReason: "Actively seeking new solutions.",
+      relevance: 95,
+      relevanceReason: "Direct decision maker.",
+    },
   },
   {
     id: "4",
@@ -145,6 +184,15 @@ const initialProspects: Prospect[] = [
     time: "4 hours ago",
     status: "contacted",
     profilePrivacy: "closed",
+    score: 88,
+    scoreDetails: {
+      icpFit: 90,
+      icpReason: "Strong fit in SaaS design space.",
+      problemIntensity: 85,
+      problemReason: "High demand for design tools.",
+      relevance: 88,
+      relevanceReason: "Key influencer in design stack.",
+    },
   },
   {
     id: "5",
@@ -158,6 +206,15 @@ const initialProspects: Prospect[] = [
     time: "4 hours ago",
     status: "prospect_created",
     profilePrivacy: "open",
+    score: 75,
+    scoreDetails: {
+      icpFit: 80,
+      icpReason: "Good technical fit.",
+      problemIntensity: 70,
+      problemReason: "Scaling challenges present.",
+      relevance: 75,
+      relevanceReason: "Technical evaluator.",
+    },
   },
   {
     id: "6",
@@ -171,6 +228,15 @@ const initialProspects: Prospect[] = [
     time: "4 hours ago",
     status: "prospect_created",
     profilePrivacy: "closed",
+    score: 95,
+    scoreDetails: {
+      icpFit: 98,
+      icpReason: "Ideal GTM leader profile.",
+      problemIntensity: 95,
+      problemReason: "Aggressive growth targets.",
+      relevance: 95,
+      relevanceReason: "Budget holder.",
+    },
   },
 ];
 
@@ -228,6 +294,96 @@ const StatusBadge = ({ status }: { status: ProspectStatus }) => {
   );
 };
 
+const ProspectNameCell = ({ prospect }: { prospect: Prospect }) => {
+  const [open, setOpen] = useState(false);
+  const initials = prospect.name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2);
+
+  return (
+    <>
+      <div className="flex items-center gap-3">
+        <div className="relative">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={prospect.avatarUrl} alt={prospect.name} />
+            <AvatarFallback className="bg-gray-200 text-gray-600 text-sm">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div
+            className="absolute -bottom-1 -right-1 bg-[#22c55e] text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full cursor-pointer ring-2 ring-white hover:bg-[#16a34a] transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpen(true);
+            }}
+          >
+            {prospect.score}
+          </div>
+        </div>
+        <div className="flex flex-col">
+          <span className="font-medium">{prospect.name}</span>
+          <span className="text-sm text-muted-foreground truncate max-w-[200px]">
+            {prospect.headline}
+          </span>
+        </div>
+      </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[600px] gap-0 p-0 overflow-hidden">
+          <div className="flex items-center gap-4 p-6 pb-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#22c55e] text-lg font-bold text-white">
+              {prospect.score}
+            </div>
+            <DialogTitle className="text-xl font-bold">
+              Prospect Score Details
+            </DialogTitle>
+          </div>
+
+          <div className="space-y-6 p-6 pt-2">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold">ICP</h3>
+                <span className="text-sm font-medium">
+                  Score: {prospect.scoreDetails.icpFit}
+                </span>
+              </div>
+              <p className="leading-relaxed text-muted-foreground">
+                {prospect.scoreDetails.icpReason}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold">Problem Intensity</h3>
+                <span className="text-sm font-medium">
+                  Score: {prospect.scoreDetails.problemIntensity}
+                </span>
+              </div>
+              <p className="leading-relaxed text-muted-foreground">
+                {prospect.scoreDetails.problemReason}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold">Relevance</h3>
+                <span className="text-sm font-medium">
+                  Score: {prospect.scoreDetails.relevance}
+                </span>
+              </div>
+              <p className="leading-relaxed text-muted-foreground">
+                {prospect.scoreDetails.relevanceReason}
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
+
 const columns: ColumnDef<Prospect>[] = [
   {
     id: "select",
@@ -263,31 +419,7 @@ const columns: ColumnDef<Prospect>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => {
-      const prospect = row.original;
-      const initials = prospect.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .slice(0, 2);
-
-      return (
-        <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={prospect.avatarUrl} alt={prospect.name} />
-            <AvatarFallback className="bg-gray-200 text-gray-600 text-sm">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <span className="font-medium">{prospect.name}</span>
-            <span className="text-sm text-muted-foreground truncate max-w-[200px]">
-              {prospect.headline}
-            </span>
-          </div>
-        </div>
-      );
-    },
+    cell: ({ row }) => <ProspectNameCell prospect={row.original} />,
   },
   {
     id: "company",
@@ -389,6 +521,15 @@ export default function ProspectsPage() {
       time: "Just now",
       status: "prospect_created",
       profilePrivacy: "open",
+      score: 50,
+      scoreDetails: {
+        icpFit: 50,
+        icpReason: "Pending analysis...",
+        problemIntensity: 50,
+        problemReason: "Pending analysis...",
+        relevance: 50,
+        relevanceReason: "Pending analysis...",
+      },
     };
 
     setProspects([newProspect, ...prospects]);
@@ -411,7 +552,7 @@ export default function ProspectsPage() {
           <div className="flex items-center gap-2">
             <Avatar className="h-6 w-6">
               <AvatarFallback className="text-xs bg-orange-200 text-orange-700">
-                ZA
+                A
               </AvatarFallback>
             </Avatar>
             <span className="font-medium">Ali</span>
