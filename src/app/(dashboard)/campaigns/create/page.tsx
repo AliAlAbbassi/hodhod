@@ -1323,9 +1323,9 @@ export default function CreateCampaignPage() {
       >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Upload Through LinkedIn Post URL(s)</DialogTitle>
+            <DialogTitle className="mb-4">Upload Through LinkedIn Post URL(s)</DialogTitle>
           </DialogHeader>
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div className="flex items-start gap-3 rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground border">
               <Info className="h-5 w-5 mt-0.5 shrink-0" />
               <div className="space-y-2">
@@ -1338,10 +1338,10 @@ export default function CreateCampaignPage() {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               {postUrls.map((url, index) => (
-                <div key={index} className="space-y-2">
-                  <label className="text-sm font-medium">LinkedIn Post URL {index + 1}</label>
+                <div key={index} className="space-y-3">
+                  <label className="text-sm font-semibold">LinkedIn Post URL {index + 1}</label>
                   <div className="flex gap-2">
                     <Input
                       placeholder="https://www.linkedin.com/posts/..."
@@ -1370,11 +1370,11 @@ export default function CreateCampaignPage() {
               </Button>
             </div>
 
-            <div className="flex items-center gap-6">
-              <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-8">
+              <div className="flex items-center space-x-3">
                 <label
                   htmlFor="reactors"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   Reactions
                 </label>
@@ -1384,10 +1384,10 @@ export default function CreateCampaignPage() {
                   onCheckedChange={setIncludeReactors}
                 />
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 <label
                   htmlFor="commenters"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   Comments
                 </label>
