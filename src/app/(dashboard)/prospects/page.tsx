@@ -16,12 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   LineChart,
   Line,
@@ -96,7 +91,11 @@ const initialProspects: Prospect[] = [
     name: "Les W Robertson",
     headline: "Attorney/Mediator/Arbitrat...",
     avatarUrl: "",
-    company: { name: "Robertson ADR & ...", logoUrl: "", logoColor: "bg-purple-600" },
+    company: {
+      name: "Robertson ADR & ...",
+      logoUrl: "",
+      logoColor: "bg-purple-600",
+    },
     role: "Arbitrator, Mediator and Ins...",
     tenure: "6 mo...",
     intentLevel: "cold",
@@ -109,7 +108,11 @@ const initialProspects: Prospect[] = [
     name: "Jim Busha",
     headline: "Mechanical Electrical Engineering...",
     avatarUrl: "",
-    company: { name: "Mechanical Electri...", logoUrl: "", logoColor: "bg-blue-700" },
+    company: {
+      name: "Mechanical Electri...",
+      logoUrl: "",
+      logoColor: "bg-blue-700",
+    },
     role: "Mechanical Engineer",
     tenure: "17 yea...",
     intentLevel: "cold",
@@ -301,7 +304,9 @@ const columns: ColumnDef<Prospect>[] = [
             {companyInitial}
           </div>
           <div className="flex flex-col">
-            <span className="font-medium truncate max-w-[180px]">{prospect.role}</span>
+            <span className="font-medium truncate max-w-[180px]">
+              {prospect.role}
+            </span>
             <span className="text-sm text-muted-foreground truncate max-w-[180px]">
               {prospect.company.name} · {prospect.tenure}
             </span>
@@ -352,7 +357,9 @@ const columns: ColumnDef<Prospect>[] = [
       const privacy = row.original.profilePrivacy;
       return (
         <div className="flex items-center gap-1.5">
-          {privacy === "closed" && <Lock className="h-3 w-3 text-muted-foreground" />}
+          {privacy === "closed" && (
+            <Lock className="h-3 w-3 text-muted-foreground" />
+          )}
           <span className="text-muted-foreground capitalize">{privacy}</span>
         </div>
       );
@@ -403,9 +410,11 @@ export default function ProspectsPage() {
           <span className="text-muted-foreground">/</span>
           <div className="flex items-center gap-2">
             <Avatar className="h-6 w-6">
-              <AvatarFallback className="text-xs bg-orange-200 text-orange-700">ZA</AvatarFallback>
+              <AvatarFallback className="text-xs bg-orange-200 text-orange-700">
+                ZA
+              </AvatarFallback>
             </Avatar>
-            <span className="font-medium">Zayd Ali</span>
+            <span className="font-medium">Ali</span>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -433,8 +442,12 @@ export default function ProspectsPage() {
                 <TabsContent value="file" className="space-y-4 py-4">
                   <div className="flex flex-col items-center justify-center h-32 border-2 border-dashed rounded-lg text-muted-foreground hover:bg-muted/50 cursor-pointer transition-colors">
                     <div className="text-center space-y-1">
-                      <p className="text-sm font-medium">Click to browse or drag file here</p>
-                      <p className="text-xs text-muted-foreground">CSV files only (max 5MB)</p>
+                      <p className="text-sm font-medium">
+                        Click to browse or drag file here
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        CSV files only (max 5MB)
+                      </p>
                     </div>
                   </div>
                   <Button className="w-full" onClick={() => setOpen(false)}>
@@ -470,7 +483,8 @@ export default function ProspectsPage() {
                       onChange={(e) => setSalesNavUrl(e.target.value)}
                     />
                     <p className="text-sm text-muted-foreground">
-                      Paste a Sales Navigator search URL to import multiple prospects
+                      Paste a Sales Navigator search URL to import multiple
+                      prospects
                     </p>
                   </div>
                   <Button className="w-full" onClick={() => setOpen(false)}>
@@ -497,7 +511,10 @@ export default function ProspectsPage() {
             {overviewStats.map((stat) => {
               const Icon = stat.icon;
               return (
-                <div key={stat.label} className="flex items-center justify-between">
+                <div
+                  key={stat.label}
+                  className="flex items-center justify-between"
+                >
                   <div className="flex items-center gap-3">
                     <Icon className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">{stat.label}</span>
@@ -542,7 +559,11 @@ export default function ProspectsPage() {
             <div className="h-[180px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={analyticsData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e5e5" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke="#e5e5e5"
+                  />
                   <XAxis
                     dataKey="date"
                     stroke="#888888"
@@ -555,7 +576,12 @@ export default function ProspectsPage() {
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
-                    label={{ value: "Visitors", angle: -90, position: "insideLeft", fontSize: 12 }}
+                    label={{
+                      value: "Visitors",
+                      angle: -90,
+                      position: "insideLeft",
+                      fontSize: 12,
+                    }}
                   />
                   <Tooltip />
                   <Line
