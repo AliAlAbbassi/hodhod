@@ -41,7 +41,16 @@ import {
   Users,
   Activity,
   Loader2,
+  MoreHorizontal,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type IntentLevel = "hot" | "warm" | "cold";
 type ProspectStatus = "prospect_created" | "contacted" | "replied";
@@ -72,6 +81,7 @@ type Prospect = {
     relevance: number;
     relevanceReason: string;
   };
+  isHumanHandover: boolean;
 };
 
 // Analytics data for the chart
@@ -123,6 +133,7 @@ const initialProspects: Prospect[] = [
       relevanceReason:
         "High relevance due to direct involvement in legal tech adoption and decision making power.",
     },
+    isHumanHandover: false,
   },
   {
     id: "2",
@@ -149,6 +160,7 @@ const initialProspects: Prospect[] = [
       relevance: 70,
       relevanceReason: "Potential user of engineering tools.",
     },
+    isHumanHandover: false,
   },
   {
     id: "3",
@@ -171,6 +183,7 @@ const initialProspects: Prospect[] = [
       relevance: 95,
       relevanceReason: "Direct decision maker.",
     },
+    isHumanHandover: false,
   },
   {
     id: "4",
@@ -193,6 +206,7 @@ const initialProspects: Prospect[] = [
       relevance: 88,
       relevanceReason: "Key influencer in design stack.",
     },
+    isHumanHandover: false,
   },
   {
     id: "5",
@@ -215,6 +229,7 @@ const initialProspects: Prospect[] = [
       relevance: 75,
       relevanceReason: "Technical evaluator.",
     },
+    isHumanHandover: false,
   },
   {
     id: "6",
@@ -237,6 +252,7 @@ const initialProspects: Prospect[] = [
       relevance: 95,
       relevanceReason: "Budget holder.",
     },
+    isHumanHandover: false,
   },
 ];
 
@@ -384,126 +400,181 @@ const ProspectNameCell = ({ prospect }: { prospect: Prospect }) => {
   );
 };
 
-const columns: ColumnDef<Prospect>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "name",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="p-0 hover:bg-transparent"
-      >
-        Prospect name
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => <ProspectNameCell prospect={row.original} />,
-  },
-  {
-    id: "company",
-    header: "Company with role",
-    cell: ({ row }) => {
-      const prospect = row.original;
-      const companyInitial = prospect.company.name[0];
 
-      return (
-        <div className="flex items-center gap-3">
-          <div
-            className={`h-10 w-10 rounded-lg flex items-center justify-center text-white font-semibold ${prospect.company.logoColor || "bg-gray-500"}`}
-          >
-            {companyInitial}
-          </div>
-          <div className="flex flex-col">
-            <span className="font-medium truncate max-w-[180px]">
-              {prospect.role}
-            </span>
-            <span className="text-sm text-muted-foreground truncate max-w-[180px]">
-              {prospect.company.name} · {prospect.tenure}
-            </span>
-          </div>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "intentLevel",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="p-0 hover:bg-transparent"
-      >
-        Intent Level
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => <IntentBadge level={row.original.intentLevel} />,
-  },
-  {
-    accessorKey: "time",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="p-0 hover:bg-transparent"
-      >
-        Time
-        <ChevronDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => (
-      <span className="text-muted-foreground">{row.original.time}</span>
-    ),
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => <StatusBadge status={row.original.status} />,
-  },
-  {
-    accessorKey: "profilePrivacy",
-    header: "Profile Privacy",
-    cell: ({ row }) => {
-      const privacy = row.original.profilePrivacy;
-      return (
-        <div className="flex items-center gap-1.5">
-          {privacy === "closed" && (
-            <Lock className="h-3 w-3 text-muted-foreground" />
-          )}
-          <span className="text-muted-foreground capitalize">{privacy}</span>
-        </div>
-      );
-    },
-  },
-];
 
 export default function ProspectsPage() {
   const [prospects, setProspects] = useState<Prospect[]>(initialProspects);
   const [open, setOpen] = useState(false);
   const [newProspectUrl, setNewProspectUrl] = useState("");
   const [salesNavUrl, setSalesNavUrl] = useState("");
+
+  const toggleHumanHandover = (prospectId: string) => {
+    setProspects(
+      prospects.map((p) =>
+        p.id === prospectId ? { ...p, isHumanHandover: !p.isHumanHandover } : p
+      )
+    );
+  };
+
+  const columns: ColumnDef<Prospect>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "name",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0 hover:bg-transparent"
+        >
+          Prospect name
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => <ProspectNameCell prospect={row.original} />,
+    },
+    {
+      id: "company",
+      header: "Company with role",
+      cell: ({ row }) => {
+        const prospect = row.original;
+        const companyInitial = prospect.company.name[0];
+
+        return (
+          <div className="flex items-center gap-3">
+            <div
+              className={`h-10 w-10 rounded-lg flex items-center justify-center text-white font-semibold ${prospect.company.logoColor || "bg-gray-500"}`}
+            >
+              {companyInitial}
+            </div>
+            <div className="flex flex-col">
+              <span className="font-medium truncate max-w-[180px]">
+                {prospect.role}
+              </span>
+              <span className="text-sm text-muted-foreground truncate max-w-[180px]">
+                {prospect.company.name} · {prospect.tenure}
+              </span>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "intentLevel",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0 hover:bg-transparent"
+        >
+          Intent Level
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => <IntentBadge level={row.original.intentLevel} />,
+    },
+    {
+      accessorKey: "time",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0 hover:bg-transparent"
+        >
+          Time
+          <ChevronDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <span className="text-muted-foreground">{row.original.time}</span>
+      ),
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <StatusBadge status={row.original.status} />
+          {row.original.isHumanHandover && (
+            <Badge
+              variant="secondary"
+              className="bg-purple-100 text-purple-700 hover:bg-purple-100 border-purple-200"
+            >
+              Human Handover
+            </Badge>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "profilePrivacy",
+      header: "Profile Privacy",
+      cell: ({ row }) => {
+        const privacy = row.original.profilePrivacy;
+        return (
+          <div className="flex items-center gap-1.5">
+            {privacy === "closed" && (
+              <Lock className="h-3 w-3 text-muted-foreground" />
+            )}
+            <span className="text-muted-foreground capitalize">{privacy}</span>
+          </div>
+        );
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const prospect = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(prospect.id)}
+              >
+                Copy ID
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>View Profile</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => toggleHumanHandover(prospect.id)}
+              >
+                {prospect.isHumanHandover
+                  ? "Remove Human Handover"
+                  : "Human Handover"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
 
   const handleAddProspect = () => {
     if (!newProspectUrl.trim()) return;
@@ -530,6 +601,7 @@ export default function ProspectsPage() {
         relevance: 50,
         relevanceReason: "Pending analysis...",
       },
+      isHumanHandover: false,
     };
 
     setProspects([newProspect, ...prospects]);
