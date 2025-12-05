@@ -4,12 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import {
-  Command,
-  Plus,
-  Globe,
-  MoreVertical,
-} from "lucide-react";
+import { Command, Plus, Globe, MoreVertical } from "lucide-react";
 
 type Product = {
   id: string;
@@ -26,24 +21,26 @@ const initialProducts: Product[] = [
     id: "1",
     name: "LinkedIn Automation",
     isPublic: true,
-    companyUrl: "www.joinvalley.co/",
+    companyUrl: "www.hodhod.to/",
     bookingLink: "https://cal.com/zaydali/30min",
     productUrl: "",
     briefDescription:
-      "Valley offers an AI-powered service that automates outreach and schedules sales calls, turning cold leads into booked meetings.\n\nIdentify the right leads, automatic scoring, research, personalization and outreach on LinkedIn while providing best in class account safety.",
+      "Hodhod offers an AI-powered service that automates outreach and schedules sales calls, turning cold leads into booked meetings.\n\nIdentify the right leads, automatic scoring, research, personalization and outreach on LinkedIn while providing best in class account safety.",
   },
   { id: "2", name: "Account Safety Focus", isPublic: true },
   { id: "3", name: "GTM Agency focus", isPublic: true },
   { id: "4", name: "Personalization", isPublic: true },
   { id: "5", name: "One Person Sales teams", isPublic: true },
   { id: "6", name: "Creative/ Marketing + Founder", isPublic: true },
-  { id: "7", name: "Valley - Lead Gen for Recruitment", isPublic: true },
+  { id: "7", name: "Hodhod - Lead Gen for Recruitment", isPublic: true },
   { id: "8", name: "SaaS startups", isPublic: true },
 ];
 
 export default function StudioPage() {
   const [products] = useState<Product[]>(initialProducts);
-  const [selectedProductId, setSelectedProductId] = useState<string | null>("1");
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    "1",
+  );
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [onboardingStep, setOnboardingStep] = useState(4);
 
@@ -101,9 +98,9 @@ export default function StudioPage() {
                     <div className="bg-background border rounded-lg shadow-lg p-4 w-72">
                       <div className="absolute -top-2 left-8 w-4 h-4 bg-background border-l border-t rotate-45" />
                       <p className="text-sm mb-4">
-                        Share your website, and Valley will automatically understand
-                        your product details, ICP, pain points, features and any
-                        other details.
+                        Share your website, and Hodhod will automatically
+                        understand your product details, ICP, pain points,
+                        features and any other details.
                       </p>
                       <div className="flex items-center justify-between">
                         <Button
@@ -136,7 +133,9 @@ export default function StudioPage() {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b">
               <div className="flex items-center gap-3">
-                <h1 className="text-lg font-semibold">{selectedProduct.name}</h1>
+                <h1 className="text-lg font-semibold">
+                  {selectedProduct.name}
+                </h1>
                 <Button variant="outline" size="sm">
                   Edit Name
                 </Button>
@@ -234,9 +233,9 @@ export default function StudioPage() {
                   Let's Set Up Your First Product
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Create your first Product to train Valley on what you are
-                  pitching. We recommend creating one product per ICP or use case.
-                  In need of help?{" "}
+                  Create your first Product to train Hodhod on what you are
+                  pitching. We recommend creating one product per ICP or use
+                  case. In need of help?{" "}
                   <a href="#" className="underline hover:text-foreground">
                     Read our documentation.
                   </a>
