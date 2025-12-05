@@ -45,12 +45,17 @@ import {
   Sparkles,
   ArrowRight,
   CornerDownRight,
+  Briefcase,
+  Building,
+  User,
+  Trash2,
   Settings,
   X,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { DailyVolumeSlider } from "@/components/campaign-settings/daily-volume-slider";
 import { SequenceTiming } from "@/components/campaign-settings/sequence-timing";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Mock campaign data
 const campaignData = {
@@ -93,6 +98,8 @@ const prospectsData = [
     status: "replied",
     score: 92,
     lastActivity: "2 hours ago",
+    icpFit: "HIGH",
+    role: "VP Engineering",
   },
   {
     id: "2",
@@ -103,6 +110,8 @@ const prospectsData = [
     status: "opened",
     score: 88,
     lastActivity: "1 day ago",
+    icpFit: "HIGH",
+    role: "CTO",
   },
   {
     id: "3",
@@ -113,6 +122,8 @@ const prospectsData = [
     status: "sent",
     score: 95,
     lastActivity: "3 hours ago",
+    icpFit: "MEDIUM",
+    role: "Head of Engineering",
   },
   {
     id: "4",
@@ -123,6 +134,8 @@ const prospectsData = [
     status: "meeting_booked",
     score: 85,
     lastActivity: "5 hours ago",
+    icpFit: "LOW",
+    role: "Engineering Director",
   },
   {
     id: "5",
@@ -133,17 +146,25 @@ const prospectsData = [
     status: "replied",
     score: 90,
     lastActivity: "1 hour ago",
+    icpFit: "HIGH",
+    role: "VP Platform",
   },
 ];
 
 const statusConfig = {
-  sent: { label: "Sent", className: "bg-blue-100 text-blue-700" },
-  opened: { label: "Opened", className: "bg-yellow-100 text-yellow-700" },
-  replied: { label: "Replied", className: "bg-green-100 text-green-700" },
+  sent: { label: "Sent", className: "bg-blue-100 text-blue-700 hover:bg-blue-100/80" },
+  opened: { label: "Opened", className: "bg-yellow-100 text-yellow-700 hover:bg-yellow-100/80" },
+  replied: { label: "Replied", className: "bg-green-100 text-green-700 hover:bg-green-100/80" },
   meeting_booked: {
     label: "Meeting Booked",
-    className: "bg-purple-100 text-purple-700",
+    className: "bg-purple-100 text-purple-700 hover:bg-purple-100/80",
   },
+};
+
+const icpFitConfig: Record<string, string> = {
+  HIGH: "bg-green-100 text-green-700 border-green-200",
+  MEDIUM: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  LOW: "bg-red-100 text-red-700 border-red-200",
 };
 
 export default function CampaignDetailPage() {
@@ -171,12 +192,31 @@ export default function CampaignDetailPage() {
       p.company.toLowerCase().includes(prospectSearch.toLowerCase())
   );
 
-  // Filter prospects
   const filteredProspects = prospectsData.filter(
     (p) =>
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.company.toLowerCase().includes(searchQuery.toLowerCase()),
   );
+
+  const [selectedProspectIds, setSelectedProspectIds] = useState<Set<string>>(new Set());
+
+  const toggleAllProspects = () => {
+    if (selectedProspectIds.size === filteredProspects.length) {
+      setSelectedProspectIds(new Set());
+    } else {
+      setSelectedProspectIds(new Set(filteredProspects.map(p => p.id)));
+    }
+  };
+
+  const toggleProspect = (id: string) => {
+    const newSelected = new Set(selectedProspectIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedProspectIds(newSelected);
+  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-2rem)]">
@@ -252,115 +292,140 @@ export default function CampaignDetailPage() {
         <div className="flex-1 min-h-0 overflow-hidden">
              {/* Overview Tab Content */}
              <TabsContent value="overview" className="h-full overflow-auto space-y-4 p-1">
-                 <div className="flex items-center gap-3">
-                    <div className="relative flex-1 max-w-sm">
-                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        placeholder="Search prospects..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9"
-                      />
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="gap-2">
-                          <Filter className="h-4 w-4" />
-                          Status
-                          <ChevronDown className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem>All</DropdownMenuItem>
-                        <DropdownMenuItem>Sent</DropdownMenuItem>
-                        <DropdownMenuItem>Opened</DropdownMenuItem>
-                        <DropdownMenuItem>Replied</DropdownMenuItem>
-                        <DropdownMenuItem>Meeting Booked</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="gap-2">
-                          Industry
-                          <ChevronDown className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem>All</DropdownMenuItem>
-                        <DropdownMenuItem>Technology</DropdownMenuItem>
-                        <DropdownMenuItem>Fintech</DropdownMenuItem>
-                        <DropdownMenuItem>SaaS</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    <div className="ml-auto">
-                      <Button variant="outline" className="gap-2">
-                        <Download className="h-4 w-4" />
-                        Export to CSV
-                      </Button>
+                 {/* Filters Bar */}
+                 <div className="flex items-center justify-between">
+                    {selectedProspectIds.size > 0 ? (
+                       <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-200">
+                          <Button variant="ghost" size="sm" className="gap-2" onClick={() => setSelectedProspectIds(new Set())}>
+                             <span className="bg-primary text-primary-foreground text-xs rounded-full px-1.5 min-w-[1.25rem] h-5 flex items-center justify-center">
+                                {selectedProspectIds.size}
+                             </span>
+                             Reset
+                             <X className="h-4 w-4" />
+                          </Button>
+                          <div className="h-4 w-px bg-border mx-2" />
+                          <Button variant="outline" size="sm" className="gap-2">
+                             Export
+                          </Button>
+                          <Button variant="destructive" size="sm" className="gap-2">
+                             Delete Prospects
+                          </Button>
+                       </div>
+                    ) : (
+                       <div className="flex items-center gap-2">
+                          <Button variant="outline" size="sm" className="gap-2 rounded-full border-dashed">
+                             <Filter className="h-3.5 w-3.5" />
+                             Status
+                             <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+                          </Button>
+                          <Button variant="outline" size="sm" className="gap-2 rounded-full border-dashed">
+                             <Building className="h-3.5 w-3.5" />
+                             Company
+                             <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+                          </Button>
+                          <Button variant="outline" size="sm" className="gap-2 rounded-full border-dashed">
+                             <User className="h-3.5 w-3.5" />
+                             Role
+                             <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+                          </Button>
+                          <Button variant="outline" size="sm" className="gap-2 rounded-full border-dashed">
+                             <Briefcase className="h-3.5 w-3.5" />
+                             Industry
+                             <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+                          </Button>
+                          <Button variant="outline" size="sm" className="gap-2 rounded-full border-dashed">
+                             <Sparkles className="h-3.5 w-3.5" />
+                             ICP
+                             <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+                          </Button>
+                       </div>
+                    )}
+
+                    <div className="flex items-center gap-2">
+                        {/* Search is hidden in the design provided but useful to keep or move */}
+                        <div className="relative w-64">
+                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                             <Input
+                                placeholder="Search..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-9 h-9"
+                             />
+                        </div>
+                       <Button variant="outline" size="sm">Export</Button>
                     </div>
                  </div>
 
                  {/* Prospects Table */}
-                  <Card>
+                  <div className="rounded-md border bg-card">
                     <Table>
                       <TableHeader>
-                        <TableRow>
-                          <TableHead>Prospect</TableHead>
-                          <TableHead>Company</TableHead>
-                          <TableHead>Industry</TableHead>
+                        <TableRow className="hover:bg-transparent">
+                          <TableHead className="w-[40px] px-4">
+                            <Checkbox 
+                              checked={selectedProspectIds.size === filteredProspects.length && filteredProspects.length > 0}
+                              onCheckedChange={toggleAllProspects}
+                            />
+                          </TableHead>
+                          <TableHead className="w-[300px]">Prospect Name</TableHead>
+                          <TableHead className="w-[250px]">Company with Role</TableHead>
                           <TableHead>Status</TableHead>
-                          <TableHead>Score</TableHead>
-                          <TableHead>Last Activity</TableHead>
-                          <TableHead></TableHead>
+                          <TableHead>ICP Fit</TableHead>
+                          <TableHead>Industry</TableHead>
+                          <TableHead className="w-[50px]"></TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {filteredProspects.map((prospect) => (
                           <TableRow
                             key={prospect.id}
-                            className="cursor-pointer hover:bg-muted/50"
+                            className="cursor-pointer hover:bg-muted/30"
+                            data-state={selectedProspectIds.has(prospect.id) ? "selected" : undefined}
                           >
+                            <TableCell className="px-4">
+                              <Checkbox 
+                                checked={selectedProspectIds.has(prospect.id)}
+                                onCheckedChange={() => toggleProspect(prospect.id)}
+                              />
+                            </TableCell>
                             <TableCell>
-                              <div>
-                                <div className="font-medium">{prospect.name}</div>
-                                <div className="text-sm text-muted-foreground">
-                                  {prospect.title}
-                                </div>
+                              <div className="flex items-center gap-3">
+                                <Avatar className="h-9 w-9 border">
+                                    <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${prospect.name}`} />
+                                    <AvatarFallback>{prospect.name[0]}</AvatarFallback>
+                                </Avatar>
+                                <span className="font-medium text-sm">{prospect.name}</span>
                               </div>
                             </TableCell>
-                            <TableCell>{prospect.company}</TableCell>
-                            <TableCell>{prospect.industry}</TableCell>
+                            <TableCell>
+                                <div className="flex flex-col">
+                                    <span className="font-medium text-sm">{prospect.role}</span>
+                                    <span className="text-xs text-muted-foreground">{prospect.company}</span>
+                                </div>
+                            </TableCell>
                             <TableCell>
                               <Badge
-                                className={
-                                  statusConfig[
-                                    prospect.status as keyof typeof statusConfig
-                                  ]?.className
-                                }
+                                variant="secondary"
+                                className={`font-normal border ${
+                                  statusConfig[prospect.status as keyof typeof statusConfig]?.className
+                                }`}
                               >
-                                {
-                                  statusConfig[
-                                    prospect.status as keyof typeof statusConfig
-                                  ]?.label
-                                }
+                                {statusConfig[prospect.status as keyof typeof statusConfig]?.label}
                               </Badge>
                             </TableCell>
                             <TableCell>
-                              <span
-                                className={
-                                  prospect.score >= 70
-                                    ? "text-green-600 font-medium"
-                                    : "text-muted-foreground"
-                                }
-                              >
-                                {prospect.score}
-                              </span>
+                                <Badge 
+                                    variant="outline"
+                                    className={`font-semibold border px-3 py-0.5 ${icpFitConfig[prospect.icpFit || "LOW"]}`}
+                                >
+                                    {prospect.icpFit}
+                                </Badge>
                             </TableCell>
-                            <TableCell className="text-muted-foreground">
-                              {prospect.lastActivity}
+                            <TableCell className="text-muted-foreground text-sm">
+                              {prospect.industry}
                             </TableCell>
                             <TableCell>
-                              <Button variant="ghost" size="icon">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </TableCell>
@@ -368,7 +433,7 @@ export default function CampaignDetailPage() {
                         ))}
                       </TableBody>
                     </Table>
-                  </Card>
+                  </div>
              </TabsContent>
 
              {/* Training Center Tab - NEW */}
