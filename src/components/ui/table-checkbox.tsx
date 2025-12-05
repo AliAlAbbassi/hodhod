@@ -6,7 +6,7 @@ import { CheckIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-function Checkbox({
+function TableCheckbox({
   className,
   ...props
 }: React.ComponentProps<typeof CheckboxPrimitive.Root>) {
