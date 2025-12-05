@@ -54,9 +54,12 @@ import {
   Share2,
   BarChart,
   Scale,
+  MessageCircle,
+  ThumbsUp,
 } from "lucide-react";
 import { DailyVolumeSlider } from "@/components/campaign-settings/daily-volume-slider";
 import { SequenceTiming } from "@/components/campaign-settings/sequence-timing";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type SequenceStep = {
   id: string;
@@ -286,6 +289,59 @@ export default function CreateCampaignPage() {
   // LinkedIn URL Modal
   const [isLinkedInUrlModalOpen, setIsLinkedInUrlModalOpen] = useState(false);
   const [linkedInUrl, setLinkedInUrl] = useState("");
+
+  // LinkedIn Post URL Modal
+  const [isLinkedInPostUrlModalOpen, setIsLinkedInPostUrlModalOpen] = useState(false);
+  const [postUrls, setPostUrls] = useState<string[]>([""]);
+  const [includeReactors, setIncludeReactors] = useState(true);
+  const [includeCommenters, setIncludeCommenters] = useState(true);
+  const [addedPostUrls, setAddedPostUrls] = useState<{
+    id: string;
+    url: string;
+    includeReactors: boolean;
+    includeCommenters: boolean;
+  }[]>([]);
+
+  const handleAddPostUrl = () => {
+    const validUrls = postUrls.filter(url => url.trim() !== "");
+    if (validUrls.length === 0) return;
+
+    const newPosts = validUrls.map(url => ({
+      id: String(Date.now()) + Math.random(),
+      url,
+      includeReactors,
+      includeCommenters
+    }));
+
+    setAddedPostUrls(prev => [...prev, ...newPosts]);
+    setPostUrls([""]);
+    setIncludeReactors(true);
+    setIncludeCommenters(true);
+    setIsLinkedInPostUrlModalOpen(false);
+  };
+
+  const updatePostUrl = (index: number, value: string) => {
+    const newUrls = [...postUrls];
+    newUrls[index] = value;
+    setPostUrls(newUrls);
+  };
+
+  const addUrlField = () => {
+    setPostUrls([...postUrls, ""]);
+  };
+
+  const removeUrlField = (index: number) => {
+    if (postUrls.length === 1) {
+      setPostUrls([""]);
+      return;
+    }
+    const newUrls = postUrls.filter((_, i) => i !== index);
+    setPostUrls(newUrls);
+  };
+
+  const removePostUrl = (id: string) => {
+    setAddedPostUrls(prev => prev.filter(p => p.id !== id));
+  };
 
   // Confirm Resource Modal
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -735,11 +791,10 @@ export default function CreateCampaignPage() {
                   <button
                     key={category.id}
                     onClick={() => setAgentCategoryFilter(category.id)}
-                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                      agentCategoryFilter === category.id
-                        ? "bg-foreground text-background shadow-sm"
-                        : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }`}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${agentCategoryFilter === category.id
+                      ? "bg-foreground text-background shadow-sm"
+                      : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
+                      }`}
                   >
                     {category.name}
                   </button>
@@ -776,11 +831,10 @@ export default function CreateCampaignPage() {
                             return (
                               <div
                                 key={agent.id}
-                                className={`flex items-start gap-4 p-6 transition-colors ${
-                                  isSelected
-                                    ? "bg-muted/20"
-                                    : "hover:bg-muted/10"
-                                }`}
+                                className={`flex items-start gap-4 p-6 transition-colors ${isSelected
+                                  ? "bg-muted/20"
+                                  : "hover:bg-muted/10"
+                                  }`}
                               >
                                 {/* Checkbox Area (Selection Control) */}
                                 <div
@@ -951,6 +1005,15 @@ export default function CreateCampaignPage() {
                   <LinkIcon className="h-4 w-4" />
                   LinkedIn URL
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => setIsLinkedInPostUrlModalOpen(true)}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  LinkedIn Post URL
+                </Button>
                 <label>
                   <input
                     type="file"
@@ -969,7 +1032,7 @@ export default function CreateCampaignPage() {
               </div>
 
               {/* Uploaded Files */}
-              {uploadedFiles.length > 0 && (
+              {(uploadedFiles.length > 0 || addedPostUrls.length > 0) && (
                 <div className="space-y-2 mt-3">
                   {uploadedFiles.map((file, index) => (
                     <div
@@ -985,6 +1048,29 @@ export default function CreateCampaignPage() {
                         size="icon"
                         className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
                         onClick={() => removeFile(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  {addedPostUrls.map((post) => (
+                    <div
+                      key={post.id}
+                      className="flex items-center gap-3 p-2 rounded-lg bg-muted/50"
+                    >
+                      <Linkedin className="h-5 w-5 text-blue-600 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm truncate">{post.url}</div>
+                        <div className="flex gap-2 text-xs text-muted-foreground">
+                          {post.includeReactors && <span className="flex items-center gap-1"><ThumbsUp className="h-3 w-3" /> Reactors</span>}
+                          {post.includeCommenters && <span className="flex items-center gap-1"><MessageCircle className="h-3 w-3" /> Commenters</span>}
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
+                        onClick={() => removePostUrl(post.id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -1230,6 +1316,100 @@ export default function CreateCampaignPage() {
         </DialogContent>
       </Dialog>
 
+      {/* LinkedIn Post URL Modal */}
+      <Dialog
+        open={isLinkedInPostUrlModalOpen}
+        onOpenChange={setIsLinkedInPostUrlModalOpen}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Upload Through LinkedIn Post URL(s)</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="flex items-start gap-3 rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground border">
+              <Info className="h-5 w-5 mt-0.5 shrink-0" />
+              <div className="space-y-2">
+                <p>
+                  Valley will scrape people who reacted/commented on these posts, limited to 4000 total prospects per campaign.
+                </p>
+                <p>
+                  People who both react and comment on the same post will only be counted once. The numbers shown here are from LinkedIn&apos;s API and may differ from the actual prospects we can scrape. Final prospect counts also exclude 1st degree connections and company accounts, which Valley will not pull into campaigns.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {postUrls.map((url, index) => (
+                <div key={index} className="space-y-2">
+                  <label className="text-sm font-medium">LinkedIn Post URL {index + 1}</label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="https://www.linkedin.com/posts/..."
+                      value={url}
+                      onChange={(e) => updatePostUrl(index, e.target.value)}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="shrink-0 text-muted-foreground hover:text-destructive"
+                      onClick={() => removeUrlField(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={addUrlField}
+                className="w-auto"
+              >
+                Add another URL
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-6">
+              <div className="flex items-center space-x-2">
+                <label
+                  htmlFor="reactors"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Reactions
+                </label>
+                <Switch
+                  id="reactors"
+                  checked={includeReactors}
+                  onCheckedChange={setIncludeReactors}
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <label
+                  htmlFor="commenters"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Comments
+                </label>
+                <Switch
+                  id="commenters"
+                  checked={includeCommenters}
+                  onCheckedChange={setIncludeCommenters}
+                />
+              </div>
+            </div>
+
+            <Button
+              className="w-full bg-black hover:bg-black/90 text-white"
+              onClick={handleAddPostUrl}
+              disabled={postUrls.every(u => !u.trim()) || (!includeReactors && !includeCommenters)}
+            >
+              Add
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Confirm Resource Modal */}
       <Dialog open={isConfirmModalOpen} onOpenChange={setIsConfirmModalOpen}>
         <DialogContent className="sm:max-w-md">
@@ -1293,17 +1473,15 @@ export default function CreateCampaignPage() {
                 {templates.map((template) => (
                   <button
                     key={template.id}
-                    className={`flex w-full items-start gap-3 rounded-lg p-3 text-left transition-colors hover:bg-muted/50 ${
-                      selectedTemplate === template.id ? "bg-muted" : ""
-                    }`}
+                    className={`flex w-full items-start gap-3 rounded-lg p-3 text-left transition-colors hover:bg-muted/50 ${selectedTemplate === template.id ? "bg-muted" : ""
+                      }`}
                     onClick={() => handleTemplateSelect(template.id)}
                   >
                     <div
-                      className={`mt-1 h-4 w-4 rounded-full border-2 flex items-center justify-center ${
-                        selectedTemplate === template.id
-                          ? "border-primary"
-                          : "border-muted-foreground/30"
-                      }`}
+                      className={`mt-1 h-4 w-4 rounded-full border-2 flex items-center justify-center ${selectedTemplate === template.id
+                        ? "border-primary"
+                        : "border-muted-foreground/30"
+                        }`}
                     >
                       {selectedTemplate === template.id && (
                         <div className="h-2 w-2 rounded-full bg-primary" />
