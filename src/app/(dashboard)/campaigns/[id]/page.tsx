@@ -43,7 +43,12 @@ import {
   Pause,
   RefreshCw,
   Sparkles,
+  ArrowRight,
+  CornerDownRight,
+  Settings,
+  X,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 // Mock campaign data
 const campaignData = {
@@ -491,130 +496,215 @@ export default function CampaignDetailPage() {
                 </div>
              </TabsContent>
 
-             {/* Settings Tab - Reuse Content */}
-             <TabsContent value="settings" className="space-y-4 overflow-auto h-full p-1">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Campaign Settings</CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        Adjust your campaign settings and outreach preferences.
-                      </p>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      {/* Campaign Name */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Campaign Name</label>
-                        <Input defaultValue={campaign.name} />
-                      </div>
+             {/* Settings Tab */}
+             <TabsContent value="settings" className="h-full overflow-hidden p-1">
+                <div className="flex h-full gap-8">
+                  {/* Left Column - Form */}
+                  <div className="w-[500px] shrink-0 overflow-y-auto pb-20">
+                    <Card className="border-none shadow-none bg-transparent">
+                       <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center gap-2">
+                             <Settings className="h-4 w-4" />
+                             <h2 className="font-medium text-lg">Basic Information</h2>
+                          </div>
+                          <Button size="sm" variant="outline">Save</Button>
+                       </div>
 
-                      {/* Re-engagement Messages */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">
-                          Re-Engagement Messages
-                        </label>
-                        <p className="text-sm text-muted-foreground">
-                          Number of follow-up messages to send after initial outreach.
-                        </p>
-                        <div className="flex items-center gap-4">
-                          <Input
-                            type="number"
-                            defaultValue={campaign.reEngagementCount}
-                            className="w-24"
-                          />
-                          <span className="text-sm text-muted-foreground">
-                            messages, every
-                          </span>
-                          <Input
-                            type="number"
-                            defaultValue={campaign.reEngagementInterval}
-                            className="w-24"
-                          />
-                          <span className="text-sm text-muted-foreground">days</span>
+                       <div className="space-y-8">
+                          {/* Campaign Name */}
+                          <div className="space-y-3">
+                             <label className="text-sm font-medium">Campaign Name</label>
+                             <Input defaultValue={campaign.name} className="bg-background" />
+                          </div>
+
+                          {/* Outreach Language */}
+                          <div className="space-y-3">
+                             <div className="space-y-1">
+                                <label className="text-sm font-medium">Outreach Language</label>
+                                <p className="text-sm text-muted-foreground">Language you&apos;d like to use for sending sequences</p>
+                             </div>
+                             <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                   <Button variant="outline" className="w-full justify-between bg-background font-normal">
+                                      {campaign.outreachLanguage}
+                                      <ChevronDown className="h-4 w-4 opacity-50" />
+                                   </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-[450px]">
+                                   <DropdownMenuItem>English</DropdownMenuItem>
+                                   <DropdownMenuItem>Spanish</DropdownMenuItem>
+                                   <DropdownMenuItem>French</DropdownMenuItem>
+                                </DropdownMenuContent>
+                             </DropdownMenu>
+                          </div>
+
+                          <div className="h-px bg-border/50" />
+
+                          {/* Autopilot */}
+                          <div className="flex items-center justify-between">
+                             <div className="space-y-1">
+                                <label className="text-sm font-medium">Autopilot</label>
+                                <p className="text-sm text-muted-foreground">Allows us to auto send messages without awaiting your approval</p>
+                             </div>
+                             <Switch checked={campaign.autopilot} />
+                          </div>
+
+                          <div className="h-px bg-border/50" />
+
+                          {/* Daily Volume */}
+                          <div className="space-y-4">
+                             <div className="space-y-1">
+                                <label className="text-sm font-medium">Daily Sequence Volume</label>
+                                <p className="text-sm text-muted-foreground">The number of sequences Valley should send each day</p>
+                             </div>
+                             <div className="pt-6 px-2">
+                                <div className="relative">
+                                   <div className="absolute -top-8 left-1/4 -translate-x-1/2 bg-background border rounded px-2 py-0.5 text-sm font-medium shadow-sm">
+                                      {campaign.dailyVolume}
+                                   </div>
+                                   <input
+                                      type="range"
+                                      className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                                      min={0}
+                                      max={100}
+                                      defaultValue={campaign.dailyVolume}
+                                   />
+                                </div>
+                             </div>
+                          </div>
+
+                          {/* Sequence Timing */}
+                          <div className="space-y-4">
+                             <div className="space-y-1">
+                                <label className="text-sm font-medium">Sequence Timing</label>
+                                <p className="text-sm text-muted-foreground">Tell us the best times for sending sequences</p>
+                             </div>
+                             
+                             {/* Time Range Visualization */}
+                             <div className="space-y-4">
+                                <div className="flex items-center justify-between px-2">
+                                   <Badge variant="outline" className="bg-background font-normal">08:00 AM</Badge>
+                                   <Badge variant="outline" className="bg-background font-normal">04:00 PM</Badge>
+                                </div>
+                                <div className="relative h-2 bg-muted rounded-full">
+                                   <div className="absolute left-[20%] right-[20%] top-0 bottom-0 bg-primary rounded-full" />
+                                   <div className="absolute left-[20%] top-1/2 -translate-y-1/2 h-4 w-4 bg-background border-2 border-primary rounded-full shadow cursor-pointer" />
+                                   <div className="absolute right-[20%] top-1/2 -translate-y-1/2 h-4 w-4 bg-background border-2 border-primary rounded-full shadow cursor-pointer" />
+                                </div>
+                             </div>
+
+                             {/* Days */}
+                             <div className="flex flex-wrap gap-2 pt-2">
+                                {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => {
+                                   const isSelected = campaign.outreachDays.includes(day);
+                                   return (
+                                      <button
+                                         key={day}
+                                         className={`
+                                            flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium border transition-colors
+                                            ${isSelected 
+                                               ? "bg-blue-50 border-blue-200 text-blue-700" 
+                                               : "bg-background border-border text-muted-foreground hover:bg-muted/50"
+                                            }
+                                         `}
+                                      >
+                                         {day}
+                                         {isSelected && <X className="h-3 w-3" />}
+                                      </button>
+                                   )
+                                })}
+                             </div>
+                          </div>
+                       </div>
+                    </Card>
+                  </div>
+
+                  {/* Right Column - Sequence Visualizer */}
+                  <div className="flex-1 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:24px_24px] rounded-lg border bg-slate-50/30 overflow-hidden relative">
+                     <div className="absolute inset-0 overflow-y-auto">
+                        <div className="min-h-full flex flex-col items-center py-20 px-8">
+                           {/* Start Badge */}
+                           <div className="relative z-10 mb-8">
+                              <Badge variant="outline" className="bg-white/80 backdrop-blur py-1.5 px-4 text-sm font-medium shadow-sm gap-2">
+                                 <Zap className="h-3.5 w-3.5 fill-yellow-400 text-yellow-600 border-none" />
+                                 Sequence Starts
+                              </Badge>
+                           </div>
+
+                           {/* Timeline */}
+                           <div className="relative flex flex-col items-center w-full max-w-lg space-y-8">
+                              {/* Connector Line */}
+                              <div className="absolute left-1/2 top-0 bottom-8 -translate-x-1/2 w-px border-l-2 border-dashed border-muted-foreground/20 -z-10" />
+
+                              {/* Step 1 */}
+                              <div className="w-full relative group">
+                                 <div className="absolute left-1/2 -translate-x-1/2 -top-4 w-2 h-2 rounded-full bg-muted-foreground/20" />
+                                 <Card className="shadow-sm hover:shadow-md transition-shadow border-muted/60">
+                                    <div className="p-4 flex items-start gap-4">
+                                       <div className="h-10 w-10 rounded-full border bg-muted/20 flex items-center justify-center shrink-0">
+                                          <Sparkles className="h-5 w-5 text-muted-foreground" />
+                                       </div>
+                                       <div>
+                                          <h4 className="font-medium text-sm">Connect Sequence</h4>
+                                          <p className="text-xs text-muted-foreground mt-0.5">Day 1 - LinkedIn Message</p>
+                                       </div>
+                                    </div>
+                                 </Card>
+                                 <div className="absolute left-1/2 -translate-x-1/2 -bottom-4 w-2 h-2 rounded-full bg-muted-foreground/20" />
+                              </div>
+
+                              {/* Step 2 */}
+                              <div className="w-full relative group">
+                                 <Card className="shadow-sm hover:shadow-md transition-shadow border-muted/60">
+                                    <div className="p-4 flex items-start gap-4">
+                                       <div className="h-10 w-10 rounded-full border bg-muted/20 flex items-center justify-center shrink-0">
+                                          <Zap className="h-5 w-5 text-muted-foreground" />
+                                       </div>
+                                       <div>
+                                          <h4 className="font-medium text-sm">Followup 1</h4>
+                                          <p className="text-xs text-muted-foreground mt-0.5">Day 4 - LinkedIn Message</p>
+                                       </div>
+                                    </div>
+                                 </Card>
+                                 <div className="absolute left-1/2 -translate-x-1/2 -bottom-4 w-2 h-2 rounded-full bg-muted-foreground/20" />
+                              </div>
+
+                              {/* Step 3 */}
+                              <div className="w-full relative group">
+                                 <Card className="shadow-sm hover:shadow-md transition-shadow border-muted/60">
+                                    <div className="p-4 flex items-start gap-4">
+                                       <div className="h-10 w-10 rounded-full border bg-muted/20 flex items-center justify-center shrink-0">
+                                          <CornerDownRight className="h-5 w-5 text-muted-foreground" />
+                                       </div>
+                                       <div>
+                                          <h4 className="font-medium text-sm">Followup 2</h4>
+                                          <p className="text-xs text-muted-foreground mt-0.5">Day 7 - LinkedIn Message</p>
+                                       </div>
+                                    </div>
+                                 </Card>
+                                 <div className="absolute left-1/2 -translate-x-1/2 -bottom-4 w-2 h-2 rounded-full bg-muted-foreground/20" />
+                              </div>
+
+                              {/* Step 4 */}
+                              <div className="w-full relative group">
+                                 <Card className="shadow-sm hover:shadow-md transition-shadow border-muted/60">
+                                    <div className="p-4 flex items-start gap-4">
+                                       <div className="h-10 w-10 rounded-full border bg-muted/20 flex items-center justify-center shrink-0">
+                                          <CornerDownRight className="h-5 w-5 text-muted-foreground" />
+                                       </div>
+                                       <div>
+                                          <h4 className="font-medium text-sm">Followup 3</h4>
+                                          <p className="text-xs text-muted-foreground mt-0.5">Day 10 - LinkedIn Message</p>
+                                       </div>
+                                    </div>
+                                 </Card>
+                              </div>
+
+                           </div>
                         </div>
-                      </div>
-
-                      {/* Outreach Language */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Outreach Language</label>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="w-48 justify-between">
-                              {campaign.outreachLanguage}
-                              <ChevronDown className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem>English</DropdownMenuItem>
-                            <DropdownMenuItem>Spanish</DropdownMenuItem>
-                            <DropdownMenuItem>French</DropdownMenuItem>
-                            <DropdownMenuItem>German</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-
-                      {/* Autopilot */}
-                      <div className="flex items-center justify-between rounded-lg border p-4">
-                        <div>
-                          <label className="text-sm font-medium">Autopilot Mode</label>
-                          <p className="text-sm text-muted-foreground">
-                            Automatically send messages on your behalf without manual
-                            approval.
-                          </p>
-                        </div>
-                        <Button variant={campaign.autopilot ? "default" : "outline"}>
-                          {campaign.autopilot ? "On" : "Off"}
-                        </Button>
-                      </div>
-
-                      {/* Daily Volume */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">
-                          Daily Sequence Volume
-                        </label>
-                        <p className="text-sm text-muted-foreground">
-                          Maximum number of outreach messages sent per day.
-                        </p>
-                        <Input
-                          type="number"
-                          defaultValue={campaign.dailyVolume}
-                          className="w-32"
-                        />
-                      </div>
-
-                      {/* Outreach Timing */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Outreach Timing</label>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <Input type="time" defaultValue="09:00" className="w-32" />
-                        </div>
-                      </div>
-
-                      {/* Outreach Days */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Outreach Days</label>
-                        <div className="flex flex-wrap gap-2">
-                          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
-                            (day) => (
-                              <Button
-                                key={day}
-                                variant={
-                                  campaign.outreachDays.some((d) => d.startsWith(day))
-                                    ? "default"
-                                    : "outline"
-                                }
-                                size="sm"
-                              >
-                                {day}
-                              </Button>
-                            ),
-                          )}
-                        </div>
-                      </div>
-
-                      <Button>Save Settings</Button>
-                    </CardContent>
-                  </Card>
+                     </div>
+                  </div>
+                </div>
              </TabsContent>
 
              {/* Info Tab - Reuse Content */}
