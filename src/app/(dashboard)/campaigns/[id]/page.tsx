@@ -559,7 +559,10 @@ export default function CampaignDetailPage() {
                              </div>
                              <div className="pt-6 px-2">
                                 <div className="relative">
-                                   <div className="absolute -top-8 left-1/4 -translate-x-1/2 bg-background border rounded px-2 py-0.5 text-sm font-medium shadow-sm">
+                                   <div 
+                                      className="absolute -top-8 -translate-x-1/2 bg-background border rounded px-2 py-0.5 text-sm font-medium shadow-sm transition-all"
+                                      style={{ left: `${campaign.dailyVolume}%` }}
+                                   >
                                       {campaign.dailyVolume}
                                    </div>
                                    <input
@@ -567,7 +570,8 @@ export default function CampaignDetailPage() {
                                       className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                                       min={0}
                                       max={100}
-                                      defaultValue={campaign.dailyVolume}
+                                      value={campaign.dailyVolume}
+                                      onChange={(e) => setCampaign({ ...campaign, dailyVolume: Number(e.target.value) })}
                                    />
                                 </div>
                              </div>
