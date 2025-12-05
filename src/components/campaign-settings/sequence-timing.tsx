@@ -60,7 +60,7 @@ export function SequenceTiming({
     }
   };
 
-  const handlePointerDown = (e: React.PointerEvent) => {
+  const handlePointerDown = (type: "start" | "end") => (e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const handle = e.currentTarget as HTMLDivElement;
