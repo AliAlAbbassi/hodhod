@@ -1,11 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
   CardContent,
@@ -80,7 +90,7 @@ const overviewStats = [
   { label: "Resolution Rate", value: "32.1%", icon: Activity },
 ];
 
-const prospects: Prospect[] = [
+const initialProspects: Prospect[] = [
   {
     id: "1",
     name: "Les W Robertson",
@@ -351,6 +361,34 @@ const columns: ColumnDef<Prospect>[] = [
 ];
 
 export default function ProspectsPage() {
+  const [prospects, setProspects] = useState<Prospect[]>(initialProspects);
+  const [open, setOpen] = useState(false);
+  const [newProspectUrl, setNewProspectUrl] = useState("");
+  const [salesNavUrl, setSalesNavUrl] = useState("");
+
+  const handleAddProspect = () => {
+    if (!newProspectUrl.trim()) return;
+
+    // Simulate adding a prospect
+    const newProspect: Prospect = {
+      id: Math.random().toString(36).substr(2, 9),
+      name: "New Prospect",
+      headline: "Imported from LinkedIn",
+      avatarUrl: "",
+      company: { name: "Pending...", logoUrl: "", logoColor: "bg-gray-500" },
+      role: "Unknown Role",
+      tenure: "0 years",
+      intentLevel: "cold",
+      time: "Just now",
+      status: "prospect_created",
+      profilePrivacy: "open",
+    };
+
+    setProspects([newProspect, ...prospects]);
+    setNewProspectUrl("");
+    setOpen(false);
+  };
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -375,10 +413,73 @@ export default function ProspectsPage() {
             <span className="h-2 w-2 rounded-full bg-yellow-500" />
             No campaign created yet
           </div>
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add To Campaign
-          </Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Add To Campaign
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle>Add Prospect</DialogTitle>
+              </DialogHeader>
+              <Tabs defaultValue="single" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="file">File Upload</TabsTrigger>
+                  <TabsTrigger value="single">Single Prospect</TabsTrigger>
+                  <TabsTrigger value="multiple">Multiple Prospects</TabsTrigger>
+                </TabsList>
+                <TabsContent value="file" className="space-y-4 py-4">
+                  <div className="flex flex-col items-center justify-center h-32 border-2 border-dashed rounded-lg text-muted-foreground hover:bg-muted/50 cursor-pointer transition-colors">
+                    <div className="text-center space-y-1">
+                      <p className="text-sm font-medium">Click to browse or drag file here</p>
+                      <p className="text-xs text-muted-foreground">CSV files only (max 5MB)</p>
+                    </div>
+                  </div>
+                  <Button className="w-full" onClick={() => setOpen(false)}>
+                    Upload CSV
+                  </Button>
+                </TabsContent>
+                <TabsContent value="single" className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      Add Single Prospect
+                    </label>
+                    <Input
+                      placeholder="https://www.linkedin.com/in/john-doe or https://www.linkedin..."
+                      value={newProspectUrl}
+                      onChange={(e) => setNewProspectUrl(e.target.value)}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      LinkedIn or Sales Navigator URL for prospect
+                    </p>
+                  </div>
+                  <Button className="w-full" onClick={handleAddProspect}>
+                    Add
+                  </Button>
+                </TabsContent>
+                <TabsContent value="multiple" className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      Sales Navigator Search URL
+                    </label>
+                    <Input
+                      placeholder="https://www.linkedin.com/sales/search/..."
+                      value={salesNavUrl}
+                      onChange={(e) => setSalesNavUrl(e.target.value)}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Paste a Sales Navigator search URL to import multiple prospects
+                    </p>
+                  </div>
+                  <Button className="w-full" onClick={() => setOpen(false)}>
+                    Import Search
+                  </Button>
+                </TabsContent>
+              </Tabs>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
