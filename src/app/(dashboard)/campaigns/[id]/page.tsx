@@ -49,6 +49,8 @@ import {
   X,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { DailyVolumeSlider } from "@/components/campaign-settings/daily-volume-slider";
+import { SequenceTiming } from "@/components/campaign-settings/sequence-timing";
 
 // Mock campaign data
 const campaignData = {
@@ -69,7 +71,8 @@ const campaignData = {
   outreachLanguage: "English",
   autopilot: true,
   dailyVolume: 50,
-  outreachTime: "9:00 AM",
+  outreachStartTime: "09:00",
+  outreachEndTime: "17:00",
   outreachDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   // Info
   selectedProduct: "Hodhod Platform",
@@ -552,73 +555,20 @@ export default function CampaignDetailPage() {
                           <div className="h-px bg-border/50" />
 
                           {/* Daily Volume */}
-                          <div className="space-y-4">
-                             <div className="space-y-1">
-                                <label className="text-sm font-medium">Daily Sequence Volume</label>
-                                <p className="text-sm text-muted-foreground">The number of sequences Valley should send each day</p>
-                             </div>
-                             <div className="pt-6 px-2">
-                                <div className="relative">
-                                   <div 
-                                      className="absolute -top-8 -translate-x-1/2 bg-background border rounded px-2 py-0.5 text-sm font-medium shadow-sm transition-all"
-                                      style={{ left: `${campaign.dailyVolume}%` }}
-                                   >
-                                      {campaign.dailyVolume}
-                                   </div>
-                                   <input
-                                      type="range"
-                                      className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-                                      min={0}
-                                      max={100}
-                                      value={campaign.dailyVolume}
-                                      onChange={(e) => setCampaign({ ...campaign, dailyVolume: Number(e.target.value) })}
-                                   />
-                                </div>
-                             </div>
-                          </div>
+                          <DailyVolumeSlider
+                            volume={campaign.dailyVolume}
+                            onChange={(volume) => setCampaign({ ...campaign, dailyVolume: volume })}
+                          />
 
                           {/* Sequence Timing */}
-                          <div className="space-y-4">
-                             <div className="space-y-1">
-                                <label className="text-sm font-medium">Sequence Timing</label>
-                                <p className="text-sm text-muted-foreground">Tell us the best times for sending sequences</p>
-                             </div>
-                             
-                             {/* Time Range Visualization */}
-                             <div className="space-y-4">
-                                <div className="flex items-center justify-between px-2">
-                                   <Badge variant="outline" className="bg-background font-normal">08:00 AM</Badge>
-                                   <Badge variant="outline" className="bg-background font-normal">04:00 PM</Badge>
-                                </div>
-                                <div className="relative h-2 bg-muted rounded-full">
-                                   <div className="absolute left-[20%] right-[20%] top-0 bottom-0 bg-primary rounded-full" />
-                                   <div className="absolute left-[20%] top-1/2 -translate-y-1/2 h-4 w-4 bg-background border-2 border-primary rounded-full shadow cursor-pointer" />
-                                   <div className="absolute right-[20%] top-1/2 -translate-y-1/2 h-4 w-4 bg-background border-2 border-primary rounded-full shadow cursor-pointer" />
-                                </div>
-                             </div>
-
-                             {/* Days */}
-                             <div className="flex flex-wrap gap-2 pt-2">
-                                {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => {
-                                   const isSelected = campaign.outreachDays.includes(day);
-                                   return (
-                                      <button
-                                         key={day}
-                                         className={`
-                                            flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium border transition-colors
-                                            ${isSelected 
-                                               ? "bg-blue-50 border-blue-200 text-blue-700" 
-                                               : "bg-background border-border text-muted-foreground hover:bg-muted/50"
-                                            }
-                                         `}
-                                      >
-                                         {day}
-                                         {isSelected && <X className="h-3 w-3" />}
-                                      </button>
-                                   )
-                                })}
-                             </div>
-                          </div>
+                          <SequenceTiming
+                            startTime={campaign.outreachStartTime}
+                            endTime={campaign.outreachEndTime}
+                            days={campaign.outreachDays}
+                            onStartTimeChange={(time) => setCampaign({ ...campaign, outreachStartTime: time })}
+                            onEndTimeChange={(time) => setCampaign({ ...campaign, outreachEndTime: time })}
+                            onDaysChange={(days) => setCampaign({ ...campaign, outreachDays: days })}
+                          />
                        </div>
                     </Card>
                   </div>

@@ -55,6 +55,8 @@ import {
   BarChart,
   Scale,
 } from "lucide-react";
+import { DailyVolumeSlider } from "@/components/campaign-settings/daily-volume-slider";
+import { SequenceTiming } from "@/components/campaign-settings/sequence-timing";
 
 type SequenceStep = {
   id: string;
@@ -97,21 +99,87 @@ const agentIcons: Record<string, any> = {
 // Available research agents grouped by category
 const researchAgents = [
   // Prospect Insights
-  { id: "prospect-research", name: "Prospect Research", category: "prospect", description: "Enriches prospect data with verified business information, contact details, and professional insights to create comprehensive and actionable prospect profiles" },
-  { id: "prospect-deep-dive", name: "Prospect Deep Dive", category: "prospect", description: "Delivers an in-depth analysis of prospect-specific data, offering a detailed profile to refine engagement strategies" },
+  {
+    id: "prospect-research",
+    name: "Prospect Research",
+    category: "prospect",
+    description:
+      "Enriches prospect data with verified business information, contact details, and professional insights to create comprehensive and actionable prospect profiles",
+  },
+  {
+    id: "prospect-deep-dive",
+    name: "Prospect Deep Dive",
+    category: "prospect",
+    description:
+      "Delivers an in-depth analysis of prospect-specific data, offering a detailed profile to refine engagement strategies",
+  },
   // Company Insights
-  { id: "company-deep-dive", name: "Company Deep Dive", category: "company", description: "A comprehensive report on a company's overall standing, including history, business model, and key operational insights" },
-  { id: "hiring-trends", name: "Hiring Trends", category: "company", description: "Shows trends in hiring within the company or sector, indicating growth or focus areas, which can be used to align outreach with their needs" },
-  { id: "corporate-culture", name: "Corporate Culture", category: "company", description: "Provides insights into the internal culture of a company, including values, work environment, and employee satisfaction" },
+  {
+    id: "company-deep-dive",
+    name: "Company Deep Dive",
+    category: "company",
+    description:
+      "A comprehensive report on a company's overall standing, including history, business model, and key operational insights",
+  },
+  {
+    id: "hiring-trends",
+    name: "Hiring Trends",
+    category: "company",
+    description:
+      "Shows trends in hiring within the company or sector, indicating growth or focus areas, which can be used to align outreach with their needs",
+  },
+  {
+    id: "corporate-culture",
+    name: "Corporate Culture",
+    category: "company",
+    description:
+      "Provides insights into the internal culture of a company, including values, work environment, and employee satisfaction",
+  },
   // Industry & Market
-  { id: "industry-analysis", name: "Industry Analysis", category: "industry", description: "Analyzes the broader industry landscape, identifying key trends, challenges, and opportunities" },
-  { id: "market-position", name: "Market Position", category: "industry", description: "Evaluates the company's position within its market, including competitive advantages and market share" },
+  {
+    id: "industry-analysis",
+    name: "Industry Analysis",
+    category: "industry",
+    description:
+      "Analyzes the broader industry landscape, identifying key trends, challenges, and opportunities",
+  },
+  {
+    id: "market-position",
+    name: "Market Position",
+    category: "industry",
+    description:
+      "Evaluates the company's position within its market, including competitive advantages and market share",
+  },
   // Media & Public Perception
-  { id: "news-sentiment", name: "News & Sentiment", category: "media", description: "Tracks recent news coverage and public sentiment around the company or prospect" },
-  { id: "social-presence", name: "Social Presence", category: "media", description: "Analyzes the company's social media presence and engagement patterns" },
+  {
+    id: "news-sentiment",
+    name: "News & Sentiment",
+    category: "media",
+    description:
+      "Tracks recent news coverage and public sentiment around the company or prospect",
+  },
+  {
+    id: "social-presence",
+    name: "Social Presence",
+    category: "media",
+    description:
+      "Analyzes the company's social media presence and engagement patterns",
+  },
   // Economic & Regulatory
-  { id: "financial-health", name: "Financial Health", category: "economic", description: "Provides insights into the company's financial standing and recent performance indicators" },
-  { id: "regulatory-landscape", name: "Regulatory Landscape", category: "economic", description: "Identifies relevant regulations and compliance requirements affecting the company" },
+  {
+    id: "financial-health",
+    name: "Financial Health",
+    category: "economic",
+    description:
+      "Provides insights into the company's financial standing and recent performance indicators",
+  },
+  {
+    id: "regulatory-landscape",
+    name: "Regulatory Landscape",
+    category: "economic",
+    description:
+      "Identifies relevant regulations and compliance requirements affecting the company",
+  },
 ];
 
 const templates = [
@@ -132,16 +200,16 @@ const templates = [
     body: "hi {P_FIRST_NAME}, we sf;kjs;df g;ksdjf g;ksdjf g",
   },
   {
-    id: "valleystudios-messaging",
-    name: "ValleyStudios Messaging",
+    id: "hodhodstudios-messaging",
+    name: "HodhodStudios Messaging",
     type: "message",
     preview: "Hi {P_FIRST_NAME}, We build an...",
     subject: "",
     body: "Hi {P_FIRST_NAME},\n\nWe build and run your entire outbound for you, guaranteeing a minimum of 15 booked calls. We've built outbound engines for Miro, Front, Deel, Rippling, and Oracle + we're backed by the early investors in AirBnb, Uber, and Robinhood.\n\nIf that's relevant, I'd love to connect.",
   },
   {
-    id: "valleystudios-inmail",
-    name: "ValleyStudios InMail",
+    id: "hodhodstudios-inmail",
+    name: "HodhodStudios InMail",
     type: "inmail",
     preview: "Guaranteed Meetings Or We Wo...",
     subject: "Guaranteed Meetings Or We Work For Free",
@@ -162,7 +230,9 @@ export default function CreateCampaignPage() {
   // Step 1: Campaign Details
   const [activeTab, setActiveTab] = useState("first-outreach");
   const [campaignName, setCampaignName] = useState("");
-  const [reachoutChannel, setReachoutChannel] = useState<"message" | "inmail">("message");
+  const [reachoutChannel, setReachoutChannel] = useState<"message" | "inmail">(
+    "message",
+  );
   const [profileType, setProfileType] = useState("private");
   const [selectedProduct, setSelectedProduct] = useState("");
   const [writingStyle, setWritingStyle] = useState("");
@@ -172,11 +242,19 @@ export default function CreateCampaignPage() {
   const [dailyVolume, setDailyVolume] = useState(50);
   const [outreachStartTime, setOutreachStartTime] = useState("09:00");
   const [outreachEndTime, setOutreachEndTime] = useState("17:00");
-  const [outreachDays, setOutreachDays] = useState(["Mon", "Tue", "Wed", "Thu", "Fri"]);
+  const [outreachDays, setOutreachDays] = useState([
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+  ]);
   const [autopilot, setAutopilot] = useState(false);
 
   // Step 2: Research Agents (AI campaigns only)
-  const [selectedAgents, setSelectedAgents] = useState<string[]>(["prospect-research"]);
+  const [selectedAgents, setSelectedAgents] = useState<string[]>([
+    "prospect-research",
+  ]);
   const [agentCategoryFilter, setAgentCategoryFilter] = useState("all");
 
   // Templated campaigns: template selection
@@ -230,9 +308,28 @@ export default function CreateCampaignPage() {
 
   // First Outreach sequence
   const [sequenceSteps, setSequenceSteps] = useState<SequenceStep[]>([
-    { id: "1", type: "connect", day: 1, channel: "message", isAiGenerated: true },
-    { id: "2", type: "followup", day: 4, channel: "message", isAiGenerated: true },
-    { id: "3", type: "followup", day: 7, channel: "message", isAiGenerated: true, isLast: true },
+    {
+      id: "1",
+      type: "connect",
+      day: 1,
+      channel: "message",
+      isAiGenerated: true,
+    },
+    {
+      id: "2",
+      type: "followup",
+      day: 4,
+      channel: "message",
+      isAiGenerated: true,
+    },
+    {
+      id: "3",
+      type: "followup",
+      day: 7,
+      channel: "message",
+      isAiGenerated: true,
+      isLast: true,
+    },
   ]);
 
   const [waitSteps, setWaitSteps] = useState<WaitStep[]>([
@@ -242,20 +339,33 @@ export default function CreateCampaignPage() {
 
   // Re-engagement sequence
   const [reEngagementSteps, setReEngagementSteps] = useState<SequenceStep[]>([
-    { id: "re1", type: "followup", day: 1, channel: "message", isAiGenerated: true },
-    { id: "re2", type: "followup", day: 4, channel: "message", isAiGenerated: true, isLast: true },
+    {
+      id: "re1",
+      type: "followup",
+      day: 1,
+      channel: "message",
+      isAiGenerated: true,
+    },
+    {
+      id: "re2",
+      type: "followup",
+      day: 4,
+      channel: "message",
+      isAiGenerated: true,
+      isLast: true,
+    },
   ]);
 
-  const [reEngagementWaitSteps, setReEngagementWaitSteps] = useState<WaitStep[]>([
-    { id: "rew1", days: 3 },
-  ]);
+  const [reEngagementWaitSteps, setReEngagementWaitSteps] = useState<
+    WaitStep[]
+  >([{ id: "rew1", days: 3 }]);
 
   // First Outreach functions
   const updateWaitDays = (index: number, delta: number) => {
     setWaitSteps((prev) =>
       prev.map((step, i) =>
-        i === index ? { ...step, days: Math.max(1, step.days + delta) } : step
-      )
+        i === index ? { ...step, days: Math.max(1, step.days + delta) } : step,
+      ),
     );
   };
 
@@ -295,8 +405,8 @@ export default function CreateCampaignPage() {
   const updateReEngagementWaitDays = (index: number, delta: number) => {
     setReEngagementWaitSteps((prev) =>
       prev.map((step, i) =>
-        i === index ? { ...step, days: Math.max(1, step.days + delta) } : step
-      )
+        i === index ? { ...step, days: Math.max(1, step.days + delta) } : step,
+      ),
     );
   };
 
@@ -329,12 +439,15 @@ export default function CreateCampaignPage() {
         isLast: true,
       },
     ]);
-    setReEngagementWaitSteps((prev) => [...prev, { id: `rew${Date.now()}`, days: 3 }]);
+    setReEngagementWaitSteps((prev) => [
+      ...prev,
+      { id: `rew${Date.now()}`, days: 3 },
+    ]);
   };
 
   const toggleDay = (day: string) => {
     setOutreachDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
     );
   };
 
@@ -379,7 +492,12 @@ export default function CreateCampaignPage() {
         <div className="flex items-center justify-between border-b px-6 py-4">
           <div className="flex items-center gap-3">
             {currentStep > 1 ? (
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleBack}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleBack}
+              >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
             ) : (
@@ -390,13 +508,18 @@ export default function CreateCampaignPage() {
               </Link>
             )}
             <div className="flex items-center gap-2 text-sm">
-              <Link href="/campaigns" className="text-muted-foreground hover:text-foreground">
+              <Link
+                href="/campaigns"
+                className="text-muted-foreground hover:text-foreground"
+              >
                 Campaigns
               </Link>
               <span className="text-muted-foreground">/</span>
               <span className="font-medium">Create Campaign</span>
               <span className="text-muted-foreground">·</span>
-              <span className="text-muted-foreground">Step {currentStep} of {totalSteps}</span>
+              <span className="text-muted-foreground">
+                Step {currentStep} of {totalSteps}
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -406,7 +529,11 @@ export default function CreateCampaignPage() {
               </Button>
             )}
             <Button onClick={handleNext}>
-              {currentStep === totalSteps ? (isTemplated ? "Next" : "Create") : "Next"}
+              {currentStep === totalSteps
+                ? isTemplated
+                  ? "Next"
+                  : "Create"
+                : "Next"}
             </Button>
           </div>
         </div>
@@ -455,7 +582,9 @@ export default function CreateCampaignPage() {
                             <div className="h-8 w-px bg-border" />
                             <div className="flex items-center gap-2 py-2">
                               <Clock className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-sm text-muted-foreground">Wait for</span>
+                              <span className="text-sm text-muted-foreground">
+                                Wait for
+                              </span>
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -513,23 +642,30 @@ export default function CreateCampaignPage() {
                             <div className="h-8 w-px bg-border" />
                             <div className="flex items-center gap-2 py-2">
                               <Clock className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-sm text-muted-foreground">Wait for</span>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-6 w-6"
-                                onClick={() => updateReEngagementWaitDays(index - 1, -1)}
-                              >
-                                <Minus className="h-3 w-3" />
-                              </Button>
-                              <span className="text-sm font-medium w-12 text-center">
-                                {reEngagementWaitSteps[index - 1]?.days || 3} days
+                              <span className="text-sm text-muted-foreground">
+                                Wait for
                               </span>
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 className="h-6 w-6"
-                                onClick={() => updateReEngagementWaitDays(index - 1, 1)}
+                                onClick={() =>
+                                  updateReEngagementWaitDays(index - 1, -1)
+                                }
+                              >
+                                <Minus className="h-3 w-3" />
+                              </Button>
+                              <span className="text-sm font-medium w-12 text-center">
+                                {reEngagementWaitSteps[index - 1]?.days || 3}{" "}
+                                days
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() =>
+                                  updateReEngagementWaitDays(index - 1, 1)
+                                }
                               >
                                 <Plus className="h-3 w-3" />
                               </Button>
@@ -572,10 +708,24 @@ export default function CreateCampaignPage() {
               {/* Header */}
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-xl font-semibold">Research Library <span className="text-muted-foreground font-normal">2/2</span></h2>
+                  <h2 className="text-xl font-semibold">
+                    Research Library{" "}
+                    <span className="text-muted-foreground font-normal">
+                      2/2
+                    </span>
+                  </h2>
                 </div>
                 <p className="text-sm text-muted-foreground max-w-3xl">
-                  Choose the information you want us to include in your prospect research. You can <span className="font-semibold text-foreground">select up to 5x options</span> from the list, covering both individual and company insights. Just click &quot;Select&quot; or &quot;Research&quot; on the items that matter most to you. When you&apos;re done, we&apos;ll use these to build a personalised report for your outreach.
+                  Choose the information you want us to include in your prospect
+                  research. You can{" "}
+                  <span className="font-semibold text-foreground">
+                    select up to 5x options
+                  </span>{" "}
+                  from the list, covering both individual and company insights.
+                  Just click &quot;Select&quot; or &quot;Research&quot; on the
+                  items that matter most to you. When you&apos;re done,
+                  we&apos;ll use these to build a personalised report for your
+                  outreach.
                 </p>
               </div>
 
@@ -603,11 +753,11 @@ export default function CreateCampaignPage() {
                   .filter(
                     (cat) =>
                       agentCategoryFilter === "all" ||
-                      agentCategoryFilter === cat.id
+                      agentCategoryFilter === cat.id,
                   )
                   .map((category) => {
                     const categoryAgents = researchAgents.filter(
-                      (a) => a.category === category.id
+                      (a) => a.category === category.id,
                     );
                     if (categoryAgents.length === 0) return null;
 
@@ -618,18 +768,22 @@ export default function CreateCampaignPage() {
                         </h3>
                         <div className="bg-background rounded-lg border shadow-sm divide-y">
                           {categoryAgents.map((agent) => {
-                            const isSelected = selectedAgents.includes(agent.id);
+                            const isSelected = selectedAgents.includes(
+                              agent.id,
+                            );
                             const Icon = agentIcons[agent.id] || Search;
 
                             return (
                               <div
                                 key={agent.id}
                                 className={`flex items-start gap-4 p-6 transition-colors ${
-                                  isSelected ? "bg-muted/20" : "hover:bg-muted/10"
+                                  isSelected
+                                    ? "bg-muted/20"
+                                    : "hover:bg-muted/10"
                                 }`}
                               >
                                 {/* Checkbox Area (Selection Control) */}
-                                <div 
+                                <div
                                   className="mt-1 shrink-0 cursor-pointer"
                                   onClick={() => toggleAgent(agent.id)}
                                 >
@@ -701,10 +855,16 @@ export default function CreateCampaignPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => router.push("/campaigns/create?type=ai")}>
+                  <DropdownMenuItem
+                    onClick={() => router.push("/campaigns/create?type=ai")}
+                  >
                     AI Generated
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/campaigns/create?type=templated")}>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      router.push("/campaigns/create?type=templated")
+                    }
+                  >
                     Templated
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -747,14 +907,18 @@ export default function CreateCampaignPage() {
               <label className="text-sm font-medium">Reachout Through</label>
               <div className="flex gap-2">
                 <Button
-                  variant={reachoutChannel === "message" ? "default" : "outline"}
+                  variant={
+                    reachoutChannel === "message" ? "default" : "outline"
+                  }
                   size="sm"
                   className="gap-2"
                   onClick={() => setReachoutChannel("message")}
                 >
                   <Linkedin className="h-4 w-4" />
                   LinkedIn Message
-                  {reachoutChannel === "message" && <Check className="h-3 w-3" />}
+                  {reachoutChannel === "message" && (
+                    <Check className="h-3 w-3" />
+                  )}
                 </Button>
                 <Button
                   variant={reachoutChannel === "inmail" ? "default" : "outline"}
@@ -764,7 +928,9 @@ export default function CreateCampaignPage() {
                 >
                   <Linkedin className="h-4 w-4" />
                   LinkedIn InMail
-                  {reachoutChannel === "inmail" && <Check className="h-3 w-3" />}
+                  {reachoutChannel === "inmail" && (
+                    <Check className="h-3 w-3" />
+                  )}
                 </Button>
               </div>
             </div>
@@ -811,7 +977,9 @@ export default function CreateCampaignPage() {
                       className="flex items-center gap-3 p-2 rounded-lg bg-muted/50"
                     >
                       <FileSpreadsheet className="h-5 w-5 text-red-500 shrink-0" />
-                      <span className="text-sm truncate flex-1">{file.name}</span>
+                      <span className="text-sm truncate flex-1">
+                        {file.name}
+                      </span>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -825,7 +993,6 @@ export default function CreateCampaignPage() {
                 </div>
               )}
             </div>
-
 
             {/* Select Product */}
             <div className="space-y-2 mt-6">
@@ -841,10 +1008,14 @@ export default function CreateCampaignPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-80">
-                  <DropdownMenuItem onClick={() => setSelectedProduct("Product A")}>
+                  <DropdownMenuItem
+                    onClick={() => setSelectedProduct("Product A")}
+                  >
                     Product A
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSelectedProduct("Product B")}>
+                  <DropdownMenuItem
+                    onClick={() => setSelectedProduct("Product B")}
+                  >
                     Product B
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -856,87 +1027,31 @@ export default function CreateCampaignPage() {
               <div className="flex-1 pr-4">
                 <label className="text-sm font-medium">Autopilot</label>
                 <p className="text-xs text-muted-foreground">
-                  Allows us to auto send messages without awaiting your approval.
+                  Allows us to auto send messages without awaiting your
+                  approval.
                 </p>
               </div>
-              <Switch
-                checked={autopilot}
-                onCheckedChange={setAutopilot}
-              />
+              <Switch checked={autopilot} onCheckedChange={setAutopilot} />
             </div>
 
             {/* Daily Sequence Volume */}
-            <div className="space-y-4 pt-2 mt-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Daily Sequence Volume</label>
-                <p className="text-xs text-muted-foreground">
-                  The number of sequences Hodhod should send each day.
-                </p>
-                <div className="flex flex-col gap-4">
-                  <div className="flex justify-center">
-                    <div className="flex h-8 w-12 items-center justify-center rounded border bg-card text-sm font-medium shadow-sm">
-                      {dailyVolume}
-                    </div>
-                  </div>
-                  <input
-                    type="range"
-                    min={1}
-                    max={100}
-                    value={dailyVolume}
-                    onChange={(e) => setDailyVolume(Number(e.target.value))}
-                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-primary"
-                  />
-                </div>
-              </div>
+            <div className="pt-2 mt-2">
+              <DailyVolumeSlider
+                volume={dailyVolume}
+                onChange={setDailyVolume}
+              />
             </div>
 
             {/* Sequence Timing */}
-            <div className="space-y-2 pt-2 mt-4">
-              <label className="text-sm font-medium">Sequence Timing</label>
-              <p className="text-xs text-muted-foreground">
-                Tell us the best times for sending sequences.
-              </p>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 rounded-md border px-3 py-2 flex-1">
-                  <Input
-                    type="time"
-                    value={outreachStartTime}
-                    onChange={(e) => setOutreachStartTime(e.target.value)}
-                    className="h-auto border-0 p-0 focus-visible:ring-0"
-                    style={{ colorScheme: "light" }}
-                  />
-                </div>
-                <div className="flex items-center gap-2 rounded-md border px-3 py-2 flex-1">
-                  <Input
-                    type="time"
-                    value={outreachEndTime}
-                    onChange={(e) => setOutreachEndTime(e.target.value)}
-                    className="h-auto border-0 p-0 focus-visible:ring-0"
-                    style={{ colorScheme: "light" }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Outreach Days */}
-            <div className="space-y-2 mt-4 mb-6">
-              <label className="text-sm font-medium">Outreach Days</label>
-              <p className="text-xs text-muted-foreground">
-                Days of the week for prospecting.
-              </p>
-              <div className="flex flex-wrap gap-1">
-                {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
-                  <Button
-                    key={day}
-                    variant={outreachDays.includes(day) ? "default" : "outline"}
-                    size="sm"
-                    className="w-11 px-0"
-                    onClick={() => toggleDay(day)}
-                  >
-                    {day}
-                  </Button>
-                ))}
-              </div>
+            <div className="pt-2 mt-4">
+              <SequenceTiming
+                startTime={outreachStartTime}
+                endTime={outreachEndTime}
+                days={outreachDays}
+                onStartTimeChange={setOutreachStartTime}
+                onEndTimeChange={setOutreachEndTime}
+                onDaysChange={setOutreachDays}
+              />
             </div>
 
             {/* AI Generated only fields */}
@@ -945,24 +1060,34 @@ export default function CreateCampaignPage() {
                 {/* Profiles to be included */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium">Profiles to be included</label>
+                    <label className="text-sm font-medium">
+                      Profiles to be included
+                    </label>
                     <Info className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    We default to private profiles for message campaigns to save the public profiles on this list for an InMail campaign.
+                    We default to private profiles for message campaigns to save
+                    the public profiles on this list for an InMail campaign.
                   </p>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full justify-between">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between"
+                      >
                         Private Profiles (Consumes InMail credits)
                         <ChevronDown className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-80">
-                      <DropdownMenuItem onClick={() => setProfileType("private")}>
+                      <DropdownMenuItem
+                        onClick={() => setProfileType("private")}
+                      >
                         Private Profiles (Consumes InMail credits)
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setProfileType("public")}>
+                      <DropdownMenuItem
+                        onClick={() => setProfileType("public")}
+                      >
                         Public Profiles
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setProfileType("all")}>
@@ -974,25 +1099,36 @@ export default function CreateCampaignPage() {
 
                 {/* Select Writing Style */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Select Writing Style</label>
+                  <label className="text-sm font-medium">
+                    Select Writing Style
+                  </label>
                   <p className="text-xs text-muted-foreground">
                     Writing style for your outreach.
                   </p>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full justify-between">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between"
+                      >
                         {writingStyle || "Select a Writing Style"}
                         <ChevronDown className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-80">
-                      <DropdownMenuItem onClick={() => setWritingStyle("Professional")}>
+                      <DropdownMenuItem
+                        onClick={() => setWritingStyle("Professional")}
+                      >
                         Professional
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setWritingStyle("Casual")}>
+                      <DropdownMenuItem
+                        onClick={() => setWritingStyle("Casual")}
+                      >
                         Casual
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setWritingStyle("Friendly")}>
+                      <DropdownMenuItem
+                        onClick={() => setWritingStyle("Friendly")}
+                      >
                         Friendly
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -1001,13 +1137,18 @@ export default function CreateCampaignPage() {
 
                 {/* Outreach Language */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Outreach Language</label>
+                  <label className="text-sm font-medium">
+                    Outreach Language
+                  </label>
                   <p className="text-xs text-muted-foreground">
                     Language for your outreach messages.
                   </p>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full justify-between">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between"
+                      >
                         <span className="flex items-center gap-2">
                           <Globe className="h-4 w-4" />
                           {outreachLanguage}
@@ -1016,19 +1157,29 @@ export default function CreateCampaignPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-80">
-                      <DropdownMenuItem onClick={() => setOutreachLanguage("English")}>
+                      <DropdownMenuItem
+                        onClick={() => setOutreachLanguage("English")}
+                      >
                         English
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setOutreachLanguage("Spanish")}>
+                      <DropdownMenuItem
+                        onClick={() => setOutreachLanguage("Spanish")}
+                      >
                         Spanish
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setOutreachLanguage("French")}>
+                      <DropdownMenuItem
+                        onClick={() => setOutreachLanguage("French")}
+                      >
                         French
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setOutreachLanguage("German")}>
+                      <DropdownMenuItem
+                        onClick={() => setOutreachLanguage("German")}
+                      >
                         German
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setOutreachLanguage("Portuguese")}>
+                      <DropdownMenuItem
+                        onClick={() => setOutreachLanguage("Portuguese")}
+                      >
                         Portuguese
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -1041,7 +1192,10 @@ export default function CreateCampaignPage() {
       )}
 
       {/* LinkedIn URL Modal */}
-      <Dialog open={isLinkedInUrlModalOpen} onOpenChange={setIsLinkedInUrlModalOpen}>
+      <Dialog
+        open={isLinkedInUrlModalOpen}
+        onOpenChange={setIsLinkedInUrlModalOpen}
+      >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Upload Through LinkedIn URL</DialogTitle>
@@ -1050,7 +1204,8 @@ export default function CreateCampaignPage() {
             <div className="flex items-start gap-3 rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
               <Info className="h-4 w-4 mt-0.5 shrink-0" />
               <p>
-                Hodhod accepts search URLs from LinkedIn and Sales Navigator, including saved and shared searches.
+                Hodhod accepts search URLs from LinkedIn and Sales Navigator,
+                including saved and shared searches.
               </p>
             </div>
             <div className="space-y-2">
@@ -1082,15 +1237,17 @@ export default function CreateCampaignPage() {
             <DialogTitle>Confirm Resource</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            A file is being used to upload your prospects. Please confirm as this action cannot be reversed.
+            A file is being used to upload your prospects. Please confirm as
+            this action cannot be reversed.
           </p>
           <div className="flex justify-end gap-3 mt-4">
-            <Button variant="ghost" onClick={() => setIsConfirmModalOpen(false)}>
+            <Button
+              variant="ghost"
+              onClick={() => setIsConfirmModalOpen(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={handleConfirmCreate}>
-              Proceed
-            </Button>
+            <Button onClick={handleConfirmCreate}>Proceed</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -1130,10 +1287,7 @@ export default function CreateCampaignPage() {
                 Add Template
               </Button>
 
-              <Input
-                placeholder="Search Templates"
-                className="mb-4"
-              />
+              <Input placeholder="Search Templates" className="mb-4" />
 
               <div className="space-y-2">
                 {templates.map((template) => (
@@ -1144,9 +1298,13 @@ export default function CreateCampaignPage() {
                     }`}
                     onClick={() => handleTemplateSelect(template.id)}
                   >
-                    <div className={`mt-1 h-4 w-4 rounded-full border-2 flex items-center justify-center ${
-                      selectedTemplate === template.id ? "border-primary" : "border-muted-foreground/30"
-                    }`}>
+                    <div
+                      className={`mt-1 h-4 w-4 rounded-full border-2 flex items-center justify-center ${
+                        selectedTemplate === template.id
+                          ? "border-primary"
+                          : "border-muted-foreground/30"
+                      }`}
+                    >
                       {selectedTemplate === template.id && (
                         <div className="h-2 w-2 rounded-full bg-primary" />
                       )}
@@ -1168,13 +1326,19 @@ export default function CreateCampaignPage() {
               <div className="flex gap-2 mb-6">
                 <Button
                   variant={reachoutChannel === "inmail" ? "default" : "outline"}
-                  className={reachoutChannel === "inmail" ? "bg-blue-600 hover:bg-blue-700" : ""}
+                  className={
+                    reachoutChannel === "inmail"
+                      ? "bg-blue-600 hover:bg-blue-700"
+                      : ""
+                  }
                   onClick={() => setReachoutChannel("inmail")}
                 >
                   InMail
                 </Button>
                 <Button
-                  variant={reachoutChannel === "message" ? "default" : "outline"}
+                  variant={
+                    reachoutChannel === "message" ? "default" : "outline"
+                  }
                   onClick={() => setReachoutChannel("message")}
                 >
                   Messaging
@@ -1188,14 +1352,19 @@ export default function CreateCampaignPage() {
                   placeholder="Enter template name here"
                   value={templateData.name}
                   onChange={(e) =>
-                    setTemplateData((prev) => ({ ...prev, name: e.target.value }))
+                    setTemplateData((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
                   }
                 />
               </div>
 
               {/* Template Visible To */}
               <div className="space-y-3 mb-6">
-                <label className="text-sm font-medium">Template Visible To</label>
+                <label className="text-sm font-medium">
+                  Template Visible To
+                </label>
                 <div className="flex gap-6">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <div className="h-5 w-5 rounded-full border-2 border-blue-600 flex items-center justify-center">
@@ -1216,20 +1385,30 @@ export default function CreateCampaignPage() {
                   {/* Connect Message */}
                   <div className="space-y-2 mb-6">
                     <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium">Connect Message</label>
+                      <label className="text-sm font-medium">
+                        Connect Message
+                      </label>
                       <div className="flex items-center gap-2">
                         <Info className="h-4 w-4 text-muted-foreground" />
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-2"
+                            >
                               <span className="text-muted-foreground">=</span>
                               Add Placeholder
                               <ChevronDown className="h-3 w-3" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
-                            <DropdownMenuItem>{"{P_FIRST_NAME}"}</DropdownMenuItem>
-                            <DropdownMenuItem>{"{P_LAST_NAME}"}</DropdownMenuItem>
+                            <DropdownMenuItem>
+                              {"{P_FIRST_NAME}"}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              {"{P_LAST_NAME}"}
+                            </DropdownMenuItem>
                             <DropdownMenuItem>{"{P_COMPANY}"}</DropdownMenuItem>
                             <DropdownMenuItem>{"{P_TITLE}"}</DropdownMenuItem>
                           </DropdownMenuContent>
@@ -1241,7 +1420,10 @@ export default function CreateCampaignPage() {
                       placeholder="Enter connect message"
                       value={templateData.connectMessage}
                       onChange={(e) =>
-                        setTemplateData((prev) => ({ ...prev, connectMessage: e.target.value }))
+                        setTemplateData((prev) => ({
+                          ...prev,
+                          connectMessage: e.target.value,
+                        }))
                       }
                     />
                   </div>
@@ -1250,21 +1432,33 @@ export default function CreateCampaignPage() {
                   {templateData.followups?.map((followup, index) => (
                     <div key={index} className="space-y-2 mb-6">
                       <div className="flex items-center justify-between">
-                        <label className="text-sm font-medium">Follow-up {index + 1}</label>
+                        <label className="text-sm font-medium">
+                          Follow-up {index + 1}
+                        </label>
                         <div className="flex items-center gap-2">
                           <Info className="h-4 w-4 text-muted-foreground" />
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="outline" size="sm" className="gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-2"
+                              >
                                 <span className="text-muted-foreground">=</span>
                                 Add Placeholder
                                 <ChevronDown className="h-3 w-3" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
-                              <DropdownMenuItem>{"{P_FIRST_NAME}"}</DropdownMenuItem>
-                              <DropdownMenuItem>{"{P_LAST_NAME}"}</DropdownMenuItem>
-                              <DropdownMenuItem>{"{P_COMPANY}"}</DropdownMenuItem>
+                              <DropdownMenuItem>
+                                {"{P_FIRST_NAME}"}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                {"{P_LAST_NAME}"}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                {"{P_COMPANY}"}
+                              </DropdownMenuItem>
                               <DropdownMenuItem>{"{P_TITLE}"}</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -1277,7 +1471,10 @@ export default function CreateCampaignPage() {
                         onChange={(e) => {
                           const newFollowups = [...templateData.followups];
                           newFollowups[index] = e.target.value;
-                          setTemplateData((prev) => ({ ...prev, followups: newFollowups }));
+                          setTemplateData((prev) => ({
+                            ...prev,
+                            followups: newFollowups,
+                          }));
                         }}
                       />
                     </div>
@@ -1304,21 +1501,33 @@ export default function CreateCampaignPage() {
                   {reachoutChannel === "inmail" && (
                     <div className="space-y-2 mb-6">
                       <div className="flex items-center justify-between">
-                        <label className="text-sm font-medium">InMail Subject</label>
+                        <label className="text-sm font-medium">
+                          InMail Subject
+                        </label>
                         <div className="flex items-center gap-2">
                           <Info className="h-4 w-4 text-muted-foreground" />
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="outline" size="sm" className="gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-2"
+                              >
                                 <span className="text-muted-foreground">=</span>
                                 Add Placeholder
                                 <ChevronDown className="h-3 w-3" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
-                              <DropdownMenuItem>{"{P_FIRST_NAME}"}</DropdownMenuItem>
-                              <DropdownMenuItem>{"{P_LAST_NAME}"}</DropdownMenuItem>
-                              <DropdownMenuItem>{"{P_COMPANY}"}</DropdownMenuItem>
+                              <DropdownMenuItem>
+                                {"{P_FIRST_NAME}"}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                {"{P_LAST_NAME}"}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                {"{P_COMPANY}"}
+                              </DropdownMenuItem>
                               <DropdownMenuItem>{"{P_TITLE}"}</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -1328,7 +1537,10 @@ export default function CreateCampaignPage() {
                         placeholder="Enter InMail subject"
                         value={templateData.subject}
                         onChange={(e) =>
-                          setTemplateData((prev) => ({ ...prev, subject: e.target.value }))
+                          setTemplateData((prev) => ({
+                            ...prev,
+                            subject: e.target.value,
+                          }))
                         }
                       />
                     </div>
@@ -1342,15 +1554,23 @@ export default function CreateCampaignPage() {
                         <Info className="h-4 w-4 text-muted-foreground" />
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-2"
+                            >
                               <span className="text-muted-foreground">=</span>
                               Add Placeholder
                               <ChevronDown className="h-3 w-3" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
-                            <DropdownMenuItem>{"{P_FIRST_NAME}"}</DropdownMenuItem>
-                            <DropdownMenuItem>{"{P_LAST_NAME}"}</DropdownMenuItem>
+                            <DropdownMenuItem>
+                              {"{P_FIRST_NAME}"}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              {"{P_LAST_NAME}"}
+                            </DropdownMenuItem>
                             <DropdownMenuItem>{"{P_COMPANY}"}</DropdownMenuItem>
                             <DropdownMenuItem>{"{P_TITLE}"}</DropdownMenuItem>
                           </DropdownMenuContent>
@@ -1362,7 +1582,10 @@ export default function CreateCampaignPage() {
                       placeholder="Enter InMail body"
                       value={templateData.body}
                       onChange={(e) =>
-                        setTemplateData((prev) => ({ ...prev, body: e.target.value }))
+                        setTemplateData((prev) => ({
+                          ...prev,
+                          body: e.target.value,
+                        }))
                       }
                     />
                   </div>

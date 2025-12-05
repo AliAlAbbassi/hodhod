@@ -66,16 +66,16 @@ const initialTemplates: Template[] = [
     visibleTo: "me",
   },
   {
-    id: "valleystudios-messaging",
-    name: "ValleyStudios Messaging",
+    id: "hodhodstudios-messaging",
+    name: "HodhodStudios Messaging",
     type: "message",
     preview: "Hi {P_FIRST_NAME}, We build an...",
     body: "Hi {P_FIRST_NAME},\n\nWe build and run your entire outbound for you, guaranteeing a minimum of 15 booked calls. We've built outbound engines for Miro, Front, Deel, Rippling, and Oracle + we're backed by the early investors in AirBnb, Uber, and Robinhood.\n\nIf that's relevant, I'd love to connect.",
     visibleTo: "all",
   },
   {
-    id: "valleystudios-inmail",
-    name: "ValleyStudios InMail",
+    id: "hodhodstudios-inmail",
+    name: "HodhodStudios InMail",
     type: "inmail",
     preview: "Guaranteed Meetings Or We Wo...",
     subject: "Guaranteed Meetings Or We Work For Free",
@@ -92,15 +92,19 @@ export default function TemplatesPage() {
 
   // Form State
   const [templateName, setTemplateName] = useState("");
-  const [templateType, setTemplateType] = useState<"message" | "inmail">("message");
-  const [templateVisibleTo, setTemplateVisibleTo] = useState<"all" | "me">("all");
+  const [templateType, setTemplateType] = useState<"message" | "inmail">(
+    "message",
+  );
+  const [templateVisibleTo, setTemplateVisibleTo] = useState<"all" | "me">(
+    "all",
+  );
   const [inMailSubject, setInMailSubject] = useState("");
   const [messageBody, setMessageBody] = useState("");
   const [connectMessage, setConnectMessage] = useState(""); // For "message" type if separate? The screenshots just show "Connect Message" or "InMail Body"
   const [followupMessage, setFollowupMessage] = useState("");
 
   const filteredTemplates = templates.filter((t) =>
-    t.name.toLowerCase().includes(searchQuery.toLowerCase())
+    t.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleOpenCreate = () => {
@@ -136,7 +140,11 @@ export default function TemplatesPage() {
       id: editingTemplate ? editingTemplate.id : String(Date.now()),
       name: templateName,
       type: templateType,
-      preview: (templateType === "message" ? connectMessage : messageBody).substring(0, 30) + "...",
+      preview:
+        (templateType === "message" ? connectMessage : messageBody).substring(
+          0,
+          30,
+        ) + "...",
       subject: templateType === "inmail" ? inMailSubject : undefined,
       body: templateType === "message" ? connectMessage : messageBody,
       followup: templateType === "message" ? followupMessage : undefined,
@@ -144,27 +152,32 @@ export default function TemplatesPage() {
     };
 
     if (editingTemplate) {
-      setTemplates(templates.map((t) => (t.id === editingTemplate.id ? newTemplate : t)));
+      setTemplates(
+        templates.map((t) => (t.id === editingTemplate.id ? newTemplate : t)),
+      );
     } else {
       setTemplates([...templates, newTemplate]);
     }
     setIsCreateModalOpen(false);
   };
 
-  const insertPlaceholder = (placeholder: string, field: "inmail" | "connect" | "followup") => {
+  const insertPlaceholder = (
+    placeholder: string,
+    field: "inmail" | "connect" | "followup",
+  ) => {
     // A simple append for now. In a real app, we'd insert at cursor position.
     if (field === "inmail") {
-        setMessageBody(prev => prev + placeholder);
+      setMessageBody((prev) => prev + placeholder);
     } else if (field === "connect") {
-        setConnectMessage(prev => prev + placeholder);
+      setConnectMessage((prev) => prev + placeholder);
     } else if (field === "followup") {
-        setFollowupMessage(prev => prev + placeholder);
+      setFollowupMessage((prev) => prev + placeholder);
     }
   };
 
   const insertSubjectPlaceholder = (placeholder: string) => {
-      setInMailSubject(prev => prev + placeholder);
-  }
+    setInMailSubject((prev) => prev + placeholder);
+  };
 
   return (
     <div className="flex h-full flex-col p-8">
@@ -193,26 +206,33 @@ export default function TemplatesPage() {
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredTemplates.map((template) => (
-          <Card key={template.id} className="group relative overflow-hidden transition-all hover:shadow-md">
+          <Card
+            key={template.id}
+            className="group relative overflow-hidden transition-all hover:shadow-md"
+          >
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
-                    {template.type === "message" ? (
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-                            <MessageSquare className="h-4 w-4" />
-                        </div>
-                    ) : (
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
-                            <Linkedin className="h-4 w-4" />
-                        </div>
-                    )}
+                  {template.type === "message" ? (
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                      <MessageSquare className="h-4 w-4" />
+                    </div>
+                  ) : (
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+                      <Linkedin className="h-4 w-4" />
+                    </div>
+                  )}
                   <CardTitle className="text-base font-medium leading-none">
                     {template.name}
                   </CardTitle>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -221,7 +241,10 @@ export default function TemplatesPage() {
                       <Pencil className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(template.id)}>
+                    <DropdownMenuItem
+                      className="text-red-600"
+                      onClick={() => handleDelete(template.id)}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete
                     </DropdownMenuItem>
@@ -235,16 +258,24 @@ export default function TemplatesPage() {
               </div>
             </CardContent>
             <CardFooter className="pt-0 text-xs text-muted-foreground flex justify-between items-center">
-                <span>{template.type === 'message' ? 'LinkedIn Message' : 'LinkedIn InMail'}</span>
-                {template.visibleTo === 'me' && <Badge variant="secondary" className="text-[10px] h-5">Private</Badge>}
+              <span>
+                {template.type === "message"
+                  ? "LinkedIn Message"
+                  : "LinkedIn InMail"}
+              </span>
+              {template.visibleTo === "me" && (
+                <Badge variant="secondary" className="text-[10px] h-5">
+                  Private
+                </Badge>
+              )}
             </CardFooter>
           </Card>
         ))}
         {/* Empty State Card just to match the "Untitled" one in screenshot if needed, but we have real items */}
         {filteredTemplates.length === 0 && (
-            <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
-                <p>No templates found.</p>
-            </div>
+          <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
+            <p>No templates found.</p>
+          </div>
         )}
       </div>
 
@@ -252,186 +283,322 @@ export default function TemplatesPage() {
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingTemplate ? "Edit Template" : "Create Template"}</DialogTitle>
+            <DialogTitle>
+              {editingTemplate ? "Edit Template" : "Create Template"}
+            </DialogTitle>
           </DialogHeader>
-          
+
           <div className="grid gap-6 py-4">
             {/* Type Toggle */}
             <div className="flex gap-2">
-                <Button
-                  variant={templateType === "inmail" ? "default" : "outline"}
-                  className={templateType === "inmail" ? "bg-blue-600 hover:bg-blue-700" : ""}
-                  onClick={() => setTemplateType("inmail")}
-                >
-                  InMail
-                </Button>
-                <Button
-                  variant={templateType === "message" ? "default" : "outline"}
-                  className={templateType === "message" ? "bg-blue-600 hover:bg-blue-700" : ""}
-                  onClick={() => setTemplateType("message")}
-                >
-                  Messaging
-                </Button>
+              <Button
+                variant={templateType === "inmail" ? "default" : "outline"}
+                className={
+                  templateType === "inmail"
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : ""
+                }
+                onClick={() => setTemplateType("inmail")}
+              >
+                InMail
+              </Button>
+              <Button
+                variant={templateType === "message" ? "default" : "outline"}
+                className={
+                  templateType === "message"
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : ""
+                }
+                onClick={() => setTemplateType("message")}
+              >
+                Messaging
+              </Button>
             </div>
 
             {/* Template Name */}
             <div className="space-y-2">
-                <label className="text-sm font-medium">Template Name</label>
-                <Input 
-                    placeholder="Enter template name here" 
-                    value={templateName}
-                    onChange={(e) => setTemplateName(e.target.value)}
-                />
+              <label className="text-sm font-medium">Template Name</label>
+              <Input
+                placeholder="Enter template name here"
+                value={templateName}
+                onChange={(e) => setTemplateName(e.target.value)}
+              />
             </div>
 
             {/* Template Visible To */}
             <div className="space-y-3">
-                <label className="text-sm font-medium">Template Visible To</label>
-                <div className="flex gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer" onClick={() => setTemplateVisibleTo("all")}>
-                    <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${templateVisibleTo === "all" ? "border-blue-600" : "border-muted-foreground/30"}`}>
-                      {templateVisibleTo === "all" && <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />}
-                    </div>
-                    <span className="text-sm">All</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer" onClick={() => setTemplateVisibleTo("me")}>
-                    <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${templateVisibleTo === "me" ? "border-blue-600" : "border-muted-foreground/30"}`}>
-                      {templateVisibleTo === "me" && <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />}
-                    </div>
-                    <span className="text-sm">Just you</span>
-                  </label>
-                </div>
+              <label className="text-sm font-medium">Template Visible To</label>
+              <div className="flex gap-6">
+                <label
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => setTemplateVisibleTo("all")}
+                >
+                  <div
+                    className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${templateVisibleTo === "all" ? "border-blue-600" : "border-muted-foreground/30"}`}
+                  >
+                    {templateVisibleTo === "all" && (
+                      <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+                    )}
+                  </div>
+                  <span className="text-sm">All</span>
+                </label>
+                <label
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => setTemplateVisibleTo("me")}
+                >
+                  <div
+                    className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${templateVisibleTo === "me" ? "border-blue-600" : "border-muted-foreground/30"}`}
+                  >
+                    {templateVisibleTo === "me" && (
+                      <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+                    )}
+                  </div>
+                  <span className="text-sm">Just you</span>
+                </label>
+              </div>
             </div>
 
             {templateType === "inmail" ? (
-                <>
-                    {/* InMail Subject */}
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <label className="text-sm font-medium">InMail Subject</label>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:bg-transparent">
-                                        <div className="flex items-center gap-1 border rounded px-2 py-1 bg-white">
-                                            <Info className="h-3 w-3" />
-                                            Add Placeholder
-                                            <ChevronDown className="h-3 w-3" />
-                                        </div>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                    <DropdownMenuItem onClick={() => insertSubjectPlaceholder("{P_FIRST_NAME}")}>{"{P_FIRST_NAME}"}</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => insertSubjectPlaceholder("{P_LAST_NAME}")}>{"{P_LAST_NAME}"}</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => insertSubjectPlaceholder("{P_COMPANY}")}>{"{P_COMPANY}"}</DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                        <Input 
-                            placeholder="Enter InMail subject" 
-                            value={inMailSubject}
-                            onChange={(e) => setInMailSubject(e.target.value)}
-                        />
-                    </div>
+              <>
+                {/* InMail Subject */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">
+                      InMail Subject
+                    </label>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-auto p-0 text-xs text-muted-foreground hover:bg-transparent"
+                        >
+                          <div className="flex items-center gap-1 border rounded px-2 py-1 bg-white">
+                            <Info className="h-3 w-3" />
+                            Add Placeholder
+                            <ChevronDown className="h-3 w-3" />
+                          </div>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            insertSubjectPlaceholder("{P_FIRST_NAME}")
+                          }
+                        >
+                          {"{P_FIRST_NAME}"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            insertSubjectPlaceholder("{P_LAST_NAME}")
+                          }
+                        >
+                          {"{P_LAST_NAME}"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            insertSubjectPlaceholder("{P_COMPANY}")
+                          }
+                        >
+                          {"{P_COMPANY}"}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  <Input
+                    placeholder="Enter InMail subject"
+                    value={inMailSubject}
+                    onChange={(e) => setInMailSubject(e.target.value)}
+                  />
+                </div>
 
-                    {/* InMail Body */}
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <label className="text-sm font-medium">InMail Body</label>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:bg-transparent">
-                                        <div className="flex items-center gap-1 border rounded px-2 py-1 bg-white">
-                                            <Info className="h-3 w-3" />
-                                            Add Placeholder
-                                            <ChevronDown className="h-3 w-3" />
-                                        </div>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                    <DropdownMenuItem onClick={() => insertPlaceholder("{P_FIRST_NAME}", "inmail")}>{"{P_FIRST_NAME}"}</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => insertPlaceholder("{P_LAST_NAME}", "inmail")}>{"{P_LAST_NAME}"}</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => insertPlaceholder("{P_COMPANY}", "inmail")}>{"{P_COMPANY}"}</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => insertPlaceholder("{P_TITLE}", "inmail")}>{"{P_TITLE}"}</DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                        <Textarea
-                            placeholder="Enter InMail body"
-                            value={messageBody}
-                            onChange={(e) => setMessageBody(e.target.value)}
-                            className="min-h-[150px] resize-none"
-                        />
-                    </div>
-                </>
+                {/* InMail Body */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">InMail Body</label>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-auto p-0 text-xs text-muted-foreground hover:bg-transparent"
+                        >
+                          <div className="flex items-center gap-1 border rounded px-2 py-1 bg-white">
+                            <Info className="h-3 w-3" />
+                            Add Placeholder
+                            <ChevronDown className="h-3 w-3" />
+                          </div>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            insertPlaceholder("{P_FIRST_NAME}", "inmail")
+                          }
+                        >
+                          {"{P_FIRST_NAME}"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            insertPlaceholder("{P_LAST_NAME}", "inmail")
+                          }
+                        >
+                          {"{P_LAST_NAME}"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            insertPlaceholder("{P_COMPANY}", "inmail")
+                          }
+                        >
+                          {"{P_COMPANY}"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            insertPlaceholder("{P_TITLE}", "inmail")
+                          }
+                        >
+                          {"{P_TITLE}"}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  <Textarea
+                    placeholder="Enter InMail body"
+                    value={messageBody}
+                    onChange={(e) => setMessageBody(e.target.value)}
+                    className="min-h-[150px] resize-none"
+                  />
+                </div>
+              </>
             ) : (
-                <>
-                    {/* Connect Message */}
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <label className="text-sm font-medium">Connect Message</label>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:bg-transparent">
-                                        <div className="flex items-center gap-1 border rounded px-2 py-1 bg-white">
-                                            <Info className="h-3 w-3" />
-                                            Add Placeholder
-                                            <ChevronDown className="h-3 w-3" />
-                                        </div>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                    <DropdownMenuItem onClick={() => insertPlaceholder("{P_FIRST_NAME}", "connect")}>{"{P_FIRST_NAME}"}</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => insertPlaceholder("{P_LAST_NAME}", "connect")}>{"{P_LAST_NAME}"}</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => insertPlaceholder("{P_COMPANY}", "connect")}>{"{P_COMPANY}"}</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => insertPlaceholder("{P_TITLE}", "connect")}>{"{P_TITLE}"}</DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                        <Textarea
-                            placeholder="Enter connect message here"
-                            value={connectMessage}
-                            onChange={(e) => setConnectMessage(e.target.value)}
-                            className="min-h-[150px] resize-none"
-                        />
-                    </div>
+              <>
+                {/* Connect Message */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">
+                      Connect Message
+                    </label>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-auto p-0 text-xs text-muted-foreground hover:bg-transparent"
+                        >
+                          <div className="flex items-center gap-1 border rounded px-2 py-1 bg-white">
+                            <Info className="h-3 w-3" />
+                            Add Placeholder
+                            <ChevronDown className="h-3 w-3" />
+                          </div>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            insertPlaceholder("{P_FIRST_NAME}", "connect")
+                          }
+                        >
+                          {"{P_FIRST_NAME}"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            insertPlaceholder("{P_LAST_NAME}", "connect")
+                          }
+                        >
+                          {"{P_LAST_NAME}"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            insertPlaceholder("{P_COMPANY}", "connect")
+                          }
+                        >
+                          {"{P_COMPANY}"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            insertPlaceholder("{P_TITLE}", "connect")
+                          }
+                        >
+                          {"{P_TITLE}"}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  <Textarea
+                    placeholder="Enter connect message here"
+                    value={connectMessage}
+                    onChange={(e) => setConnectMessage(e.target.value)}
+                    className="min-h-[150px] resize-none"
+                  />
+                </div>
 
-                    {/* Follow-Up 1 */}
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <label className="text-sm font-medium">Follow-Up 1</label>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:bg-transparent">
-                                        <div className="flex items-center gap-1 border rounded px-2 py-1 bg-white">
-                                            <Info className="h-3 w-3" />
-                                            Add Placeholder
-                                            <ChevronDown className="h-3 w-3" />
-                                        </div>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                    <DropdownMenuItem onClick={() => insertPlaceholder("{P_FIRST_NAME}", "followup")}>{"{P_FIRST_NAME}"}</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => insertPlaceholder("{P_LAST_NAME}", "followup")}>{"{P_LAST_NAME}"}</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => insertPlaceholder("{P_COMPANY}", "followup")}>{"{P_COMPANY}"}</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => insertPlaceholder("{P_TITLE}", "followup")}>{"{P_TITLE}"}</DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                        <Textarea
-                            placeholder="Enter follow-up 1 here"
-                            value={followupMessage}
-                            onChange={(e) => setFollowupMessage(e.target.value)}
-                            className="min-h-[150px] resize-none"
-                        />
-                    </div>
-                </>
+                {/* Follow-Up 1 */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">Follow-Up 1</label>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-auto p-0 text-xs text-muted-foreground hover:bg-transparent"
+                        >
+                          <div className="flex items-center gap-1 border rounded px-2 py-1 bg-white">
+                            <Info className="h-3 w-3" />
+                            Add Placeholder
+                            <ChevronDown className="h-3 w-3" />
+                          </div>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            insertPlaceholder("{P_FIRST_NAME}", "followup")
+                          }
+                        >
+                          {"{P_FIRST_NAME}"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            insertPlaceholder("{P_LAST_NAME}", "followup")
+                          }
+                        >
+                          {"{P_LAST_NAME}"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            insertPlaceholder("{P_COMPANY}", "followup")
+                          }
+                        >
+                          {"{P_COMPANY}"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            insertPlaceholder("{P_TITLE}", "followup")
+                          }
+                        >
+                          {"{P_TITLE}"}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  <Textarea
+                    placeholder="Enter follow-up 1 here"
+                    value={followupMessage}
+                    onChange={(e) => setFollowupMessage(e.target.value)}
+                    className="min-h-[150px] resize-none"
+                  />
+                </div>
+              </>
             )}
-
           </div>
 
           <DialogFooter>
-            <Button className="w-full bg-black text-white hover:bg-gray-800" onClick={handleSubmit}>
-                Submit
+            <Button
+              className="w-full bg-black text-white hover:bg-gray-800"
+              onClick={handleSubmit}
+            >
+              Submit
             </Button>
           </DialogFooter>
         </DialogContent>
