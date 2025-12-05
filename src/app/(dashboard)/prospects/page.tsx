@@ -5,15 +5,15 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { TableCheckbox } from "@/components/ui/table-checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalTrigger,
+} from "@/components/ui/modal";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -346,15 +346,15 @@ const ProspectNameCell = ({ prospect }: { prospect: Prospect }) => {
         </div>
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[600px] gap-0 p-0 overflow-hidden">
+      <Modal open={open} onOpenChange={setOpen}>
+        <ModalContent className="sm:max-w-[600px] gap-0 p-0 overflow-hidden">
           <div className="flex items-center gap-4 p-6 pb-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#22c55e] text-lg font-bold text-white">
               {prospect.score}
             </div>
-            <DialogTitle className="text-xl font-bold">
+            <ModalTitle className="text-xl font-bold">
               Prospect Score Details
-            </DialogTitle>
+            </ModalTitle>
           </div>
 
           <div className="space-y-6 p-6 pt-2">
@@ -394,8 +394,8 @@ const ProspectNameCell = ({ prospect }: { prospect: Prospect }) => {
               </p>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
@@ -420,7 +420,7 @@ export default function ProspectsPage() {
     {
       id: "select",
       header: ({ table }) => (
-        <Checkbox
+        <TableCheckbox
           checked={
             table.getIsAllPageRowsSelected() ||
             (table.getIsSomePageRowsSelected() && "indeterminate")
@@ -430,7 +430,7 @@ export default function ProspectsPage() {
         />
       ),
       cell: ({ row }) => (
-        <Checkbox
+        <TableCheckbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
@@ -635,17 +635,17 @@ export default function ProspectsPage() {
             <span className="h-2 w-2 rounded-full bg-yellow-500" />
             No campaign created yet
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
+          <Modal open={open} onOpenChange={setOpen}>
+            <ModalTrigger asChild>
               <Button className="gap-2">
                 <Plus className="h-4 w-4" />
                 Add To Campaign
               </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>Add Prospect</DialogTitle>
-              </DialogHeader>
+            </ModalTrigger>
+            <ModalContent className="sm:max-w-[600px]">
+              <ModalHeader>
+                <ModalTitle>Add Prospect</ModalTitle>
+              </ModalHeader>
               <Tabs defaultValue="single" className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="file">File Upload</TabsTrigger>
@@ -705,8 +705,8 @@ export default function ProspectsPage() {
                   </Button>
                 </TabsContent>
               </Tabs>
-            </DialogContent>
-          </Dialog>
+            </ModalContent>
+          </Modal>
         </div>
       </div>
 
