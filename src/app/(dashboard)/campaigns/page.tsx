@@ -45,11 +45,11 @@ import {
 } from "@/components/ui/dialog";
 import { Sparkles, FileText } from "lucide-react";
 
-type CampaignStatus = "in_progress" | "paused" | "completed" | "draft";
-type CampaignType = "inmail" | "messaging";
-type SortOption = "recent" | "alphabetically";
+export type CampaignStatus = "in_progress" | "paused" | "completed" | "draft";
+export type CampaignType = "inmail" | "messaging";
+export type SortOption = "recent" | "alphabetically";
 
-type Campaign = {
+export type Campaign = {
   id: string;
   name: string;
   status: CampaignStatus;
@@ -63,7 +63,7 @@ type Campaign = {
   isFetching?: boolean;
 };
 
-const initialCampaigns: Campaign[] = [
+export const initialCampaigns: Campaign[] = [
   {
     id: "1",
     name: "Positive Response List (from Shubh) - Open Profiles",
