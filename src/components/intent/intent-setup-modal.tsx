@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
-    Dialog,
+    MyDialog,
     DialogContent,
     DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/my-dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CheckCircle2, Circle, AlertCircle, Loader2, Copy, Check } from "lucide-react"
@@ -55,7 +55,7 @@ export function IntentSetupModal({ open, onOpenChange, onComplete }: IntentSetup
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <MyDialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[600px]">
                 {step === "domain" && (
                     <>
@@ -212,7 +212,7 @@ export function IntentSetupModal({ open, onOpenChange, onComplete }: IntentSetup
                     </>
                 )}
             </DialogContent>
-        </Dialog>
+        </MyDialog>
     )
 }
 
