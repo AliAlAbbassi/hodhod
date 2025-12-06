@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { TableCheckbox } from "@/components/ui/table-checkbox";
 import { Input } from "@/components/ui/input";
 import { MessageDetailSheet } from "./message-detail-sheet";
+import { NotificationsPanel } from "./notifications-panel";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +32,8 @@ import {
   Calendar,
   BarChart3,
   Settings2,
+  Bell,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -251,6 +254,7 @@ export default function InboxPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   const filteredMessages =
     selectedCategory === "inbox"
@@ -444,6 +448,15 @@ export default function InboxPage() {
             </DropdownMenuContent>
           </DropdownMenu>
           <div className="ml-auto flex items-center gap-1">
+            <Button
+              variant={isNotificationsOpen ? "secondary" : "ghost"}
+              size="icon"
+              className="h-8 w-8 relative"
+              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+            >
+              <Bell className="h-4 w-4" />
+              <span className="absolute -top-0.5 -right-0.5 h-2 w-2 bg-orange-500 rounded-full" />
+            </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8">
               <SlidersHorizontal className="h-4 w-4" />
             </Button>
@@ -569,6 +582,26 @@ export default function InboxPage() {
           })}
         </div>
       </div>
+
+      {/* Notifications Panel */}
+      {isNotificationsOpen && (
+        <div className="w-96 border-l bg-muted/30 flex flex-col overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b bg-background">
+            <h3 className="font-semibold">Notifications</h3>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setIsNotificationsOpen(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            <NotificationsPanel />
+          </div>
+        </div>
+      )}
 
       {/* Message Detail Sheet */}
       <MessageDetailSheet
