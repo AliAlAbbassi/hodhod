@@ -74,7 +74,19 @@ type Message = {
   campaign: string;
 };
 
-const messages: Message[] = [
+const initialMessages: Message[] = [
+  // Approvals
+  {
+    id: "12",
+    sender: { name: "Sarah Wilson" },
+    preview: "Generated response to inquiry about enterprise pricing",
+    priority: "high",
+    status: "responded",
+    date: "12/12/23",
+    dateGroup: "today",
+    category: "approvals",
+    campaign: "Q1 Outreach",
+  },
   // Today
   {
     id: "1",
@@ -284,6 +296,7 @@ const dateGroupLabels: Record<DateGroup, string> = {
 };
 
 export default function InboxPage() {
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [selectedCategory, setSelectedCategory] = useState<Category>("inbox");
   const [selectedMessages, setSelectedMessages] = useState<Set<string>>(
     new Set(),
@@ -397,6 +410,19 @@ export default function InboxPage() {
   const handleNextMessage = () => {
     if (currentMessageIndex < flatFilteredMessages.length - 1) {
       setSelectedMessageId(flatFilteredMessages[currentMessageIndex + 1].id);
+    }
+  };
+
+  const handleApprove = () => {
+    if (selectedMessageId) {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === selectedMessageId
+            ? { ...m, category: "sent", status: "responded" }
+            : m,
+        ),
+      );
+      setIsDetailOpen(false);
     }
   };
 
@@ -824,6 +850,7 @@ export default function InboxPage() {
         totalCount={flatFilteredMessages.length}
         onPrevious={handlePreviousMessage}
         onNext={handleNextMessage}
+        onApprove={handleApprove}
       />
     </div>
   );

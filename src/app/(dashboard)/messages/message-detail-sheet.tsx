@@ -140,6 +140,35 @@ const mockProspectDetails: Record<string, ProspectDetail> = {
             createdBy: "Zayd",
         },
     },
+    "12": {
+        id: "12",
+        name: "Sarah Wilson",
+        title: "CTO",
+        company: "FutureScale",
+        icpFit: "high",
+        icpScore: 95,
+        campaign: "Q1 Outreach",
+        status: "Active",
+        tags: ["Enterprise", "Decision Maker"],
+        privacy: "Public Profile",
+        linkedIn: "linkedin.com/in/sarah-wilson",
+        email: "sarah@futurescale.com",
+        address: "New York, NY",
+        addedOn: "Dec 12, 2023",
+        messageThread: [
+            {
+                id: "t1",
+                type: "inbound",
+                sender: "Sarah Wilson",
+                content: "I saw your recent case study. We are looking for something similar for our enterprise team. Can you send over pricing?",
+                timestamp: "Dec 12, 2023, 9:00 AM",
+            },
+        ],
+        pendingMessage: {
+            content: "Hi Sarah, thanks for reaching out! I'd be happy to share our enterprise pricing tiers. Based on your team size, I'd recommend our Scale plan. Do you have time for a brief chat this week to discuss your specific requirements?",
+            createdBy: "HodHod AI",
+        },
+    },
 };
 
 // Generate default detail for any message
@@ -191,6 +220,7 @@ interface MessageDetailSheetProps {
     totalCount: number;
     onPrevious: () => void;
     onNext: () => void;
+    onApprove: (id: string) => void;
 }
 
 export function MessageDetailSheet({
@@ -204,6 +234,7 @@ export function MessageDetailSheet({
     totalCount,
     onPrevious,
     onNext,
+    onApprove,
 }: MessageDetailSheetProps) {
     const [activeTab, setActiveTab] = useState<DetailTab>("Messages");
     const [replyText, setReplyText] = useState("");
@@ -470,7 +501,7 @@ export function MessageDetailSheet({
 
                                             {/* Action buttons */}
                                             <div className="flex items-center gap-2 ml-8">
-                                                <Button size="sm" className="bg-primary">
+                                                <Button size="sm" className="bg-primary" onClick={() => onApprove(prospect.id)}>
                                                     Approve
                                                 </Button>
                                                 <Button variant="outline" size="sm" className="gap-2">
