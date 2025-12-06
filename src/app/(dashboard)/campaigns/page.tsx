@@ -335,7 +335,7 @@ export default function CampaignsPage() {
             <div
               className="absolute left-0 top-0 h-full rounded-full transition-all"
               style={{
-                width: `${(connectsSent / connectsLimit) * 100}%`,
+                width: `${(connectsSent / (connectsLimit + 10)) * 100}%`,
                 background: "linear-gradient(90deg, #10DD9B 0%, #0EA5E9 100%)",
               }}
             />
@@ -361,7 +361,7 @@ export default function CampaignsPage() {
             <div
               className="absolute left-0 top-0 h-full rounded-full transition-all"
               style={{
-                width: `${(inmailsSent / inmailsLimit) * 100}%`,
+                width: `${(inmailsSent / (inmailsLimit + 10)) * 100}%`,
                 background: "linear-gradient(90deg, #10DD9B 0%, #0EA5E9 100%)",
               }}
             />
