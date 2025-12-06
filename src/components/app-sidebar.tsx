@@ -17,11 +17,7 @@ import {
   Sparkles,
   Shield,
   FileText,
-  User,
-  Building,
   Target,
-  UserPlus,
-  Plug,
 } from "lucide-react"
 import { NavGroup } from "@/components/layout/nav-group"
 import { TeamSwitcher } from "@/components/layout/team-switcher"
@@ -50,11 +46,7 @@ const sidebarData = {
       items: [
         { title: "Admin View", url: "/admin", icon: Shield },
         { title: "Templates", url: "/templates", icon: FileText },
-        { title: "Your Profile", url: "/profile", icon: User },
-        { title: "Company Info", url: "/company", icon: Building },
-        { title: "Hodhod Intent", url: "/intent", icon: Target },
-        { title: "Manage Seats", url: "/seats", icon: UserPlus },
-        { title: "Integrations", url: "/integrations", icon: Plug },
+        { title: "Settings", url: "/settings", icon: Target },
       ],
     },
   ],
