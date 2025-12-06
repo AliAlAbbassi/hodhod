@@ -12,8 +12,16 @@ import {
   Check,
   X,
   Pencil,
+  AlertCircle,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 type Product = {
   id: string;
@@ -23,6 +31,10 @@ type Product = {
   bookingLink?: string;
   productUrl?: string;
   briefDescription?: string;
+  icp?: string;
+  valueProps?: string[];
+  painPoints?: string[];
+  proofPoints?: string[];
 };
 
 type WritingStyle = {
@@ -49,6 +61,18 @@ const initialProducts: Product[] = [
     productUrl: "",
     briefDescription:
       "Hodhod offers an AI-powered service that automates outreach and schedules sales calls, turning cold leads into booked meetings.\n\nIdentify the right leads, automatic scoring, research, personalization and outreach on LinkedIn while providing best in class account safety.",
+    icp: "B2B Sales Leaders, Founders, and Growth Marketers looking to scale outbound without hiring more SDRs.",
+    valueProps: [
+      "Automate repetitive outreach tasks",
+      "Scale sales without increasing headcount",
+      "Best-in-class account safety",
+    ],
+    painPoints: [
+      "Manual outreach is time-consuming",
+      "Hiring SDRs is expensive and risky",
+      "LinkedIn account bans due to aggressive automation",
+    ],
+    proofPoints: ["150% sales increase in first 6 months", "95% quota attainment"],
   },
   { id: "2", name: "Account Safety Focus", isPublic: true },
   { id: "3", name: "GTM Agency focus", isPublic: true },
@@ -123,7 +147,7 @@ const advancedQuestionsList = [
 ];
 
 export default function StudioPage() {
-  const [products] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
   const [writingStyles, setWritingStyles] = useState<WritingStyle[]>(
     initialWritingStyles,
   );
@@ -135,6 +159,14 @@ export default function StudioPage() {
   const [onboardingStep, setOnboardingStep] = useState(4);
   const [showAdvancedQuestions, setShowAdvancedQuestions] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+
+  // Create Product Modal State
+  const [showCreateProductModal, setShowCreateProductModal] = useState(false);
+  const [newProductUrl, setNewProductUrl] = useState("");
+
+  // Edit Name State
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editNameValue, setEditNameValue] = useState("");
 
   // Derived state for active selection
   const selectedProduct = products.find((p) => p.id === selectedProductId);
@@ -150,6 +182,31 @@ export default function StudioPage() {
     setSelectedStyleId(id);
     setSelectedProductId(null);
     setShowAdvancedQuestions(false);
+    setIsEditingName(false);
+  };
+
+  // Handle Edit Name
+  const handleStartEditName = (currentName: string) => {
+    setEditNameValue(currentName);
+    setIsEditingName(true);
+  };
+
+  const handleSaveProductName = () => {
+    if (!selectedProduct || !editNameValue.trim()) return;
+    const updatedProducts = products.map((p) =>
+      p.id === selectedProduct.id ? { ...p, name: editNameValue.trim() } : p
+    );
+    setProducts(updatedProducts);
+    setIsEditingName(false);
+  };
+
+  const handleSaveStyleName = () => {
+    if (!selectedStyle || !editNameValue.trim()) return;
+    const updatedStyles = writingStyles.map((s) =>
+      s.id === selectedStyle.id ? { ...s, name: editNameValue.trim() } : s
+    );
+    setWritingStyles(updatedStyles);
+    setIsEditingName(false);
   };
 
   const handleNextOnboarding = () => {
@@ -164,6 +221,30 @@ export default function StudioPage() {
     if (onboardingStep > 1) {
       setOnboardingStep(onboardingStep - 1);
     }
+  };
+
+  const handleCreateProduct = (hasWebsite: boolean) => {
+    const newId = (products.length + 1).toString();
+    const newProduct: Product = {
+      id: newId,
+      name: hasWebsite ? "New Product (from URL)" : "New Product",
+      isPublic: false,
+      companyUrl: hasWebsite ? newProductUrl : "",
+      // Simulate scraped data if URL provided
+      briefDescription: hasWebsite
+        ? "AI-generated description based on the provided website content..."
+        : "",
+      icp: hasWebsite ? "Predicted ICP based on website..." : "",
+      valueProps: hasWebsite ? ["Value Prop 1", "Value Prop 2"] : [],
+      painPoints: hasWebsite ? ["Pain Point 1", "Pain Point 2"] : [],
+      proofPoints: [],
+    };
+
+    setProducts([...products, newProduct]);
+    setSelectedProductId(newId);
+    setSelectedStyleId(null);
+    setShowCreateProductModal(false);
+    setNewProductUrl("");
   };
 
   // Writing Style Handlers
@@ -213,6 +294,29 @@ export default function StudioPage() {
       return s;
     });
     setWritingStyles(updatedStyles);
+  };
+
+  // Helper to handle array field updates for Product
+  const handleProductArrayUpdate = (
+    field: "valueProps" | "painPoints" | "proofPoints",
+    action: "add" | "remove",
+    value: string | number,
+  ) => {
+    if (!selectedProduct) return;
+    const updatedProducts = products.map((p) => {
+      if (p.id === selectedProduct.id) {
+        const currentArray = p[field] || [];
+        let newArray = [...currentArray];
+        if (action === "add" && typeof value === "string") {
+          newArray.push(value);
+        } else if (action === "remove" && typeof value === "number") {
+          newArray.splice(value, 1);
+        }
+        return { ...p, [field]: newArray };
+      }
+      return p;
+    });
+    setProducts(updatedProducts);
   };
 
   if (showAdvancedQuestions && selectedStyle) {
@@ -308,6 +412,47 @@ export default function StudioPage() {
 
   return (
     <div className="flex h-[calc(100vh-4rem)]">
+      {/* Create Product Modal */}
+      <Dialog
+        open={showCreateProductModal}
+        onOpenChange={setShowCreateProductModal}
+      >
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Enter Website URL</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Website Page</label>
+              <Input
+                placeholder="www.example.com/product"
+                value={newProductUrl}
+                onChange={(e) => setNewProductUrl(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-3 p-3 bg-red-50 text-red-600 rounded-md text-sm items-start">
+              <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+              <p>
+                Add the URL for the product you would like Hodhod to learn about.
+                This may be a homepage, or a specific product page, or an
+                external link.
+              </p>
+            </div>
+          </div>
+          <DialogFooter className="flex items-center justify-between sm:justify-between w-full">
+            <button
+              className="text-sm text-muted-foreground underline hover:text-foreground"
+              onClick={() => handleCreateProduct(false)}
+            >
+              Don't have website
+            </button>
+            <Button onClick={() => handleCreateProduct(true)}>
+              Create Product
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Left Sidebar - Navigation */}
       <div className="w-72 border-r bg-background overflow-y-auto relative flex flex-col">
         <div className="p-3 flex-1">
@@ -318,7 +463,12 @@ export default function StudioPage() {
                 <Command className="h-4 w-4" />
                 <span className="font-medium text-sm">Products</span>
               </div>
-              <Button variant="ghost" size="icon-sm" className="h-6 w-6">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="h-6 w-6"
+                onClick={() => setShowCreateProductModal(true)}
+              >
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
@@ -412,12 +562,43 @@ export default function StudioPage() {
             {/* Product Header */}
             <div className="flex flex-wrap items-center justify-between gap-4 px-6 py-4 border-b">
               <div className="flex items-center gap-3">
-                <h1 className="text-lg font-semibold">
-                  {selectedProduct.name}
-                </h1>
-                <Button variant="outline" size="sm">
-                  Edit Name
-                </Button>
+                {isEditingName ? (
+                  <>
+                    <Input
+                      value={editNameValue}
+                      onChange={(e) => setEditNameValue(e.target.value)}
+                      className="h-8 w-48"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSaveProductName();
+                        if (e.key === "Escape") setIsEditingName(false);
+                      }}
+                    />
+                    <Button size="sm" onClick={handleSaveProductName}>
+                      Save
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsEditingName(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <h1 className="text-lg font-semibold">
+                      {selectedProduct.name}
+                    </h1>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleStartEditName(selectedProduct.name)}
+                    >
+                      Edit Name
+                    </Button>
+                  </>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <Button size="sm">Save</Button>
@@ -497,6 +678,188 @@ export default function StudioPage() {
                     placeholder="Describe what your product does and who it's for..."
                   />
                 </div>
+
+                {/* Ideal Customer Profile */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Ideal Customer Profile
+                  </label>
+                  <p className="text-sm text-muted-foreground">
+                    Describe your ideal customer.
+                  </p>
+                  <textarea
+                    className="w-full min-h-[100px] px-3 py-2 text-sm rounded-md border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+                    defaultValue={selectedProduct.icp}
+                    placeholder="e.g. B2B Sales Leaders, Founders..."
+                  />
+                </div>
+
+                {/* Value Propositions */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Value Propositions
+                  </label>
+                  <div className="space-y-2">
+                    {selectedProduct.valueProps?.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between group"
+                      >
+                        <span className="text-sm">{item}</span>
+                        <button
+                          onClick={() =>
+                            handleProductArrayUpdate("valueProps", "remove", idx)
+                          }
+                          className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                    <div className="flex items-center gap-2">
+                      <Input
+                        placeholder="Add value proposition..."
+                        className="h-8 text-sm"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleProductArrayUpdate(
+                              "valueProps",
+                              "add",
+                              e.currentTarget.value,
+                            );
+                            e.currentTarget.value = "";
+                          }
+                        }}
+                      />
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          const input = e.currentTarget
+                            .previousElementSibling as HTMLInputElement;
+                          handleProductArrayUpdate(
+                            "valueProps",
+                            "add",
+                            input.value,
+                          );
+                          input.value = "";
+                        }}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Pain Points */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Pain Points</label>
+                  <div className="space-y-2">
+                    {selectedProduct.painPoints?.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between group"
+                      >
+                        <span className="text-sm">{item}</span>
+                        <button
+                          onClick={() =>
+                            handleProductArrayUpdate("painPoints", "remove", idx)
+                          }
+                          className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                    <div className="flex items-center gap-2">
+                      <Input
+                        placeholder="Add pain point..."
+                        className="h-8 text-sm"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleProductArrayUpdate(
+                              "painPoints",
+                              "add",
+                              e.currentTarget.value,
+                            );
+                            e.currentTarget.value = "";
+                          }
+                        }}
+                      />
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          const input = e.currentTarget
+                            .previousElementSibling as HTMLInputElement;
+                          handleProductArrayUpdate(
+                            "painPoints",
+                            "add",
+                            input.value,
+                          );
+                          input.value = "";
+                        }}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Proof Points */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Proof Points</label>
+                  <div className="space-y-2">
+                    {selectedProduct.proofPoints?.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between group"
+                      >
+                        <span className="text-sm">{item}</span>
+                        <button
+                          onClick={() =>
+                            handleProductArrayUpdate("proofPoints", "remove", idx)
+                          }
+                          className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                    <div className="flex items-center gap-2">
+                      <Input
+                        placeholder="Add proof point..."
+                        className="h-8 text-sm"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleProductArrayUpdate(
+                              "proofPoints",
+                              "add",
+                              e.currentTarget.value,
+                            );
+                            e.currentTarget.value = "";
+                          }
+                        }}
+                      />
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          const input = e.currentTarget
+                            .previousElementSibling as HTMLInputElement;
+                          handleProductArrayUpdate(
+                            "proofPoints",
+                            "add",
+                            input.value,
+                          );
+                          input.value = "";
+                        }}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </>
@@ -505,10 +868,41 @@ export default function StudioPage() {
             {/* Writing Style Header */}
             <div className="flex flex-wrap items-center justify-between gap-4 px-6 py-4 border-b">
               <div className="flex items-center gap-3">
-                <h1 className="text-lg font-semibold">{selectedStyle.name}</h1>
-                <Button variant="outline" size="sm">
-                  Edit Name
-                </Button>
+                {isEditingName ? (
+                  <>
+                    <Input
+                      value={editNameValue}
+                      onChange={(e) => setEditNameValue(e.target.value)}
+                      className="h-8 w-48"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSaveStyleName();
+                        if (e.key === "Escape") setIsEditingName(false);
+                      }}
+                    />
+                    <Button size="sm" onClick={handleSaveStyleName}>
+                      Save
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsEditingName(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <h1 className="text-lg font-semibold">{selectedStyle.name}</h1>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleStartEditName(selectedStyle.name)}
+                    >
+                      Edit Name
+                    </Button>
+                  </>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm">
@@ -708,7 +1102,7 @@ export default function StudioPage() {
                   </a>
                 </p>
               </div>
-              <Button>
+              <Button onClick={() => setShowCreateProductModal(true)}>
                 <Plus className="h-4 w-4 mr-1" />
                 Create Product
               </Button>
