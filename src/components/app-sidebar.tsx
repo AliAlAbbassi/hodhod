@@ -39,8 +39,7 @@ const sidebarData = {
       title: "Workspace",
       items: [
         { title: "Dashboard", url: "/", icon: LayoutDashboard },
-        { title: "Approvals", url: "/approvals", icon: CheckCircle },
-        { title: "Inbox", url: "/inbox", icon: MessageSquare },
+        { title: "Messages", url: "/messages", icon: MessageSquare },
         { title: "Prospects", url: "/prospects", icon: Users },
         { title: "Campaigns", url: "/campaigns", icon: Zap },
         { title: "Studio", url: "/studio", icon: Sparkles },
