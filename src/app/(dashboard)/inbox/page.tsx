@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { TableCheckbox } from "@/components/ui/checkbox";
+import { TableCheckbox } from "@/components/ui/table-checkbox";
 import { Input } from "@/components/ui/input";
+import { MessageDetailSheet } from "./message-detail-sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -190,15 +191,15 @@ const categories: {
   icon: React.ElementType;
   count: number;
 }[] = [
-  { id: "inbox", label: "Messages", icon: Mail, count: 40 },
-  { id: "interested", label: "Interested", icon: Sparkles, count: 25 },
-  { id: "maybe_interested", label: "Maybe Interested", icon: HelpCircle, count: 6 },
-  { id: "not_interested", label: "Not interested", icon: ThumbsDown, count: 11 },
-  { id: "approvals", label: "Approvals", icon: CheckCircle, count: 44 },
-  { id: "scheduled", label: "Scheduled", icon: Clock, count: 25 },
-  { id: "sent", label: "Sent", icon: Send, count: 0 },
-  { id: "archived", label: "Archived", icon: Archive, count: 0 },
-];
+    { id: "inbox", label: "Messages", icon: Mail, count: 40 },
+    { id: "interested", label: "Interested", icon: Sparkles, count: 25 },
+    { id: "maybe_interested", label: "Maybe Interested", icon: HelpCircle, count: 6 },
+    { id: "not_interested", label: "Not interested", icon: ThumbsDown, count: 11 },
+    { id: "approvals", label: "Approvals", icon: CheckCircle, count: 44 },
+    { id: "scheduled", label: "Scheduled", icon: Clock, count: 25 },
+    { id: "sent", label: "Sent", icon: Send, count: 0 },
+    { id: "archived", label: "Archived", icon: Archive, count: 0 },
+  ];
 
 const priorityConfig: Record<Priority, { label: string; className: string }> = {
   high: { label: "High", className: "bg-transparent border-muted-foreground/30 text-muted-foreground" },
@@ -248,6 +249,8 @@ export default function InboxPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category>("inbox");
   const [selectedMessages, setSelectedMessages] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const filteredMessages =
     selectedCategory === "inbox"
@@ -293,6 +296,36 @@ export default function InboxPage() {
     );
 
   const dateGroupOrder: DateGroup[] = ["today", "yesterday", "this_week", "older"];
+
+  // Flatten filtered messages for navigation
+  const flatFilteredMessages = useMemo(() => {
+    return filteredMessages.filter(
+      (m) =>
+        !searchQuery ||
+        m.sender.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.preview.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [filteredMessages, searchQuery]);
+
+  const selectedMessage = flatFilteredMessages.find((m) => m.id === selectedMessageId);
+  const currentMessageIndex = flatFilteredMessages.findIndex((m) => m.id === selectedMessageId);
+
+  const handleMessageClick = (messageId: string) => {
+    setSelectedMessageId(messageId);
+    setIsDetailOpen(true);
+  };
+
+  const handlePreviousMessage = () => {
+    if (currentMessageIndex > 0) {
+      setSelectedMessageId(flatFilteredMessages[currentMessageIndex - 1].id);
+    }
+  };
+
+  const handleNextMessage = () => {
+    if (currentMessageIndex < flatFilteredMessages.length - 1) {
+      setSelectedMessageId(flatFilteredMessages[currentMessageIndex + 1].id);
+    }
+  };
 
   return (
     <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
@@ -452,12 +485,13 @@ export default function InboxPage() {
                       <tr
                         key={message.id}
                         className="border-b hover:bg-muted/30 transition-colors cursor-pointer"
+                        onClick={() => handleMessageClick(message.id)}
                       >
                         <td className="w-10 pl-4 py-3">
-                          <Checkbox
+                          <TableCheckbox
                             checked={selectedMessages.has(message.id)}
                             onCheckedChange={() => toggleMessage(message.id)}
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e: React.MouseEvent) => e.stopPropagation()}
                           />
                         </td>
                         <td className="w-10 py-3 pl-2">
@@ -535,6 +569,20 @@ export default function InboxPage() {
           })}
         </div>
       </div>
+
+      {/* Message Detail Sheet */}
+      <MessageDetailSheet
+        open={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+        messageId={selectedMessageId}
+        messageName={selectedMessage?.sender.name || ""}
+        messagePreview={selectedMessage?.preview || ""}
+        messagePriority={selectedMessage?.priority || "medium"}
+        currentIndex={currentMessageIndex}
+        totalCount={flatFilteredMessages.length}
+        onPrevious={handlePreviousMessage}
+        onNext={handleNextMessage}
+      />
     </div>
   );
 }
