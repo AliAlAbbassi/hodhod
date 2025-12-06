@@ -29,4 +29,4 @@ function TableCheckbox({
   )
 }
 
-export { Checkbox }
+export { TableCheckbox }
