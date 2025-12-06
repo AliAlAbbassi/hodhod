@@ -13,6 +13,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
@@ -108,7 +111,7 @@ const prospectsData = [
     icpFitReasons: [
       "Job title matches ideal customer profile",
       "Industry aligns with target sector",
-      "Company size fits criteria"
+      "Company size fits criteria",
     ],
     role: "VP Engineering",
   },
@@ -125,7 +128,7 @@ const prospectsData = [
     icpFitReasons: [
       "C-Level role matches target",
       "Technology sector is a primary focus",
-      "High growth company detected"
+      "High growth company detected",
     ],
     role: "CTO",
   },
@@ -142,7 +145,7 @@ const prospectsData = [
     icpFitReasons: [
       "Job title matches",
       "Industry is relevant",
-      "Company size slightly below target"
+      "Company size slightly below target",
     ],
     role: "Head of Engineering",
   },
@@ -159,7 +162,7 @@ const prospectsData = [
     icpFitReasons: [
       "Role is too junior",
       "Industry mismatch",
-      "Company size unknown"
+      "Company size unknown",
     ],
     role: "Engineering Director",
   },
@@ -176,16 +179,25 @@ const prospectsData = [
     icpFitReasons: [
       "Perfect role match",
       "DevOps industry is high priority",
-      "Recent funding round detected"
+      "Recent funding round detected",
     ],
     role: "VP Platform",
   },
 ];
 
 const statusConfig = {
-  sent: { label: "Sent", className: "bg-blue-100 text-blue-700 hover:bg-blue-100/80" },
-  opened: { label: "Opened", className: "bg-yellow-100 text-yellow-700 hover:bg-yellow-100/80" },
-  replied: { label: "Replied", className: "bg-green-100 text-green-700 hover:bg-green-100/80" },
+  sent: {
+    label: "Sent",
+    className: "bg-blue-100 text-blue-700 hover:bg-blue-100/80",
+  },
+  opened: {
+    label: "Opened",
+    className: "bg-yellow-100 text-yellow-700 hover:bg-yellow-100/80",
+  },
+  replied: {
+    label: "Replied",
+    className: "bg-green-100 text-green-700 hover:bg-green-100/80",
+  },
   meeting_booked: {
     label: "Meeting Booked",
     className: "bg-purple-100 text-purple-700 hover:bg-purple-100/80",
@@ -217,25 +229,62 @@ export default function CampaignDetailPage() {
   const [showLaunchSuccessModal, setShowLaunchSuccessModal] = useState(false);
   const [prospectSearch, setProspectSearch] = useState("");
 
+  // Filters state
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [companyFilter, setCompanyFilter] = useState<string[]>([]);
+  const [roleFilter, setRoleFilter] = useState<string[]>([]);
+  const [industryFilter, setIndustryFilter] = useState<string[]>([]);
+  const [icpFilter, setIcpFilter] = useState<string[]>([]);
+
+  // Unique values for filters
+  const companies = Array.from(new Set(prospectsData.map((p) => p.company)));
+  const roles = Array.from(new Set(prospectsData.map((p) => p.role)));
+  const industries = Array.from(new Set(prospectsData.map((p) => p.industry)));
+  const icps = Array.from(new Set(prospectsData.map((p) => p.icpFit)));
+  const statuses = Object.keys(statusConfig);
+
   const trainingProspects = prospectsData.filter(
     (p) =>
       p.name.toLowerCase().includes(prospectSearch.toLowerCase()) ||
-      p.company.toLowerCase().includes(prospectSearch.toLowerCase())
+      p.company.toLowerCase().includes(prospectSearch.toLowerCase()),
   );
 
-  const filteredProspects = prospectsData.filter(
-    (p) =>
+  const filteredProspects = prospectsData.filter((p) => {
+    const matchesSearch =
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.company.toLowerCase().includes(searchQuery.toLowerCase()),
+      p.company.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus =
+      statusFilter.length === 0 || statusFilter.includes(p.status);
+    const matchesCompany =
+      companyFilter.length === 0 || companyFilter.includes(p.company);
+    const matchesRole =
+      roleFilter.length === 0 || roleFilter.includes(p.role);
+    const matchesIndustry =
+      industryFilter.length === 0 || industryFilter.includes(p.industry);
+    const matchesIcp =
+      icpFilter.length === 0 || icpFilter.includes(p.icpFit);
+
+    return (
+      matchesSearch &&
+      matchesStatus &&
+      matchesCompany &&
+      matchesRole &&
+      matchesIndustry &&
+      matchesIcp
+    );
+  });
+
+  const [selectedProspectIds, setSelectedProspectIds] = useState<Set<string>>(
+    new Set(),
   );
 
-  const [selectedProspectIds, setSelectedProspectIds] = useState<Set<string>>(new Set());
 
   const toggleAllProspects = () => {
     if (selectedProspectIds.size === filteredProspects.length) {
       setSelectedProspectIds(new Set());
     } else {
-      setSelectedProspectIds(new Set(filteredProspects.map(p => p.id)));
+      setSelectedProspectIds(new Set(filteredProspects.map((p) => p.id)));
     }
   };
 
@@ -254,14 +303,22 @@ export default function CampaignDetailPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6 shrink-0">
         <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-semibold tracking-tight">{campaign.name}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {campaign.name}
+          </h1>
           {campaign.status === "in_progress" ? (
-            <Badge variant="secondary" className="gap-1.5 px-3 py-1 bg-green-100 text-green-700 hover:bg-green-100">
+            <Badge
+              variant="secondary"
+              className="gap-1.5 px-3 py-1 bg-green-100 text-green-700 hover:bg-green-100"
+            >
               <span className="h-2 w-2 rounded-full bg-green-600 animate-pulse" />
               In Progress
             </Badge>
           ) : campaign.status === "paused" ? (
-            <Badge variant="secondary" className="gap-1.5 px-3 py-1 bg-orange-100 text-orange-700 hover:bg-orange-100">
+            <Badge
+              variant="secondary"
+              className="gap-1.5 px-3 py-1 bg-orange-100 text-orange-700 hover:bg-orange-100"
+            >
               <Pause className="h-3 w-3" />
               Paused
             </Badge>
@@ -277,12 +334,22 @@ export default function CampaignDetailPage() {
             Refetch Prospects
           </Button>
           {campaign.status === "in_progress" ? (
-            <Button variant="outline" className="gap-2" onClick={() => setCampaign({ ...campaign, status: 'paused' })}>
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => setCampaign({ ...campaign, status: "paused" })}
+            >
               <Pause className="h-4 w-4" />
               Pause
             </Button>
           ) : (
-            <Button variant="outline" className="gap-2" onClick={() => setCampaign({ ...campaign, status: 'in_progress' })}>
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() =>
+                setCampaign({ ...campaign, status: "in_progress" })
+              }
+            >
               <Play className="h-4 w-4" />
               Resume
             </Button>
@@ -290,7 +357,11 @@ export default function CampaignDetailPage() {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="flex-1 flex flex-col min-h-0"
+      >
         <div className="shrink-0 mb-6 border-b">
           <TabsList className="w-full justify-start h-auto p-0 bg-transparent rounded-none">
             <TabsTrigger
@@ -322,12 +393,20 @@ export default function CampaignDetailPage() {
 
         <div className="flex-1 min-h-0 overflow-hidden">
           {/* Overview Tab Content */}
-          <TabsContent value="overview" className="h-full overflow-auto space-y-4 p-1">
+          <TabsContent
+            value="overview"
+            className="h-full overflow-auto space-y-4 p-1"
+          >
             {/* Filters Bar */}
             <div className="flex items-center justify-between">
               {selectedProspectIds.size > 0 ? (
                 <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-200">
-                  <Button variant="ghost" size="sm" className="gap-2" onClick={() => setSelectedProspectIds(new Set())}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => setSelectedProspectIds(new Set())}
+                  >
                     <span className="bg-primary text-primary-foreground text-xs rounded-full px-1.5 min-w-[1.25rem] h-5 flex items-center justify-center">
                       {selectedProspectIds.size}
                     </span>
@@ -343,32 +422,264 @@ export default function CampaignDetailPage() {
                   </Button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="gap-2 rounded-full border-dashed">
-                    <Filter className="h-3.5 w-3.5" />
-                    Status
-                    <ChevronDown className="h-3.5 w-3.5 opacity-50" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="gap-2 rounded-full border-dashed">
-                    <Building className="h-3.5 w-3.5" />
-                    Company
-                    <ChevronDown className="h-3.5 w-3.5 opacity-50" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="gap-2 rounded-full border-dashed">
-                    <User className="h-3.5 w-3.5" />
-                    Role
-                    <ChevronDown className="h-3.5 w-3.5 opacity-50" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="gap-2 rounded-full border-dashed">
-                    <Briefcase className="h-3.5 w-3.5" />
-                    Industry
-                    <ChevronDown className="h-3.5 w-3.5 opacity-50" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="gap-2 rounded-full border-dashed">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    ICP
-                    <ChevronDown className="h-3.5 w-3.5 opacity-50" />
-                  </Button>
+                <div className="flex items-center gap-2 mr-1 flex-wrap">
+                  {/* Status Filter */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`gap-2 rounded-full ${statusFilter.length > 0 ? 'bg-secondary' : ''}`}
+                      >
+                        <Filter className="h-3.5 w-3.5" />
+                        Status
+                        {statusFilter.length > 0 && (
+                          <span className="bg-primary text-primary-foreground text-[10px] px-1.5 h-4 flex items-center justify-center rounded-full">
+                            {statusFilter.length}
+                          </span>
+                        )}
+                        <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {statuses.map((status) => (
+                        <DropdownMenuCheckboxItem
+                          key={status}
+                          checked={statusFilter.includes(status)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setStatusFilter([...statusFilter, status]);
+                            } else {
+                              setStatusFilter(
+                                statusFilter.filter((s) => s !== status),
+                              );
+                            }
+                          }}
+                        >
+                          <span className="capitalize">
+                            {status.replace("_", " ")}
+                          </span>
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                      {statusFilter.length > 0 && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onSelect={() => setStatusFilter([])}
+                            className="justify-center text-center"
+                          >
+                            Clear filters
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  {/* Company Filter */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`gap-2 rounded-full ${companyFilter.length > 0 ? 'bg-secondary' : ''}`}
+                      >
+                        <Building className="h-3.5 w-3.5" />
+                        Company
+                        {companyFilter.length > 0 && (
+                          <span className="bg-primary text-primary-foreground text-[10px] px-1.5 h-4 flex items-center justify-center rounded-full">
+                            {companyFilter.length}
+                          </span>
+                        )}
+                        <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      <DropdownMenuLabel>Filter by Company</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {companies.map((company) => (
+                        <DropdownMenuCheckboxItem
+                          key={company}
+                          checked={companyFilter.includes(company)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setCompanyFilter([...companyFilter, company]);
+                            } else {
+                              setCompanyFilter(
+                                companyFilter.filter((c) => c !== company),
+                              );
+                            }
+                          }}
+                        >
+                          {company}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                      {companyFilter.length > 0 && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onSelect={() => setCompanyFilter([])}
+                            className="justify-center text-center"
+                          >
+                            Clear filters
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  {/* Role Filter */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`gap-2 rounded-full ${roleFilter.length > 0 ? 'bg-secondary' : ''}`}
+                      >
+                        <User className="h-3.5 w-3.5" />
+                        Role
+                        {roleFilter.length > 0 && (
+                          <span className="bg-primary text-primary-foreground text-[10px] px-1.5 h-4 flex items-center justify-center rounded-full">
+                            {roleFilter.length}
+                          </span>
+                        )}
+                        <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      <DropdownMenuLabel>Filter by Role</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {roles.map((role) => (
+                        <DropdownMenuCheckboxItem
+                          key={role}
+                          checked={roleFilter.includes(role)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setRoleFilter([...roleFilter, role]);
+                            } else {
+                              setRoleFilter(roleFilter.filter((r) => r !== role));
+                            }
+                          }}
+                        >
+                          {role}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                      {roleFilter.length > 0 && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onSelect={() => setRoleFilter([])}
+                            className="justify-center text-center"
+                          >
+                            Clear filters
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  {/* Industry Filter */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`gap-2 rounded-full ${industryFilter.length > 0 ? 'bg-secondary' : ''}`}
+                      >
+                        <Briefcase className="h-3.5 w-3.5" />
+                        Industry
+                        {industryFilter.length > 0 && (
+                          <span className="bg-primary text-primary-foreground text-[10px] px-1.5 h-4 flex items-center justify-center rounded-full">
+                            {industryFilter.length}
+                          </span>
+                        )}
+                        <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      <DropdownMenuLabel>Filter by Industry</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {industries.map((industry) => (
+                        <DropdownMenuCheckboxItem
+                          key={industry}
+                          checked={industryFilter.includes(industry)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setIndustryFilter([...industryFilter, industry]);
+                            } else {
+                              setIndustryFilter(
+                                industryFilter.filter((i) => i !== industry),
+                              );
+                            }
+                          }}
+                        >
+                          {industry}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                      {industryFilter.length > 0 && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onSelect={() => setIndustryFilter([])}
+                            className="justify-center text-center"
+                          >
+                            Clear filters
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  {/* ICP Filter */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`gap-2 rounded-full ${icpFilter.length > 0 ? 'bg-secondary' : ''}`}
+                      >
+                        <Sparkles className="h-3.5 w-3.5" />
+                        ICP
+                        {icpFilter.length > 0 && (
+                          <span className="bg-primary text-primary-foreground text-[10px] px-1.5 h-4 flex items-center justify-center rounded-full">
+                            {icpFilter.length}
+                          </span>
+                        )}
+                        <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      <DropdownMenuLabel>Filter by ICP</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {icps.map((icp) => (
+                        <DropdownMenuCheckboxItem
+                          key={icp}
+                          checked={icpFilter.includes(icp)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setIcpFilter([...icpFilter, icp]);
+                            } else {
+                              setIcpFilter(icpFilter.filter((i) => i !== icp));
+                            }
+                          }}
+                        >
+                          {icp}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                      {icpFilter.length > 0 && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onSelect={() => setIcpFilter([])}
+                            className="justify-center text-center"
+                          >
+                            Clear filters
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               )}
 
@@ -383,7 +694,9 @@ export default function CampaignDetailPage() {
                     className="pl-9 h-9"
                   />
                 </div>
-                <Button variant="outline" size="sm">Export</Button>
+                <Button variant="outline" size="sm">
+                  Export
+                </Button>
               </div>
             </div>
 
@@ -394,12 +707,18 @@ export default function CampaignDetailPage() {
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-[40px] px-4">
                       <Checkbox
-                        checked={selectedProspectIds.size === filteredProspects.length && filteredProspects.length > 0}
+                        checked={
+                          selectedProspectIds.size ===
+                            filteredProspects.length &&
+                          filteredProspects.length > 0
+                        }
                         onCheckedChange={toggleAllProspects}
                       />
                     </TableHead>
                     <TableHead className="w-[300px]">Prospect Name</TableHead>
-                    <TableHead className="w-[250px]">Company with Role</TableHead>
+                    <TableHead className="w-[250px]">
+                      Company with Role
+                    </TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>ICP Fit</TableHead>
                     <TableHead>Industry</TableHead>
@@ -411,7 +730,11 @@ export default function CampaignDetailPage() {
                     <TableRow
                       key={prospect.id}
                       className="cursor-pointer hover:bg-muted/30"
-                      data-state={selectedProspectIds.has(prospect.id) ? "selected" : undefined}
+                      data-state={
+                        selectedProspectIds.has(prospect.id)
+                          ? "selected"
+                          : undefined
+                      }
                     >
                       <TableCell className="px-4">
                         <Checkbox
@@ -422,25 +745,40 @@ export default function CampaignDetailPage() {
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar className="h-9 w-9 border">
-                            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${prospect.name}`} />
+                            <AvatarImage
+                              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${prospect.name}`}
+                            />
                             <AvatarFallback>{prospect.name[0]}</AvatarFallback>
                           </Avatar>
-                          <span className="font-medium text-sm">{prospect.name}</span>
+                          <span className="font-medium text-sm">
+                            {prospect.name}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
-                          <span className="font-medium text-sm">{prospect.role}</span>
-                          <span className="text-xs text-muted-foreground">{prospect.company}</span>
+                          <span className="font-medium text-sm">
+                            {prospect.role}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {prospect.company}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <Badge
                           variant="secondary"
-                          className={`font-normal border ${statusConfig[prospect.status as keyof typeof statusConfig]?.className
-                            }`}
+                          className={`font-normal border ${
+                            statusConfig[
+                              prospect.status as keyof typeof statusConfig
+                            ]?.className
+                          }`}
                         >
-                          {statusConfig[prospect.status as keyof typeof statusConfig]?.label}
+                          {
+                            statusConfig[
+                              prospect.status as keyof typeof statusConfig
+                            ]?.label
+                          }
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -456,11 +794,15 @@ export default function CampaignDetailPage() {
                             </TooltipTrigger>
                             <TooltipContent>
                               <div className="space-y-1">
-                                <p className="font-semibold text-xs mb-2">Why {prospect.icpFit} Fit?</p>
+                                <p className="font-semibold text-xs mb-2">
+                                  Why {prospect.icpFit} Fit?
+                                </p>
                                 <ul className="list-disc list-inside text-xs space-y-1">
-                                  {(prospect.icpFitReasons || []).map((reason, i) => (
-                                    <li key={i}>{reason}</li>
-                                  ))}
+                                  {(prospect.icpFitReasons || []).map(
+                                    (reason, i) => (
+                                      <li key={i}>{reason}</li>
+                                    ),
+                                  )}
                                 </ul>
                               </div>
                             </TooltipContent>
@@ -471,7 +813,11 @@ export default function CampaignDetailPage() {
                         {prospect.industry}
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground"
+                        >
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </TableCell>
@@ -483,9 +829,12 @@ export default function CampaignDetailPage() {
           </TabsContent>
 
           {/* Training Center Tab - NEW */}
-          <TabsContent value="training" className="h-full flex gap-6 data-[state=active]:flex pt-1">
+          <TabsContent
+            value="training"
+            className="h-full flex flex-col md:flex-row gap-6 data-[state=active]:flex pt-1"
+          >
             {/* Sidebar */}
-            <Card className="w-80 shrink-0 flex flex-col h-full overflow-hidden border-r border-border/50 shadow-none rounded-none border-y-0 border-l-0">
+            <Card className="w-full md:w-80 shrink-0 flex flex-col h-[350px] md:h-full overflow-hidden border-b md:border-b-0 md:border-r border-border/50 shadow-none rounded-none border-t-0 border-l-0">
               <div className="p-4 border-b">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -498,22 +847,29 @@ export default function CampaignDetailPage() {
                 </div>
               </div>
               <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                {trainingProspects.map(prospect => (
+                {trainingProspects.map((prospect) => (
                   <button
                     key={prospect.id}
                     onClick={() => setSelectedProspect(prospect)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${selectedProspect?.id === prospect.id
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
+                      selectedProspect?.id === prospect.id
                         ? "bg-muted"
                         : "hover:bg-muted/50"
-                      }`}
+                    }`}
                   >
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${prospect.name}`} />
+                      <AvatarImage
+                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${prospect.name}`}
+                      />
                       <AvatarFallback>{prospect.name[0]}</AvatarFallback>
                     </Avatar>
                     <div className="min-w-0">
-                      <div className="font-medium truncate">{prospect.name}</div>
-                      <div className="text-xs text-muted-foreground truncate">{prospect.title}</div>
+                      <div className="font-medium truncate">
+                        {prospect.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {prospect.title}
+                      </div>
                     </div>
                   </button>
                 ))}
@@ -521,7 +877,7 @@ export default function CampaignDetailPage() {
             </Card>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col h-full overflow-hidden rounded-lg border bg-background relative">
+            <div className="flex-1 flex flex-col min-h-0 md:h-full overflow-hidden rounded-lg border bg-background relative">
               {/* Scrollable Area */}
               <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-32">
                 {/* Alert Banner */}
@@ -530,8 +886,9 @@ export default function CampaignDetailPage() {
                   <div className="space-y-1">
                     <p className="font-medium text-sm">Training Mode</p>
                     <p className="text-sm text-blue-700/80">
-                      The prospect you are currently viewing is an example used for training this campaign.
-                      Any training you apply here will be applied to all prospects.
+                      The prospect you are currently viewing is an example used
+                      for training this campaign. Any training you apply here
+                      will be applied to all prospects.
                     </p>
                   </div>
                 </div>
@@ -541,12 +898,20 @@ export default function CampaignDetailPage() {
                   <>
                     <div className="flex items-center gap-4">
                       <Avatar className="h-16 w-16 border-2 border-background shadow-sm">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedProspect.name}`} />
-                        <AvatarFallback>{selectedProspect.name[0]}</AvatarFallback>
+                        <AvatarImage
+                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedProspect.name}`}
+                        />
+                        <AvatarFallback>
+                          {selectedProspect.name[0]}
+                        </AvatarFallback>
                       </Avatar>
                       <div>
-                        <h2 className="text-xl font-semibold">{selectedProspect.name}</h2>
-                        <p className="text-muted-foreground">{selectedProspect.title} @ {selectedProspect.company}</p>
+                        <h2 className="text-xl font-semibold">
+                          {selectedProspect.name}
+                        </h2>
+                        <p className="text-muted-foreground">
+                          {selectedProspect.title} @ {selectedProspect.company}
+                        </p>
                       </div>
                     </div>
 
@@ -561,9 +926,16 @@ export default function CampaignDetailPage() {
                         </div>
                       </CardHeader>
                       <CardContent className="pt-4 text-sm leading-relaxed space-y-4">
-                        <p>Hey {selectedProspect?.name.split(' ')[0]},</p>
-                        <p>Saw you&apos;re &quot;building for fun&quot; now - that&apos;s awesome. Reminds me of my own tinkering days.</p>
-                        <p>Ever think about connecting with others doing similar projects?</p>
+                        <p>Hey {selectedProspect?.name.split(" ")[0]},</p>
+                        <p>
+                          Saw you&apos;re &quot;building for fun&quot; now -
+                          that&apos;s awesome. Reminds me of my own tinkering
+                          days.
+                        </p>
+                        <p>
+                          Ever think about connecting with others doing similar
+                          projects?
+                        </p>
                       </CardContent>
                     </Card>
 
@@ -620,25 +992,39 @@ export default function CampaignDetailPage() {
                       <Settings className="h-4 w-4" />
                       <h2 className="font-medium text-lg">Basic Information</h2>
                     </div>
-                    <Button size="sm" variant="outline">Save</Button>
+                    <Button size="sm" variant="outline">
+                      Save
+                    </Button>
                   </div>
 
                   <div className="space-y-8">
                     {/* Campaign Name */}
                     <div className="space-y-3">
-                      <label className="text-sm font-medium">Campaign Name</label>
-                      <Input defaultValue={campaign.name} className="bg-background" />
+                      <label className="text-sm font-medium">
+                        Campaign Name
+                      </label>
+                      <Input
+                        defaultValue={campaign.name}
+                        className="bg-background"
+                      />
                     </div>
 
                     {/* Outreach Language */}
                     <div className="space-y-3">
                       <div className="space-y-1">
-                        <label className="text-sm font-medium">Outreach Language</label>
-                        <p className="text-sm text-muted-foreground">Language you&apos;d like to use for sending sequences</p>
+                        <label className="text-sm font-medium">
+                          Outreach Language
+                        </label>
+                        <p className="text-sm text-muted-foreground">
+                          Language you&apos;d like to use for sending sequences
+                        </p>
                       </div>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline" className="w-full justify-between bg-background font-normal">
+                          <Button
+                            variant="outline"
+                            className="w-full justify-between bg-background font-normal"
+                          >
                             {campaign.outreachLanguage}
                             <ChevronDown className="h-4 w-4 opacity-50" />
                           </Button>
@@ -657,7 +1043,10 @@ export default function CampaignDetailPage() {
                     <div className="flex items-center justify-between">
                       <div className="space-y-1">
                         <label className="text-sm font-medium">Autopilot</label>
-                        <p className="text-sm text-muted-foreground">Allows us to auto send messages without awaiting your approval</p>
+                        <p className="text-sm text-muted-foreground">
+                          Allows us to auto send messages without awaiting your
+                          approval
+                        </p>
                       </div>
                       <Switch checked={campaign.autopilot} />
                     </div>
@@ -667,7 +1056,9 @@ export default function CampaignDetailPage() {
                     {/* Daily Volume */}
                     <DailyVolumeSlider
                       volume={campaign.dailyVolume}
-                      onChange={(volume) => setCampaign({ ...campaign, dailyVolume: volume })}
+                      onChange={(volume) =>
+                        setCampaign({ ...campaign, dailyVolume: volume })
+                      }
                     />
 
                     {/* Sequence Timing */}
@@ -675,9 +1066,15 @@ export default function CampaignDetailPage() {
                       startTime={campaign.outreachStartTime}
                       endTime={campaign.outreachEndTime}
                       days={campaign.outreachDays}
-                      onStartTimeChange={(time) => setCampaign({ ...campaign, outreachStartTime: time })}
-                      onEndTimeChange={(time) => setCampaign({ ...campaign, outreachEndTime: time })}
-                      onDaysChange={(days) => setCampaign({ ...campaign, outreachDays: days })}
+                      onStartTimeChange={(time) =>
+                        setCampaign({ ...campaign, outreachStartTime: time })
+                      }
+                      onEndTimeChange={(time) =>
+                        setCampaign({ ...campaign, outreachEndTime: time })
+                      }
+                      onDaysChange={(days) =>
+                        setCampaign({ ...campaign, outreachDays: days })
+                      }
                     />
                   </div>
                 </Card>
@@ -689,7 +1086,10 @@ export default function CampaignDetailPage() {
                   <div className="min-h-full flex flex-col items-center py-20 px-8">
                     {/* Start Badge */}
                     <div className="relative z-10 mb-8">
-                      <Badge variant="outline" className="bg-white/80 backdrop-blur py-1.5 px-4 text-sm font-medium shadow-sm gap-2">
+                      <Badge
+                        variant="outline"
+                        className="bg-white/80 backdrop-blur py-1.5 px-4 text-sm font-medium shadow-sm gap-2"
+                      >
                         <Zap className="h-3.5 w-3.5 fill-yellow-400 text-yellow-600 border-none" />
                         Sequence Starts
                       </Badge>
@@ -709,8 +1109,12 @@ export default function CampaignDetailPage() {
                               <Sparkles className="h-5 w-5 text-muted-foreground" />
                             </div>
                             <div>
-                              <h4 className="font-medium text-sm">Connect Sequence</h4>
-                              <p className="text-xs text-muted-foreground mt-0.5">Day 1 - LinkedIn Message</p>
+                              <h4 className="font-medium text-sm">
+                                Connect Sequence
+                              </h4>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                Day 1 - LinkedIn Message
+                              </p>
                             </div>
                           </div>
                         </Card>
@@ -725,8 +1129,12 @@ export default function CampaignDetailPage() {
                               <Zap className="h-5 w-5 text-muted-foreground" />
                             </div>
                             <div>
-                              <h4 className="font-medium text-sm">Followup 1</h4>
-                              <p className="text-xs text-muted-foreground mt-0.5">Day 4 - LinkedIn Message</p>
+                              <h4 className="font-medium text-sm">
+                                Followup 1
+                              </h4>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                Day 4 - LinkedIn Message
+                              </p>
                             </div>
                           </div>
                         </Card>
@@ -741,8 +1149,12 @@ export default function CampaignDetailPage() {
                               <CornerDownRight className="h-5 w-5 text-muted-foreground" />
                             </div>
                             <div>
-                              <h4 className="font-medium text-sm">Followup 2</h4>
-                              <p className="text-xs text-muted-foreground mt-0.5">Day 7 - LinkedIn Message</p>
+                              <h4 className="font-medium text-sm">
+                                Followup 2
+                              </h4>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                Day 7 - LinkedIn Message
+                              </p>
                             </div>
                           </div>
                         </Card>
@@ -757,13 +1169,16 @@ export default function CampaignDetailPage() {
                               <CornerDownRight className="h-5 w-5 text-muted-foreground" />
                             </div>
                             <div>
-                              <h4 className="font-medium text-sm">Followup 3</h4>
-                              <p className="text-xs text-muted-foreground mt-0.5">Day 10 - LinkedIn Message</p>
+                              <h4 className="font-medium text-sm">
+                                Followup 3
+                              </h4>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                Day 10 - LinkedIn Message
+                              </p>
                             </div>
                           </div>
                         </Card>
                       </div>
-
                     </div>
                   </div>
                 </div>
@@ -772,7 +1187,10 @@ export default function CampaignDetailPage() {
           </TabsContent>
 
           {/* Info Tab - Reuse Content */}
-          <TabsContent value="info" className="space-y-4 overflow-auto h-full p-1">
+          <TabsContent
+            value="info"
+            className="space-y-4 overflow-auto h-full p-1"
+          >
             <Card>
               <CardHeader>
                 <CardTitle>Campaign Information</CardTitle>
