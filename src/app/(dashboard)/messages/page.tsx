@@ -333,8 +333,8 @@ export default function InboxPage() {
 
   return (
     <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
-      {/* Inbox Sidebar */}
-      <div className="w-56 border-r bg-background flex flex-col">
+      {/* Inbox Sidebar - Hidden on mobile */}
+      <div className="hidden md:flex w-56 border-r bg-background flex-col">
         <div className="p-3 border-b">
           <button className="w-full flex items-center justify-between px-2 py-1.5 hover:bg-muted/50 rounded-md transition-colors">
             <div className="flex items-center gap-2">
@@ -373,10 +373,10 @@ export default function InboxPage() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-background">
+      <div className="flex-1 flex flex-col overflow-hidden bg-background min-w-0">
         {/* Toolbar */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b">
-          <div className="relative w-64">
+        <div className="flex items-center gap-2 px-2 sm:px-4 py-3 border-b overflow-x-auto">
+          <div className="relative w-40 sm:w-64 shrink-0">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search messages..."
@@ -387,9 +387,9 @@ export default function InboxPage() {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 h-9">
+              <Button variant="outline" size="sm" className="gap-2 h-9 shrink-0">
                 <Zap className="h-4 w-4" />
-                Campaign
+                <span className="hidden sm:inline">Campaign</span>
                 <ChevronDown className="h-3 w-3 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
@@ -401,9 +401,9 @@ export default function InboxPage() {
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 h-9">
+              <Button variant="outline" size="sm" className="gap-2 h-9 shrink-0">
                 <SlidersHorizontal className="h-4 w-4" />
-                Status
+                <span className="hidden sm:inline">Status</span>
                 <ChevronDown className="h-3 w-3 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
@@ -418,9 +418,9 @@ export default function InboxPage() {
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 h-9">
+              <Button variant="outline" size="sm" className="gap-2 h-9 shrink-0">
                 <BarChart3 className="h-4 w-4" />
-                ICP-Fit
+                <span className="hidden lg:inline">ICP-Fit</span>
                 <ChevronDown className="h-3 w-3 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
@@ -433,9 +433,9 @@ export default function InboxPage() {
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 h-9">
+              <Button variant="outline" size="sm" className="gap-2 h-9 shrink-0">
                 <Calendar className="h-4 w-4" />
-                Date
+                <span className="hidden lg:inline">Date</span>
                 <ChevronDown className="h-3 w-3 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
@@ -447,7 +447,7 @@ export default function InboxPage() {
               <DropdownMenuItem>This month</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <div className="ml-auto flex items-center gap-1">
+          <div className="ml-auto flex items-center gap-1 shrink-0">
             <Button
               variant={isNotificationsOpen ? "secondary" : "ghost"}
               size="icon"
@@ -457,13 +457,13 @@ export default function InboxPage() {
               <Bell className="h-4 w-4" />
               <span className="absolute -top-0.5 -right-0.5 h-2 w-2 bg-orange-500 rounded-full" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8 hidden sm:flex">
               <SlidersHorizontal className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8 hidden sm:flex">
               <BarChart3 className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8 hidden sm:flex">
               <Settings2 className="h-4 w-4" />
             </Button>
           </div>
