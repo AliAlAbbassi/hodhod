@@ -57,22 +57,27 @@ import {
   Trash2,
   Settings,
   X,
+  Plus,
+  Mail,
+  BarChart3,
+  MoreHorizontal,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { DailyVolumeSlider } from "@/components/campaign-settings/daily-volume-slider";
 import { SequenceTiming } from "@/components/campaign-settings/sequence-timing";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
 // Mock campaign data
 const campaignData = {
   id: "1",
-  name: "Positive Response List (from Shubh) - Open Profiles",
+  name: "Valley",
   status: "in_progress" as "in_progress" | "paused" | "not_launched",
   type: "inmail" as const,
   createdAt: "04/01/2025",
-  totalProspects: 381,
-  reachouts: 361,
-  acceptanceRate: 100,
+  totalProspects: 531,
+  reachouts: 247,
+  acceptanceRate: 98,
   responseRate: 18,
   isTraining: false,
   prospectPoolSize: 927,
@@ -230,6 +235,7 @@ export default function CampaignDetailPage() {
   );
 
   const [selectedProspectIds, setSelectedProspectIds] = useState<Set<string>>(new Set());
+  const [showOnboarding, setShowOnboarding] = useState(true);
 
   const toggleAllProspects = () => {
     if (selectedProspectIds.size === filteredProspects.length) {
@@ -251,139 +257,199 @@ export default function CampaignDetailPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-2rem)]">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6 shrink-0">
-        <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-semibold tracking-tight">{campaign.name}</h1>
-          {campaign.status === "in_progress" ? (
-            <Badge variant="secondary" className="gap-1.5 px-3 py-1 bg-green-100 text-green-700 hover:bg-green-100">
-              <span className="h-2 w-2 rounded-full bg-green-600 animate-pulse" />
-              In Progress
-            </Badge>
-          ) : campaign.status === "paused" ? (
-            <Badge variant="secondary" className="gap-1.5 px-3 py-1 bg-orange-100 text-orange-700 hover:bg-orange-100">
-              <Pause className="h-3 w-3" />
-              Paused
-            </Badge>
-          ) : (
-            <Badge variant="secondary" className="gap-1.5 px-3 py-1">
-              {campaign.status}
-            </Badge>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" className="gap-2">
-            <RefreshCw className="h-4 w-4" />
-            Refetch Prospects
-          </Button>
-          {campaign.status === "in_progress" ? (
-            <Button variant="outline" className="gap-2" onClick={() => setCampaign({ ...campaign, status: 'paused' })}>
-              <Pause className="h-4 w-4" />
-              Pause
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
+        {/* Header with Tabs and Actions */}
+        <div className="flex items-center justify-between border-b px-1 pb-4 shrink-0">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <ArrowRight className="h-4 w-4 rotate-180" />
             </Button>
-          ) : (
-            <Button variant="outline" className="gap-2" onClick={() => setCampaign({ ...campaign, status: 'in_progress' })}>
-              <Play className="h-4 w-4" />
-              Resume
-            </Button>
-          )}
-        </div>
-      </div>
+            <TabsList className="h-auto p-0 bg-transparent border-0">
+              <TabsTrigger
+                value="overview"
+                className="rounded-none border-b-2 border-transparent px-4 py-2 text-sm font-medium data-[state=active]:border-black data-[state=active]:text-black data-[state=active]:shadow-none"
+              >
+                Overview
+              </TabsTrigger>
+              <TabsTrigger
+                value="training"
+                className="rounded-none border-b-2 border-transparent px-4 py-2 text-sm font-medium data-[state=active]:border-black data-[state=active]:text-black data-[state=active]:shadow-none"
+              >
+                Training Center
+              </TabsTrigger>
+              <TabsTrigger
+                value="settings"
+                className="rounded-none border-b-2 border-transparent px-4 py-2 text-sm font-medium data-[state=active]:border-black data-[state=active]:text-black data-[state=active]:shadow-none"
+              >
+                Settings
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-        <div className="shrink-0 mb-6 border-b">
-          <TabsList className="w-full justify-start h-auto p-0 bg-transparent rounded-none">
-            <TabsTrigger
-              value="overview"
-              className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-            >
-              Overview
-            </TabsTrigger>
-            <TabsTrigger
-              value="training"
-              className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-            >
-              Training Center
-            </TabsTrigger>
-            <TabsTrigger
-              value="settings"
-              className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-            >
-              Settings
-            </TabsTrigger>
-            <TabsTrigger
-              value="info"
-              className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-            >
-              Info
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex items-center gap-3">
+            <Badge variant="secondary" className="gap-1.5 bg-gray-100 text-gray-600 hover:bg-gray-100 font-normal">
+              <Zap className="h-3 w-3" />
+              Active <span className="text-gray-400">|</span> 1 day left
+            </Badge>
+            <Badge variant="secondary" className="gap-1.5 bg-blue-50 text-blue-600 hover:bg-blue-50 font-normal border-blue-100">
+              <Linkedin className="h-3 w-3" />
+              InMail
+            </Badge>
+
+            <div className="h-4 w-px bg-gray-200 mx-1" />
+
+            <Button variant="outline" className="gap-2 bg-white">
+              <Plus className="h-4 w-4" />
+              Add Prospects
+            </Button>
+            
+            <Button className="gap-2 bg-black text-white hover:bg-black/90">
+              <Pause className="h-4 w-4" />
+              Pause Campaign
+            </Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="h-9 w-9">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                  Campaign Actions
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="gap-2">
+                  <RefreshCw className="h-4 w-4" />
+                  Refetch Prospects
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2">
+                  <Trash2 className="h-4 w-4" />
+                  Delete Low ICP-Fits
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Onboarding Tooltip Implementation */}
+            {showOnboarding && (
+              <div className="absolute right-6 top-16 z-50 w-[300px] animate-in fade-in zoom-in-95 duration-200">
+                <div className="relative bg-white rounded-lg shadow-xl border p-4">
+                  {/* Arrow pointing up-right */}
+                  <div className="absolute -top-2 right-4 w-4 h-4 bg-white border-t border-l rotate-45" />
+                  
+                  <div className="space-y-3">
+                    <p className="text-sm leading-relaxed">
+                      Automatically score and qualify leads for ICP fit to ensure high-quality outreach to high-quality prospects. Always.
+                    </p>
+                    <div className="flex items-center justify-between pt-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setShowOnboarding(false)}
+                      >
+                        Back
+                      </Button>
+                      <div className="text-xs text-muted-foreground">8 of 10</div>
+                      <Button 
+                        size="sm" 
+                        className="bg-black text-white hover:bg-black/90"
+                        onClick={() => setShowOnboarding(false)}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex-1 min-h-0 overflow-hidden">
           {/* Overview Tab Content */}
-          <TabsContent value="overview" className="h-full overflow-auto space-y-4 p-1">
-            {/* Filters Bar */}
-            <div className="flex items-center justify-between">
-              {selectedProspectIds.size > 0 ? (
-                <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-200">
-                  <Button variant="ghost" size="sm" className="gap-2" onClick={() => setSelectedProspectIds(new Set())}>
-                    <span className="bg-primary text-primary-foreground text-xs rounded-full px-1.5 min-w-[1.25rem] h-5 flex items-center justify-center">
-                      {selectedProspectIds.size}
-                    </span>
-                    Reset
-                    <X className="h-4 w-4" />
-                  </Button>
-                  <div className="h-4 w-px bg-border mx-2" />
-                  <Button variant="outline" size="sm" className="gap-2">
-                    Export
-                  </Button>
-                  <Button variant="destructive" size="sm" className="gap-2">
-                    Delete Prospects
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="gap-2 rounded-full border-dashed">
-                    <Filter className="h-3.5 w-3.5" />
-                    Status
-                    <ChevronDown className="h-3.5 w-3.5 opacity-50" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="gap-2 rounded-full border-dashed">
-                    <Building className="h-3.5 w-3.5" />
-                    Company
-                    <ChevronDown className="h-3.5 w-3.5 opacity-50" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="gap-2 rounded-full border-dashed">
-                    <User className="h-3.5 w-3.5" />
-                    Role
-                    <ChevronDown className="h-3.5 w-3.5 opacity-50" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="gap-2 rounded-full border-dashed">
-                    <Briefcase className="h-3.5 w-3.5" />
-                    Industry
-                    <ChevronDown className="h-3.5 w-3.5 opacity-50" />
-                  </Button>
-                  <Button variant="outline" size="sm" className="gap-2 rounded-full border-dashed">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    ICP
-                    <ChevronDown className="h-3.5 w-3.5 opacity-50" />
-                  </Button>
-                </div>
-              )}
+          <TabsContent value="overview" className="h-full overflow-auto space-y-6 p-1">
+            
+            {/* Metrics Cards */}
+            <div className="grid grid-cols-3 gap-4">
+              <Card>
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
+                    <Users className="h-6 w-6 text-gray-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Total Prospects</p>
+                    <p className="text-2xl font-bold">{campaign.totalProspects}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
+                    <Mail className="h-6 w-6 text-gray-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Reachouts</p>
+                    <p className="text-2xl font-bold">{campaign.reachouts}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
+                    <BarChart3 className="h-6 w-6 text-gray-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Acceptance Rate</p>
+                    <p className="text-2xl font-bold">{campaign.acceptanceRate}%</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-              <div className="flex items-center gap-2">
-                {/* Search is hidden in the design provided but useful to keep or move */}
-                <div className="relative w-64">
+            {/* Filters Bar */}
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2 flex-1">
+                <div className="relative w-64 shrink-0">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
-                    placeholder="Search..."
+                    placeholder="Search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 h-9"
+                    className="pl-9 h-10 bg-white"
                   />
                 </div>
-                <Button variant="outline" size="sm">Export</Button>
+                
+                <div className="h-8 w-px bg-gray-200 mx-2" />
+                
+                <Button variant="outline" className="h-10 border-dashed gap-2 text-muted-foreground hover:text-foreground">
+                  <Filter className="h-4 w-4" />
+                  Status
+                  <ChevronDown className="h-3 w-3 opacity-50" />
+                </Button>
+                <Button variant="outline" className="h-10 border-dashed gap-2 text-muted-foreground hover:text-foreground">
+                  <Building className="h-4 w-4" />
+                  Company
+                  <ChevronDown className="h-3 w-3 opacity-50" />
+                </Button>
+                <Button variant="outline" className="h-10 border-dashed gap-2 text-muted-foreground hover:text-foreground">
+                  <User className="h-4 w-4" />
+                  Role
+                  <ChevronDown className="h-3 w-3 opacity-50" />
+                </Button>
+                <Button variant="outline" className="h-10 border-dashed gap-2 text-muted-foreground hover:text-foreground">
+                  <Briefcase className="h-4 w-4" />
+                  Industry
+                  <ChevronDown className="h-3 w-3 opacity-50" />
+                </Button>
+                <Button variant="outline" className="h-10 border-dashed gap-2 text-muted-foreground hover:text-foreground">
+                  <Sparkles className="h-4 w-4" />
+                  ICP Fit
+                  <ChevronDown className="h-3 w-3 opacity-50" />
+                </Button>
+              </div>
+
+              <div className="text-sm text-muted-foreground">
+                {filteredProspects.length} shown
               </div>
             </div>
 
