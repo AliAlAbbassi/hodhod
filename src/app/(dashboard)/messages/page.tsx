@@ -194,20 +194,42 @@ const categories: {
   icon: React.ElementType;
   count: number;
 }[] = [
-    { id: "inbox", label: "Messages", icon: Mail, count: 40 },
-    { id: "interested", label: "Interested", icon: Sparkles, count: 25 },
-    { id: "maybe_interested", label: "Maybe Interested", icon: HelpCircle, count: 6 },
-    { id: "not_interested", label: "Not interested", icon: ThumbsDown, count: 11 },
-    { id: "approvals", label: "Approvals", icon: CheckCircle, count: 44 },
-    { id: "scheduled", label: "Scheduled", icon: Clock, count: 25 },
-    { id: "sent", label: "Sent", icon: Send, count: 0 },
-    { id: "archived", label: "Archived", icon: Archive, count: 0 },
-  ];
+  { id: "inbox", label: "Messages", icon: Mail, count: 40 },
+  { id: "interested", label: "Interested", icon: Sparkles, count: 25 },
+  {
+    id: "maybe_interested",
+    label: "Maybe Interested",
+    icon: HelpCircle,
+    count: 6,
+  },
+  {
+    id: "not_interested",
+    label: "Not interested",
+    icon: ThumbsDown,
+    count: 11,
+  },
+  { id: "approvals", label: "Approvals", icon: CheckCircle, count: 44 },
+  { id: "scheduled", label: "Scheduled", icon: Clock, count: 25 },
+  { id: "sent", label: "Sent", icon: Send, count: 0 },
+  { id: "archived", label: "Archived", icon: Archive, count: 0 },
+];
 
 const priorityConfig: Record<Priority, { label: string; className: string }> = {
-  high: { label: "High", className: "bg-transparent border-muted-foreground/30 text-muted-foreground" },
-  medium: { label: "Medium", className: "bg-transparent border-muted-foreground/30 text-muted-foreground" },
-  low: { label: "Low", className: "bg-transparent border-muted-foreground/30 text-muted-foreground" },
+  high: {
+    label: "High",
+    className:
+      "bg-transparent border-muted-foreground/30 text-muted-foreground",
+  },
+  medium: {
+    label: "Medium",
+    className:
+      "bg-transparent border-muted-foreground/30 text-muted-foreground",
+  },
+  low: {
+    label: "Low",
+    className:
+      "bg-transparent border-muted-foreground/30 text-muted-foreground",
+  },
 };
 
 const statusConfig: Record<
@@ -250,9 +272,13 @@ const dateGroupLabels: Record<DateGroup, string> = {
 
 export default function InboxPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category>("inbox");
-  const [selectedMessages, setSelectedMessages] = useState<Set<string>>(new Set());
+  const [selectedMessages, setSelectedMessages] = useState<Set<string>>(
+    new Set(),
+  );
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(
+    null,
+  );
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
@@ -286,7 +312,7 @@ export default function InboxPage() {
       (m) =>
         !searchQuery ||
         m.sender.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.preview.toLowerCase().includes(searchQuery.toLowerCase())
+        m.preview.toLowerCase().includes(searchQuery.toLowerCase()),
     )
     .reduce(
       (acc, message) => {
@@ -296,10 +322,15 @@ export default function InboxPage() {
         acc[message.dateGroup].push(message);
         return acc;
       },
-      {} as Record<DateGroup, Message[]>
+      {} as Record<DateGroup, Message[]>,
     );
 
-  const dateGroupOrder: DateGroup[] = ["today", "yesterday", "this_week", "older"];
+  const dateGroupOrder: DateGroup[] = [
+    "today",
+    "yesterday",
+    "this_week",
+    "older",
+  ];
 
   // Flatten filtered messages for navigation
   const flatFilteredMessages = useMemo(() => {
@@ -307,12 +338,16 @@ export default function InboxPage() {
       (m) =>
         !searchQuery ||
         m.sender.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.preview.toLowerCase().includes(searchQuery.toLowerCase())
+        m.preview.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [filteredMessages, searchQuery]);
 
-  const selectedMessage = flatFilteredMessages.find((m) => m.id === selectedMessageId);
-  const currentMessageIndex = flatFilteredMessages.findIndex((m) => m.id === selectedMessageId);
+  const selectedMessage = flatFilteredMessages.find(
+    (m) => m.id === selectedMessageId,
+  );
+  const currentMessageIndex = flatFilteredMessages.findIndex(
+    (m) => m.id === selectedMessageId,
+  );
 
   const handleMessageClick = (messageId: string) => {
     setSelectedMessageId(messageId);
@@ -333,14 +368,16 @@ export default function InboxPage() {
 
   return (
     <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
-      {/* Inbox Sidebar - Hidden on mobile */}
+      {/* Messages Sidebar - Hidden on mobile */}
       <div className="hidden md:flex w-56 border-r bg-background flex-col">
         <div className="p-3 border-b">
           <button className="w-full flex items-center justify-between px-2 py-1.5 hover:bg-muted/50 rounded-md transition-colors">
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-muted-foreground" />
               <span className="font-medium">Messages</span>
-              <span className="text-muted-foreground text-sm">{categories[0].count}</span>
+              <span className="text-muted-foreground text-sm">
+                {categories[0].count}
+              </span>
             </div>
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
           </button>
@@ -354,7 +391,7 @@ export default function InboxPage() {
                 "w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors",
                 selectedCategory === category.id
                   ? "bg-muted font-medium"
-                  : "hover:bg-muted/50"
+                  : "hover:bg-muted/50",
               )}
             >
               <div className="flex items-center gap-3">
@@ -387,7 +424,11 @@ export default function InboxPage() {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 h-9 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 h-9 shrink-0"
+              >
                 <Zap className="h-4 w-4" />
                 <span className="hidden sm:inline">Campaign</span>
                 <ChevronDown className="h-3 w-3 opacity-50" />
@@ -401,7 +442,11 @@ export default function InboxPage() {
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 h-9 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 h-9 shrink-0"
+              >
                 <SlidersHorizontal className="h-4 w-4" />
                 <span className="hidden sm:inline">Status</span>
                 <ChevronDown className="h-3 w-3 opacity-50" />
@@ -418,7 +463,11 @@ export default function InboxPage() {
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 h-9 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 h-9 shrink-0"
+              >
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden lg:inline">ICP-Fit</span>
                 <ChevronDown className="h-3 w-3 opacity-50" />
@@ -433,7 +482,11 @@ export default function InboxPage() {
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 h-9 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 h-9 shrink-0"
+              >
                 <Calendar className="h-4 w-4" />
                 <span className="hidden lg:inline">Date</span>
                 <ChevronDown className="h-3 w-3 opacity-50" />
@@ -457,13 +510,25 @@ export default function InboxPage() {
               <Bell className="h-4 w-4" />
               <span className="absolute -top-0.5 -right-0.5 h-2 w-2 bg-orange-500 rounded-full" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 hidden sm:flex">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 hidden sm:flex"
+            >
               <SlidersHorizontal className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 hidden sm:flex">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 hidden sm:flex"
+            >
               <BarChart3 className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 hidden sm:flex">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 hidden sm:flex"
+            >
               <Settings2 className="h-4 w-4" />
             </Button>
           </div>
@@ -504,7 +569,9 @@ export default function InboxPage() {
                           <TableCheckbox
                             checked={selectedMessages.has(message.id)}
                             onCheckedChange={() => toggleMessage(message.id)}
-                            onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                            onClick={(e: React.MouseEvent) =>
+                              e.stopPropagation()
+                            }
                           />
                         </td>
                         <td className="w-10 py-3 pl-2">
@@ -530,7 +597,7 @@ export default function InboxPage() {
                             variant="outline"
                             className={cn(
                               "text-xs font-normal",
-                              statusConfig[message.status].className
+                              statusConfig[message.status].className,
                             )}
                           >
                             {statusConfig[message.status].dot && (
@@ -544,7 +611,7 @@ export default function InboxPage() {
                             variant="outline"
                             className={cn(
                               "text-xs font-normal gap-1",
-                              priorityConfig[message.priority].className
+                              priorityConfig[message.priority].className,
                             )}
                           >
                             <Zap className="h-3 w-3" />
@@ -567,7 +634,9 @@ export default function InboxPage() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>View conversation</DropdownMenuItem>
+                              <DropdownMenuItem>
+                                View conversation
+                              </DropdownMenuItem>
                               <DropdownMenuItem>Reply</DropdownMenuItem>
                               <DropdownMenuItem>Archive</DropdownMenuItem>
                             </DropdownMenuContent>
