@@ -269,9 +269,9 @@ export function MessageDetailSheet({
                 </div>
 
                 {/* Main content */}
-                <div className="flex-1 flex overflow-hidden">
+                <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
                     {/* Left panel - Prospect info */}
-                    <div className="w-80 border-r bg-muted/20 p-6 overflow-y-auto">
+                    <div className="w-full md:w-80 h-[35%] md:h-full border-r-0 md:border-r border-b md:border-b-0 bg-muted/20 p-5 overflow-y-auto shrink-0">
                         <div className="flex items-start gap-4 mb-6">
                             <div className="relative">
                                 <Avatar className="h-16 w-16">
@@ -407,7 +407,7 @@ export function MessageDetailSheet({
                         </div>
 
                         {/* Message thread */}
-                        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                        <div className="flex-1 overflow-y-auto p-5 space-y-6">
                             {activeTab === "Messages" && (
                                 <>
                                     {prospect.messageThread.map((msg) => (

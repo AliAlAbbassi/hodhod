@@ -412,7 +412,7 @@ export default function InboxPage() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden bg-background min-w-0">
         {/* Toolbar */}
-        <div className="flex items-center gap-2 px-2 sm:px-4 py-3 border-b overflow-x-auto">
+        <div className="flex flex-wrap items-center gap-2 px-2 sm:px-4 py-3 border-b">
           <div className="relative w-40 sm:w-64 shrink-0">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -557,7 +557,7 @@ export default function InboxPage() {
                 <div className="px-4 py-2 text-sm text-muted-foreground font-medium bg-background sticky top-0">
                   {dateGroupLabels[dateGroup]}
                 </div>
-                <table className="w-full">
+                <table className="w-full table-fixed">
                   <tbody>
                     {messagesInGroup.map((message) => (
                       <tr
@@ -582,8 +582,8 @@ export default function InboxPage() {
                             </AvatarFallback>
                           </Avatar>
                         </td>
-                        <td className="py-3 pl-3 w-40">
-                          <span className="font-medium text-sm">
+                        <td className="py-3 pl-3 w-32 sm:w-40">
+                          <span className="font-medium text-sm truncate block">
                             {message.sender.name}
                           </span>
                         </td>
@@ -592,7 +592,7 @@ export default function InboxPage() {
                             {message.preview}
                           </span>
                         </td>
-                        <td className="py-3 px-2 whitespace-nowrap">
+                        <td className="py-3 px-2 whitespace-nowrap w-[180px] hidden xl:table-cell">
                           <Badge
                             variant="outline"
                             className={cn(
@@ -606,7 +606,7 @@ export default function InboxPage() {
                             {statusConfig[message.status].label}
                           </Badge>
                         </td>
-                        <td className="py-3 px-2 whitespace-nowrap">
+                        <td className="py-3 px-2 whitespace-nowrap w-[100px] hidden lg:table-cell">
                           <Badge
                             variant="outline"
                             className={cn(
@@ -618,10 +618,10 @@ export default function InboxPage() {
                             {priorityConfig[message.priority].label}
                           </Badge>
                         </td>
-                        <td className="py-3 px-4 text-sm text-muted-foreground whitespace-nowrap">
+                        <td className="py-3 px-4 text-sm text-muted-foreground whitespace-nowrap w-[100px] hidden md:table-cell">
                           {message.date}
                         </td>
-                        <td className="py-3 pr-4">
+                        <td className="py-3 pr-4 w-12">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
@@ -654,7 +654,7 @@ export default function InboxPage() {
 
       {/* Notifications Panel */}
       {isNotificationsOpen && (
-        <div className="w-96 border-l bg-muted/30 flex flex-col overflow-hidden">
+        <div className="w-full md:w-96 border-l-0 md:border-l bg-muted/30 flex flex-col overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b bg-background">
             <h3 className="font-semibold">Notifications</h3>
             <Button
