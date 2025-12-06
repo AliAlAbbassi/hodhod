@@ -34,6 +34,7 @@ import {
   Settings2,
   Bell,
   X,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -70,6 +71,7 @@ type Message = {
   date: string;
   dateGroup: DateGroup;
   category: Category;
+  campaign: string;
 };
 
 const messages: Message[] = [
@@ -83,6 +85,7 @@ const messages: Message[] = [
     date: "12/12/23",
     dateGroup: "today",
     category: "interested",
+    campaign: "Q1 Outreach",
   },
   {
     id: "2",
@@ -93,6 +96,7 @@ const messages: Message[] = [
     date: "12/12/23",
     dateGroup: "today",
     category: "interested",
+    campaign: "Product Launch",
   },
   {
     id: "3",
@@ -103,6 +107,7 @@ const messages: Message[] = [
     date: "12/12/23",
     dateGroup: "today",
     category: "not_interested",
+    campaign: "Q1 Outreach",
   },
   {
     id: "4",
@@ -113,6 +118,7 @@ const messages: Message[] = [
     date: "12/12/23",
     dateGroup: "today",
     category: "interested",
+    campaign: "Product Launch",
   },
   {
     id: "5",
@@ -123,6 +129,7 @@ const messages: Message[] = [
     date: "12/12/23",
     dateGroup: "today",
     category: "interested",
+    campaign: "Q1 Outreach",
   },
   // Yesterday
   {
@@ -134,6 +141,7 @@ const messages: Message[] = [
     date: "12/12/23",
     dateGroup: "yesterday",
     category: "maybe_interested",
+    campaign: "Product Launch",
   },
   {
     id: "7",
@@ -144,6 +152,7 @@ const messages: Message[] = [
     date: "12/12/23",
     dateGroup: "yesterday",
     category: "interested",
+    campaign: "Q1 Outreach",
   },
   {
     id: "8",
@@ -154,6 +163,7 @@ const messages: Message[] = [
     date: "12/12/23",
     dateGroup: "yesterday",
     category: "interested",
+    campaign: "Product Launch",
   },
   {
     id: "9",
@@ -164,6 +174,7 @@ const messages: Message[] = [
     date: "12/12/23",
     dateGroup: "yesterday",
     category: "interested",
+    campaign: "Q1 Outreach",
   },
   {
     id: "10",
@@ -174,6 +185,7 @@ const messages: Message[] = [
     date: "12/12/23",
     dateGroup: "yesterday",
     category: "interested",
+    campaign: "Product Launch",
   },
   // This week
   {
@@ -185,6 +197,7 @@ const messages: Message[] = [
     date: "12/12/23",
     dateGroup: "this_week",
     category: "interested",
+    campaign: "Q1 Outreach",
   },
 ];
 
@@ -282,10 +295,43 @@ export default function InboxPage() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
-  const filteredMessages =
-    selectedCategory === "inbox"
-      ? messages
-      : messages.filter((m) => m.category === selectedCategory);
+  // Filter states
+  const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<MessageStatus | null>(
+    null,
+  );
+  const [selectedIcpFit, setSelectedIcpFit] = useState<Priority | null>(null);
+  const [selectedDateGroup, setSelectedDateGroup] = useState<DateGroup | null>(
+    null,
+  );
+
+  const filteredMessages = messages.filter((m) => {
+    // Category filter
+    if (selectedCategory !== "inbox" && m.category !== selectedCategory)
+      return false;
+
+    // Search filter
+    if (
+      searchQuery &&
+      !m.sender.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      !m.preview.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+      return false;
+
+    // Campaign filter
+    if (selectedCampaign && m.campaign !== selectedCampaign) return false;
+
+    // Status filter
+    if (selectedStatus && m.status !== selectedStatus) return false;
+
+    // ICP-Fit filter (using priority as proxy)
+    if (selectedIcpFit && m.priority !== selectedIcpFit) return false;
+
+    // Date group filter
+    if (selectedDateGroup && m.dateGroup !== selectedDateGroup) return false;
+
+    return true;
+  });
 
   const toggleMessage = (id: string) => {
     const newSelected = new Set(selectedMessages);
@@ -307,23 +353,16 @@ export default function InboxPage() {
   };
 
   // Group messages by date
-  const groupedMessages = filteredMessages
-    .filter(
-      (m) =>
-        !searchQuery ||
-        m.sender.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.preview.toLowerCase().includes(searchQuery.toLowerCase()),
-    )
-    .reduce(
-      (acc, message) => {
-        if (!acc[message.dateGroup]) {
-          acc[message.dateGroup] = [];
-        }
-        acc[message.dateGroup].push(message);
-        return acc;
-      },
-      {} as Record<DateGroup, Message[]>,
-    );
+  const groupedMessages = filteredMessages.reduce(
+    (acc, message) => {
+      if (!acc[message.dateGroup]) {
+        acc[message.dateGroup] = [];
+      }
+      acc[message.dateGroup].push(message);
+      return acc;
+    },
+    {} as Record<DateGroup, Message[]>,
+  );
 
   const dateGroupOrder: DateGroup[] = [
     "today",
@@ -334,13 +373,8 @@ export default function InboxPage() {
 
   // Flatten filtered messages for navigation
   const flatFilteredMessages = useMemo(() => {
-    return filteredMessages.filter(
-      (m) =>
-        !searchQuery ||
-        m.sender.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.preview.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-  }, [filteredMessages, searchQuery]);
+    return filteredMessages;
+  }, [filteredMessages]);
 
   const selectedMessage = flatFilteredMessages.find(
     (m) => m.id === selectedMessageId,
@@ -432,12 +466,32 @@ export default function InboxPage() {
                 <Zap className="h-4 w-4" />
                 <span className="hidden sm:inline">Campaign</span>
                 <ChevronDown className="h-3 w-3 opacity-50" />
+                {selectedCampaign && (
+                  <span className="ml-1 h-1.5 w-1.5 rounded-full bg-orange-500" />
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>All Campaigns</DropdownMenuItem>
-              <DropdownMenuItem>Q1 Outreach</DropdownMenuItem>
-              <DropdownMenuItem>Product Launch</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSelectedCampaign(null)}>
+                All Campaigns
+                {!selectedCampaign && <Check className="ml-auto h-4 w-4" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setSelectedCampaign("Q1 Outreach")}
+              >
+                Q1 Outreach
+                {selectedCampaign === "Q1 Outreach" && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setSelectedCampaign("Product Launch")}
+              >
+                Product Launch
+                {selectedCampaign === "Product Launch" && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <DropdownMenu>
@@ -450,15 +504,56 @@ export default function InboxPage() {
                 <SlidersHorizontal className="h-4 w-4" />
                 <span className="hidden sm:inline">Status</span>
                 <ChevronDown className="h-3 w-3 opacity-50" />
+                {selectedStatus && (
+                  <span className="ml-1 h-1.5 w-1.5 rounded-full bg-orange-500" />
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>All</DropdownMenuItem>
-              <DropdownMenuItem>Responded</DropdownMenuItem>
-              <DropdownMenuItem>Followup Sent</DropdownMenuItem>
-              <DropdownMenuItem>Connect Message Sent</DropdownMenuItem>
-              <DropdownMenuItem>InMail Sent</DropdownMenuItem>
-              <DropdownMenuItem>Re-Engagement Sent</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSelectedStatus(null)}>
+                All
+                {!selectedStatus && <Check className="ml-auto h-4 w-4" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setSelectedStatus("responded")}
+              >
+                Responded
+                {selectedStatus === "responded" && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setSelectedStatus("followup_sent")}
+              >
+                Followup Sent
+                {selectedStatus === "followup_sent" && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setSelectedStatus("connect_message_sent")}
+              >
+                Connect Message Sent
+                {selectedStatus === "connect_message_sent" && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setSelectedStatus("inmail_sent")}
+              >
+                InMail Sent
+                {selectedStatus === "inmail_sent" && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setSelectedStatus("re_engagement_sent")}
+              >
+                Re-Engagement Sent
+                {selectedStatus === "re_engagement_sent" && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <DropdownMenu>
@@ -471,13 +566,34 @@ export default function InboxPage() {
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden lg:inline">ICP-Fit</span>
                 <ChevronDown className="h-3 w-3 opacity-50" />
+                {selectedIcpFit && (
+                  <span className="ml-1 h-1.5 w-1.5 rounded-full bg-orange-500" />
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>All</DropdownMenuItem>
-              <DropdownMenuItem>High</DropdownMenuItem>
-              <DropdownMenuItem>Medium</DropdownMenuItem>
-              <DropdownMenuItem>Low</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSelectedIcpFit(null)}>
+                All
+                {!selectedIcpFit && <Check className="ml-auto h-4 w-4" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSelectedIcpFit("high")}>
+                High
+                {selectedIcpFit === "high" && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSelectedIcpFit("medium")}>
+                Medium
+                {selectedIcpFit === "medium" && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSelectedIcpFit("low")}>
+                Low
+                {selectedIcpFit === "low" && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <DropdownMenu>
@@ -490,14 +606,38 @@ export default function InboxPage() {
                 <Calendar className="h-4 w-4" />
                 <span className="hidden lg:inline">Date</span>
                 <ChevronDown className="h-3 w-3 opacity-50" />
+                {selectedDateGroup && (
+                  <span className="ml-1 h-1.5 w-1.5 rounded-full bg-orange-500" />
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>All time</DropdownMenuItem>
-              <DropdownMenuItem>Today</DropdownMenuItem>
-              <DropdownMenuItem>Yesterday</DropdownMenuItem>
-              <DropdownMenuItem>This week</DropdownMenuItem>
-              <DropdownMenuItem>This month</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSelectedDateGroup(null)}>
+                All time
+                {!selectedDateGroup && <Check className="ml-auto h-4 w-4" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSelectedDateGroup("today")}>
+                Today
+                {selectedDateGroup === "today" && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setSelectedDateGroup("yesterday")}
+              >
+                Yesterday
+                {selectedDateGroup === "yesterday" && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setSelectedDateGroup("this_week")}
+              >
+                This week
+                {selectedDateGroup === "this_week" && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <div className="ml-auto flex items-center gap-1 shrink-0">
@@ -554,7 +694,7 @@ export default function InboxPage() {
 
             return (
               <div key={dateGroup}>
-                <div className="px-4 py-2 text-sm text-muted-foreground font-medium bg-background sticky top-0">
+                <div className="px-4 py-2 text-sm text-muted-foreground font-medium bg-background sticky top-0 z-10 border-b">
                   {dateGroupLabels[dateGroup]}
                 </div>
                 <table className="w-full table-fixed">
