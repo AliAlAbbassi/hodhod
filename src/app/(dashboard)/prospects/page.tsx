@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { DataTable } from "@/components/data-table";
+import { DataTable } from "@/components/data-table/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TableCheckbox } from "@/components/ui/table-checkbox";
@@ -17,6 +17,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+  SheetClose,
+} from "@/components/ui/sheet";
 import {
   LineChart,
   Line,
@@ -42,6 +51,13 @@ import {
   Activity,
   Loader2,
   MoreHorizontal,
+  Tag,
+  Check,
+  Calendar,
+  Link,
+  Ban,
+  User,
+  AlertTriangle,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -50,11 +66,24 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
+import { Campaign, initialCampaigns } from "../campaigns/page";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 type IntentLevel = "hot" | "warm" | "cold";
 type ProspectStatus = "prospect_created" | "contacted" | "replied";
 type ProfilePrivacy = "open" | "closed";
+type InterestStatus = "interested" | "might_be_interested" | "not_interested" | null;
+
+type ProspectTags = {
+  humanHandover: boolean;
+  stopOutreach: boolean;
+  meetingScheduled: boolean;
+  schedulingLinkSent: boolean;
+};
 
 type Prospect = {
   id: string;
@@ -81,7 +110,8 @@ type Prospect = {
     relevance: number;
     relevanceReason: string;
   };
-  isHumanHandover: boolean;
+  interestStatus: InterestStatus;
+  tags: ProspectTags;
 };
 
 // Analytics data for the chart
@@ -133,7 +163,13 @@ const initialProspects: Prospect[] = [
       relevanceReason:
         "High relevance due to direct involvement in legal tech adoption and decision making power.",
     },
-    isHumanHandover: false,
+    interestStatus: null,
+    tags: {
+      humanHandover: false,
+      stopOutreach: false,
+      meetingScheduled: false,
+      schedulingLinkSent: false,
+    },
   },
   {
     id: "2",
@@ -160,7 +196,13 @@ const initialProspects: Prospect[] = [
       relevance: 70,
       relevanceReason: "Potential user of engineering tools.",
     },
-    isHumanHandover: false,
+    interestStatus: null,
+    tags: {
+      humanHandover: false,
+      stopOutreach: false,
+      meetingScheduled: false,
+      schedulingLinkSent: false,
+    },
   },
   {
     id: "3",
@@ -183,7 +225,13 @@ const initialProspects: Prospect[] = [
       relevance: 95,
       relevanceReason: "Direct decision maker.",
     },
-    isHumanHandover: false,
+    interestStatus: "interested",
+    tags: {
+      humanHandover: false,
+      stopOutreach: false,
+      meetingScheduled: false,
+      schedulingLinkSent: false,
+    },
   },
   {
     id: "4",
@@ -206,7 +254,13 @@ const initialProspects: Prospect[] = [
       relevance: 88,
       relevanceReason: "Key influencer in design stack.",
     },
-    isHumanHandover: false,
+    interestStatus: null,
+    tags: {
+      humanHandover: false,
+      stopOutreach: false,
+      meetingScheduled: false,
+      schedulingLinkSent: false,
+    },
   },
   {
     id: "5",
@@ -229,7 +283,13 @@ const initialProspects: Prospect[] = [
       relevance: 75,
       relevanceReason: "Technical evaluator.",
     },
-    isHumanHandover: false,
+    interestStatus: null,
+    tags: {
+      humanHandover: false,
+      stopOutreach: false,
+      meetingScheduled: false,
+      schedulingLinkSent: false,
+    },
   },
   {
     id: "6",
@@ -252,7 +312,13 @@ const initialProspects: Prospect[] = [
       relevance: 95,
       relevanceReason: "Budget holder.",
     },
-    isHumanHandover: false,
+    interestStatus: "interested",
+    tags: {
+      humanHandover: true,
+      stopOutreach: false,
+      meetingScheduled: false,
+      schedulingLinkSent: false,
+    },
   },
 ];
 
@@ -310,7 +376,13 @@ const StatusBadge = ({ status }: { status: ProspectStatus }) => {
   );
 };
 
-const ProspectNameCell = ({ prospect }: { prospect: Prospect }) => {
+const ProspectNameCell = ({
+  prospect,
+  onClick,
+}: {
+  prospect: Prospect;
+  onClick: () => void;
+}) => {
   const [open, setOpen] = useState(false);
   const initials = prospect.name
     .split(" ")
@@ -320,7 +392,7 @@ const ProspectNameCell = ({ prospect }: { prospect: Prospect }) => {
 
   return (
     <>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 group">
         <div className="relative">
           <Avatar className="h-10 w-10">
             <AvatarImage src={prospect.avatarUrl} alt={prospect.name} />
@@ -338,8 +410,13 @@ const ProspectNameCell = ({ prospect }: { prospect: Prospect }) => {
             {prospect.score}
           </div>
         </div>
-        <div className="flex flex-col">
-          <span className="font-medium">{prospect.name}</span>
+        <div
+          className="flex flex-col cursor-pointer"
+          onClick={onClick}
+        >
+          <span className="font-medium group-hover:text-primary transition-colors">
+            {prospect.name}
+          </span>
           <span className="text-sm text-muted-foreground truncate max-w-[200px]">
             {prospect.headline}
           </span>
@@ -400,20 +477,38 @@ const ProspectNameCell = ({ prospect }: { prospect: Prospect }) => {
   );
 };
 
-
-
 export default function ProspectsPage() {
   const [prospects, setProspects] = useState<Prospect[]>(initialProspects);
   const [open, setOpen] = useState(false);
   const [newProspectUrl, setNewProspectUrl] = useState("");
   const [salesNavUrl, setSalesNavUrl] = useState("");
+  const [selectedProspect, setSelectedProspect] = useState<Prospect | null>(null);
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+  const [isCampaignModalOpen, setIsCampaignModalOpen] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
 
-  const toggleHumanHandover = (prospectId: string) => {
-    setProspects(
-      prospects.map((p) =>
-        p.id === prospectId ? { ...p, isHumanHandover: !p.isHumanHandover } : p
+  const updateProspect = (id: string, updates: Partial<Prospect>) => {
+    setProspects((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
+    );
+    if (selectedProspect?.id === id) {
+      setSelectedProspect((prev) => (prev ? { ...prev, ...updates } : null));
+    }
+  };
+
+  const updateTag = (id: string, tag: keyof ProspectTags, value: boolean) => {
+    setProspects((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, tags: { ...p.tags, [tag]: value } } : p
       )
     );
+    if (selectedProspect?.id === id) {
+      setSelectedProspect((prev) =>
+        prev
+          ? { ...prev, tags: { ...prev.tags, [tag]: value } }
+          : null
+      );
+    }
   };
 
   const columns: ColumnDef<Prospect>[] = [
@@ -451,7 +546,12 @@ export default function ProspectsPage() {
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <ProspectNameCell prospect={row.original} />,
+      cell: ({ row }) => (
+        <ProspectNameCell
+          prospect={row.original}
+          onClick={() => setSelectedProspect(row.original)}
+        />
+      ),
     },
     {
       id: "company",
@@ -515,7 +615,7 @@ export default function ProspectsPage() {
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <StatusBadge status={row.original.status} />
-          {row.original.isHumanHandover && (
+          {row.original.tags.humanHandover && (
             <Badge
               variant="secondary"
               className="bg-purple-100 text-purple-700 hover:bg-purple-100 border-purple-200"
@@ -561,13 +661,8 @@ export default function ProspectsPage() {
                 Copy ID
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>View Profile</DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => toggleHumanHandover(prospect.id)}
-              >
-                {prospect.isHumanHandover
-                  ? "Remove Human Handover"
-                  : "Human Handover"}
+              <DropdownMenuItem onClick={() => setSelectedProspect(prospect)}>
+                View Details
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -601,12 +696,42 @@ export default function ProspectsPage() {
         relevance: 50,
         relevanceReason: "Pending analysis...",
       },
-      isHumanHandover: false,
+      interestStatus: null,
+      tags: {
+        humanHandover: false,
+        stopOutreach: false,
+        meetingScheduled: false,
+        schedulingLinkSent: false,
+      },
     };
 
     setProspects([newProspect, ...prospects]);
     setNewProspectUrl("");
     setOpen(false);
+  };
+
+  const selectedProspectIds = Object.keys(rowSelection).filter(
+    (key) => rowSelection[key]
+  );
+  const selectedProspects = prospects.filter((_, index) => rowSelection[index]);
+
+  const openProfileCount = selectedProspects.filter(
+    (p) => p.profilePrivacy === "open"
+  ).length;
+  const closedProfileCount = selectedProspects.filter(
+    (p) => p.profilePrivacy === "closed"
+  ).length;
+
+  const showPrivacyWarning =
+    selectedCampaign &&
+    ((selectedCampaign.type === "messaging" && openProfileCount > 0) ||
+      (selectedCampaign.type === "inmail" && closedProfileCount > 0));
+
+  const handleAddToCampaign = () => {
+    // Logic to add prospects to campaign would go here
+    setRowSelection({});
+    setIsCampaignModalOpen(false);
+    setSelectedCampaign(null);
   };
 
   return (
@@ -635,6 +760,16 @@ export default function ProspectsPage() {
             <span className="h-2 w-2 rounded-full bg-yellow-500" />
             No campaign created yet
           </div>
+          {selectedProspectIds.length > 0 && (
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => setIsCampaignModalOpen(true)}
+            >
+              <Plus className="h-4 w-4" />
+              Add to Campaign ({selectedProspectIds.length})
+            </Button>
+          )}
           <Modal open={open} onOpenChange={setOpen}>
             <ModalTrigger asChild>
               <Button className="gap-2">
@@ -800,44 +935,287 @@ export default function ProspectsPage() {
                   <Line
                     type="monotone"
                     dataKey="uniqueVisitors"
-                    name="Unique Visitors"
                     stroke="#22c55e"
                     strokeWidth={2}
-                    dot={{ fill: "#22c55e", strokeWidth: 2, r: 4 }}
+                    dot={false}
                   />
                   <Line
                     type="monotone"
                     dataKey="linkedinResolved"
-                    name="LinkedIn Resolved"
                     stroke="#fb923c"
                     strokeWidth={2}
-                    dot={{ fill: "#fb923c", strokeWidth: 2, r: 4 }}
+                    dot={false}
                   />
                 </LineChart>
               </ResponsiveContainer>
-            </div>
-
-            {/* Export button */}
-            <div className="flex justify-end mt-4">
-              <Button variant="outline" size="sm" className="gap-2">
-                <Download className="h-4 w-4" />
-                Export
-              </Button>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Data Table */}
-      <DataTable columns={columns} data={prospects} showPagination={false} />
+      <DataTable
+        columns={columns}
+        data={prospects}
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
+      />
 
-      {/* Loading indicator */}
-      <div className="flex justify-center py-4">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span>Loading</span>
-        </div>
-      </div>
+      <Sheet
+        open={!!selectedProspect}
+        onOpenChange={(open) => !open && setSelectedProspect(null)}
+      >
+        <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
+          {selectedProspect && (
+            <div className="space-y-8">
+              <SheetHeader>
+                <div className="flex items-start gap-4">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage
+                      src={selectedProspect.avatarUrl}
+                      alt={selectedProspect.name}
+                    />
+                    <AvatarFallback className="text-lg">
+                      {selectedProspect.name.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="space-y-1">
+                    <SheetTitle className="text-2xl">
+                      {selectedProspect.name}
+                    </SheetTitle>
+                    <SheetDescription className="text-base">
+                      {selectedProspect.role} at{" "}
+                      {selectedProspect.company.name}
+                    </SheetDescription>
+                  </div>
+                </div>
+              </SheetHeader>
+
+              <div className="space-y-8">
+                {/* Tagging Section */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Tag className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Tagged as
+                    </span>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 gap-2 ml-2"
+                        >
+                          {selectedProspect.interestStatus
+                            ? selectedProspect.interestStatus
+                              .replace(/_/g, " ")
+                              .replace(/\b\w/g, (l) => l.toUpperCase())
+                            : "Not Tagged Yet"}
+                          <ChevronDown className="h-3 w-3 opacity-50" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-[240px]">
+                        <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                          Interest Level
+                        </DropdownMenuLabel>
+                        <DropdownMenuRadioGroup
+                          value={selectedProspect.interestStatus || ""}
+                          onValueChange={(value) =>
+                            updateProspect(selectedProspect.id, {
+                              interestStatus: value as InterestStatus,
+                            })
+                          }
+                        >
+                          <DropdownMenuRadioItem value="interested">
+                            Interested
+                          </DropdownMenuRadioItem>
+                          <DropdownMenuRadioItem value="might_be_interested">
+                            Might be interested
+                          </DropdownMenuRadioItem>
+                          <DropdownMenuRadioItem value="not_interested">
+                            Not interested
+                          </DropdownMenuRadioItem>
+                        </DropdownMenuRadioGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuCheckboxItem
+                          checked={selectedProspect.tags.humanHandover}
+                          onCheckedChange={(checked) =>
+                            updateTag(
+                              selectedProspect.id,
+                              "humanHandover",
+                              checked
+                            )
+                          }
+                        >
+                          <User className="mr-2 h-4 w-4" />
+                          Human Handover
+                        </DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem
+                          checked={selectedProspect.tags.stopOutreach}
+                          onCheckedChange={(checked) =>
+                            updateTag(
+                              selectedProspect.id,
+                              "stopOutreach",
+                              checked
+                            )
+                          }
+                        >
+                          <Ban className="mr-2 h-4 w-4" />
+                          Stop Outreach
+                        </DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem
+                          checked={selectedProspect.tags.meetingScheduled}
+                          onCheckedChange={(checked) =>
+                            updateTag(
+                              selectedProspect.id,
+                              "meetingScheduled",
+                              checked
+                            )
+                          }
+                        >
+                          <Calendar className="mr-2 h-4 w-4" />
+                          Meeting Scheduled
+                        </DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem
+                          checked={selectedProspect.tags.schedulingLinkSent}
+                          onCheckedChange={(checked) =>
+                            updateTag(
+                              selectedProspect.id,
+                              "schedulingLinkSent",
+                              checked
+                            )
+                          }
+                        >
+                          <Link className="mr-2 h-4 w-4" />
+                          Scheduling Link Sent
+                        </DropdownMenuCheckboxItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  <div className="flex flex-wrap gap-2 pl-8">
+                    {selectedProspect.tags.humanHandover && (
+                      <Badge
+                        variant="secondary"
+                        className="bg-purple-100 text-purple-700 hover:bg-purple-100 border-purple-200"
+                      >
+                        Human Handover
+                      </Badge>
+                    )}
+                    {selectedProspect.tags.stopOutreach && (
+                      <Badge variant="destructive">Stop Outreach</Badge>
+                    )}
+                    {selectedProspect.tags.meetingScheduled && (
+                      <Badge
+                        variant="secondary"
+                        className="bg-green-100 text-green-700 hover:bg-green-100 border-green-200"
+                      >
+                        Meeting Scheduled
+                      </Badge>
+                    )}
+                    {selectedProspect.tags.schedulingLinkSent && (
+                      <Badge variant="outline">Link Sent</Badge>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-1.5">
+                    <span className="text-sm text-muted-foreground">
+                      Location
+                    </span>
+                    <p className="font-medium">San Francisco, CA</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <span className="text-sm text-muted-foreground">
+                      Industry
+                    </span>
+                    <p className="font-medium">Software Development</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <span className="text-sm text-muted-foreground">
+                      Employees
+                    </span>
+                    <p className="font-medium">1,000 - 5,000</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <span className="text-sm text-muted-foreground">
+                      Revenue
+                    </span>
+                    <p className="font-medium">$100M - $500M</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="font-semibold">About</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Experienced leader with a demonstrated history of working in
+                    the computer software industry. Skilled in Sales, Go-to-market
+                    Strategy, and Strategic Partnerships.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      <Modal open={isCampaignModalOpen} onOpenChange={setIsCampaignModalOpen}>
+        <ModalContent className="sm:max-w-[500px]">
+          <ModalHeader>
+            <ModalTitle>Add to Campaign</ModalTitle>
+          </ModalHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Select Campaign</label>
+              <div className="grid gap-2">
+                {initialCampaigns
+                  .filter((c) => c.status === "in_progress")
+                  .map((campaign) => (
+                    <div
+                      key={campaign.id}
+                      className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors ${selectedCampaign?.id === campaign.id
+                          ? "border-primary bg-primary/5"
+                          : "hover:bg-muted/50"
+                        }`}
+                      onClick={() => setSelectedCampaign(campaign)}
+                    >
+                      <div className="space-y-1">
+                        <p className="font-medium text-sm">{campaign.name}</p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span className="capitalize">{campaign.type}</span>
+                          <span>•</span>
+                          <span>{campaign.totalProspects} prospects</span>
+                        </div>
+                      </div>
+                      {selectedCampaign?.id === campaign.id && (
+                        <Check className="h-4 w-4 text-primary" />
+                      )}
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {showPrivacyWarning && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Compatibility Warning</AlertTitle>
+                <AlertDescription>
+                  {selectedCampaign?.type === "messaging"
+                    ? `You are adding ${openProfileCount} "Open" profile(s) to a Messaging campaign. These should typically go to InMail campaigns.`
+                    : `You are adding ${closedProfileCount} "Closed" profile(s) to an InMail campaign. These should typically go to Messaging campaigns.`}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <Button
+              className="w-full"
+              disabled={!selectedCampaign}
+              onClick={handleAddToCampaign}
+            >
+              Add {selectedProspectIds.length} Prospect{selectedProspectIds.length !== 1 && "s"}
+            </Button>
+          </div>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
